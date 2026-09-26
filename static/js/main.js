@@ -49,15 +49,52 @@ function fxXP(n){
  const d=document.createElement('div');d.className='xp-float';d.textContent='+'+n+' XP';
  d.style.left=(30+Math.random()*40)+'vw';document.body.appendChild(d);setTimeout(()=>d.remove(),1400);
 }
-let _AC=null;
-function sfx(kind){
+let _AC=null,_master=null;
+function isMuted(){return localStorage.getItem('fp_mute')==='1'}
+function toggleMute(){localStorage.setItem('fp_mute',isMuted()?'0':'1');updMuteBtn();if(!isMuted())sfx('click')}
+function updMuteBtn(){const b=document.getElementById('muteBtn');if(b)b.textContent=isMuted()?'🔇':'🔊'}
+function ac(){
+ if(isMuted())return null;
  try{
   _AC=_AC||new (window.AudioContext||window.webkitAudioContext)();
-  const o=_AC.createOscillator(),g=_AC.createGain();o.connect(g);g.connect(_AC.destination);
-  const now=_AC.currentTime;
-  if(kind==='good'){o.frequency.setValueAtTime(660,now);o.frequency.setValueAtTime(880,now+.09);o.frequency.setValueAtTime(1320,now+.18);g.gain.setValueAtTime(.12,now);g.gain.exponentialRampToValueAtTime(.001,now+.4);o.start(now);o.stop(now+.42)}
-  else if(kind==='bad'){o.type='sawtooth';o.frequency.setValueAtTime(220,now);o.frequency.linearRampToValueAtTime(110,now+.3);g.gain.setValueAtTime(.1,now);g.gain.exponentialRampToValueAtTime(.001,now+.32);o.start(now);o.stop(now+.34)}
-  else{o.frequency.setValueAtTime(523,now);o.frequency.setValueAtTime(659,now+.1);o.frequency.setValueAtTime(784,now+.2);o.frequency.setValueAtTime(1046,now+.3);g.gain.setValueAtTime(.12,now);g.gain.exponentialRampToValueAtTime(.001,now+.6);o.start(now);o.stop(now+.62)}
+  if(_AC.state==='suspended')_AC.resume();
+  if(!_master){_master=_AC.createGain();_master.gain.value=0.5;_master.connect(_AC.destination)}
+  return _AC;
+ }catch(e){return null}
+}
+function tone(f0,f1,dur,type,vol,delay){
+ const a=ac();if(!a)return;const t=a.currentTime+(delay||0);
+ const o=a.createOscillator(),g=a.createGain();
+ o.type=type||'sine';o.frequency.setValueAtTime(f0,t);
+ if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(30,f1),t+dur);
+ g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.2,t+0.015);
+ g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+ o.connect(g);g.connect(_master);o.start(t);o.stop(t+dur+0.05);
+}
+function noiseHit(dur,vol,lp){
+ const a=ac();if(!a)return;const t=a.currentTime;
+ const len=Math.floor(a.sampleRate*dur),buf=a.createBuffer(1,len,a.sampleRate),ch=buf.getChannelData(0);
+ for(let k=0;k<len;k++)ch[k]=(Math.random()*2-1)*(1-k/len);
+ const s=a.createBufferSource();s.buffer=buf;
+ const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=lp||800;
+ const g=a.createGain();g.gain.value=vol||0.3;
+ s.connect(f);f.connect(g);g.connect(_master);s.start(t);
+}
+// Game voices: jump=whoosh, coin=ding, hit=thud, swipe, count, fanfare
+function sfx(kind){
+ if(isMuted())return;
+ try{
+  if(kind==='jump'){tone(280,720,0.22,'sine',0.22);noiseHit(0.15,0.08,2500)}
+  else if(kind==='coin'){tone(1318,1318,0.09,'square',0.10);tone(1760,1760,0.16,'square',0.10,0.07)}
+  else if(kind==='hit'){tone(160,55,0.3,'sawtooth',0.28);noiseHit(0.25,0.3,500)}
+  else if(kind==='swipe'){tone(500,900,0.12,'triangle',0.15)}
+  else if(kind==='count'){tone(880,880,0.08,'square',0.12)}
+  else if(kind==='go'){tone(880,880,0.1,'square',0.14);tone(1320,1320,0.25,'square',0.14,0.1)}
+  else if(kind==='click'){tone(700,700,0.06,'triangle',0.12)}
+  else if(kind==='combo'){tone(660,660,0.08,'square',0.12);tone(880,880,0.08,'square',0.12,0.07);tone(1174,1174,0.14,'square',0.12,0.14)}
+  else if(kind==='good'){tone(523,523,0.1,'triangle',0.18);tone(659,659,0.1,'triangle',0.18,0.09);tone(784,784,0.18,'triangle',0.18,0.18)}
+  else if(kind==='bad'){tone(220,110,0.3,'sawtooth',0.2);noiseHit(0.2,0.15,600)}
+  else{tone(523,523,0.12,'triangle',0.2);tone(659,659,0.12,'triangle',0.2,0.1);tone(784,784,0.12,'triangle',0.2,0.2);tone(1046,1046,0.3,'triangle',0.22,0.3);noiseHit(0.4,0.06,4000)}
  }catch(e){}
 }
 function openAvatar(){
@@ -140,4 +177,4 @@ window.addEventListener('load',()=>{
 });
 document.addEventListener('DOMContentLoaded',()=>{bindReveals();bindCounters()});
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/static/sw.js').catch(()=>{})}
-renderXP();
+renderXP();updMuteBtn();

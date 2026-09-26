@@ -34,12 +34,12 @@ function afterLangChange(){memStatic()}
 memStatic();
 function flipM(el){
  if(lockM||el.classList.contains('flip'))return;
- el.classList.add('flip');sfx('good');
+ el.classList.add('flip');sfx('click');
  if(!first){first=el;return}
  moves++;lockM=true;
  if(first.dataset.id===el.dataset.id){
   pairs++;el.classList.add('match-burst');first.classList.add('match-burst');
-  confetti(25);first=null;lockM=false;updM();say('Jodi mil gayi! 🧠 +style!');
+  confetti(25);sfx('coin');first=null;lockM=false;updM();say('Jodi mil gayi! 🧠 +style!');
   if(pairs===6)winM();
  }
  else{let a=first;first=null;setTimeout(()=>{a.classList.remove('flip','match-burst');el.classList.remove('flip','match-burst');lockM=false},1200);updM()}

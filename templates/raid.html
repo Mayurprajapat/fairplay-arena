@@ -102,17 +102,17 @@ function raidTap(idx){
  const cell=document.getElementById('rc'+idx);
  if(!cell||!cell.dataset.busy){
   RD.combo=0;updRaid();
-  raidMsg(hi?'❌ खाली जगह! ध्यान से!':'❌ Empty! Focus!',false);sfx('bad');return;
+  raidMsg(hi?'❌ खाली जगह! ध्यान से!':'❌ Empty! Focus!',false);sfx('click');return;
  }
  const banned=cell.dataset.banned==='1';
  cell.dataset.busy='';cell.textContent='';cell.classList.remove('card-enter');
  if(banned){
   RD.combo++;RD.best=Math.max(RD.best,RD.combo);
   let pts=5+(RD.combo>=3?3:0);
-  RD.score+=pts;confetti(20);sfx('good');
+  RD.score+=pts;confetti(20);sfx(RD.combo>=3?'combo':'coin');
   raidMsg((hi?'✅ पकड़ा! +':'✅ Busted! +')+pts+(RD.combo>=3?(hi?' (कॉम्बो!)':' (combo!)'):''),true);
  }else{
-  RD.score=Math.max(0,RD.score-3);RD.combo=0;sfx('bad');
+  RD.score=Math.max(0,RD.score-3);RD.combo=0;sfx('hit');
   cell.classList.add('shake');setTimeout(function(){cell.classList.remove('shake')},400);
   raidMsg(hi?'❌ अरे! ये तो साफ खाना था! -3':'❌ Oops! That was clean food! -3',false);
  }
