@@ -88,11 +88,53 @@ function installPWA(){
  else alert('📲 To make APK-like app:\n1. Chrome menu → Add to Home Screen / Install\n2. For real APK: upload this site link on PWABuilder.com → Android APK download!\nThis works like a mobile app.');
 }
 (function particles(){
- const c=document.getElementById('particles');if(!c)return;const x=c.getContext('2d');let W,H,P=[];
- function rs(){W=c.width=innerWidth;H=c.height=innerHeight}
+ const c=document.getElementById('particles');if(!c)return;const x=c.getContext('2d');let W,H,P=[],run=true;
+ const N=(innerWidth<768)?34:64; // fewer on mobile = 60fps
+ function rs(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;c.width=W*d;c.height=H*d;c.style.width=W+'px';c.style.height=H+'px';x.setTransform(d,0,0,d,0,0)}
  rs();addEventListener('resize',rs);
- for(let i=0;i<70;i++)P.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+1,s:Math.random()*.6+.2,o:Math.random()*.6+.2});
- (function loop(){x.clearRect(0,0,W,H);P.forEach(p=>{p.y-=p.s;if(p.y<0)p.y=H;x.beginPath();x.arc(p.x,p.y,p.r,0,7);const gold=p.x%3<1;x.fillStyle=gold?`rgba(255,210,63,${p.o*.5})`:`rgba(0,230,118,${p.o*.45})`;x.fill()});requestAnimationFrame(loop)})();
+ document.addEventListener('visibilitychange',()=>{run=!document.hidden;if(run)requestAnimationFrame(loop)});
+ for(let i=0;i<N;i++)P.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+1,s:Math.random()*.6+.2,o:Math.random()*.6+.2});
+ let last=0;
+ function loop(t){if(!run)return;if(t-last<33){requestAnimationFrame(loop);return}last=t; // ~30fps cap, still silky
+  x.clearRect(0,0,W,H);P.forEach(p=>{p.y-=p.s;if(p.y<0)p.y=H;x.beginPath();x.arc(p.x,p.y,p.r,0,7);const gold=p.x%3<1;x.fillStyle=gold?`rgba(255,210,63,${p.o*.5})`:`rgba(0,230,118,${p.o*.45})`;x.fill()});requestAnimationFrame(loop)}
+ requestAnimationFrame(loop);
 })();
+// ---- butter-smooth navigation: View Transitions + hover prefetch ----
+document.addEventListener('click',e=>{
+ const a=e.target.closest('a[href]');
+ if(!a||a.target==='_blank')return;
+ const u=new URL(a.href,location.href);
+ if(u.origin!==location.origin||u.pathname===location.pathname)return;
+ e.preventDefault();
+ const go=()=>{location.href=a.href};
+ if(document.startViewTransition){document.startViewTransition(go)}else{go()}
+});
+(function prefetch(){
+ const seen=new Set();
+ document.addEventListener('pointerover',e=>{
+  const a=e.target.closest('a[href]');if(!a)return;
+  const u=new URL(a.href,location.href);
+  if(u.origin!==location.origin||seen.has(u.pathname))return;
+  seen.add(u.pathname);
+  const l=document.createElement('link');l.rel='prefetch';l.href=u.pathname;document.head.appendChild(l);
+ },{passive:true});
+})();
+// ---- scroll reveal ----
+const _io=('IntersectionObserver' in window)?new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');_io.unobserve(en.target)}})},{threshold:.12,rootMargin:'0px 0px -30px 0px'}):null;
+function bindReveals(){document.querySelectorAll('.reveal:not(.in)').forEach(el=>{if(_io)_io.observe(el);else el.classList.add('in')})}
+// ---- animated counters ----
+function bindCounters(){
+ document.querySelectorAll('[data-count]:not([data-done])').forEach(el=>{
+  el.dataset.done='1';const end=parseFloat(el.dataset.count);const t0=performance.now(),D=1100;
+  (function tick(t){const p=Math.min(1,(t-t0)/D),e=1-Math.pow(1-p,3);
+   el.textContent=Math.round(end*e)+(el.dataset.suffix||'');
+   if(p<1)requestAnimationFrame(tick)})(t0);
+ });
+}
+window.addEventListener('load',()=>{
+ setTimeout(()=>{const l=document.getElementById('loader');if(l)l.classList.add('hide')},350);
+ bindReveals();bindCounters();
+});
+document.addEventListener('DOMContentLoaded',()=>{bindReveals();bindCounters()});
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/static/sw.js').catch(()=>{})}
 renderXP();

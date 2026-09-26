@@ -83,5 +83,41 @@ body{background:#080e2a;color:#eef2ff;font-family:'Inter',system-ui,sans-serif;o
 @keyframes podiumGlow{from{box-shadow:0 0 15px rgba(255,210,63,.3)}to{box-shadow:0 0 45px rgba(255,210,63,.75)}}
 .wiggle{animation:wiggle 2.5s ease-in-out infinite}
 @keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+/* ===== BUTTER-SMOOTH PACK ===== */
+html{scroll-behavior:smooth}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+main{animation:pageIn .45s cubic-bezier(.2,.8,.3,1)}
+@keyframes pageIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
+/* branded loader */
+#loader{position:fixed;inset:0;z-index:100;background:#080e2a;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;transition:opacity .45s ease,visibility .45s}
+#loader.hide{opacity:0;visibility:hidden}
+#loader .ring{width:64px;height:64px;border-radius:50%;border:4px solid rgba(255,255,255,.12);border-top-color:#ffd23f;border-right-color:#ff7a1a;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loader .bar{width:180px;height:5px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+#loader .bar i{display:block;height:100%;width:40%;border-radius:99px;background:linear-gradient(90deg,#ffd23f,#ff7a1a,#00e676);animation:load 1.1s ease-in-out infinite}
+@keyframes load{0%{transform:translateX(-100%)}100%{transform:translateX(450%)}}
+/* scroll reveal */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .6s cubic-bezier(.2,.8,.3,1),transform .6s cubic-bezier(.2,.8,.3,1)}
+.reveal.in{opacity:1;transform:none}
+/* skeleton shimmer for async lists */
+.skel{position:relative;overflow:hidden;background:rgba(255,255,255,.07);border-radius:1rem;min-height:88px}
+.skel::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.14) 50%,transparent 70%);animation:shimmer 1.3s infinite}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+/* touch + press feedback (GPU only) */
+a,.btn-champ,.btn-green,.btn-neon,button{-webkit-tap-highlight-color:transparent}
+.btn-champ:active,.btn-green:active,.btn-neon:active,.glass:active{transform:scale(.96)}
+.card-hover,.opt-btn,.news-card{will-change:transform}
+/* buttery progress + bars */
+.xp-fill,#stBar,#heroBar,#vilBar,#dnBar,#bar{transition:width .6s cubic-bezier(.2,.8,.3,1)}
+/* ticker uses GPU transform already; keep pause on hover */
+.ticker:hover{animation-play-state:paused}
+/* focus visibility for keyboard */
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #ffd23f;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+ html{scroll-behavior:auto}
+ .reveal{opacity:1;transform:none}
+}
 @media(max-width:768px){.nav-desktop{display:none}}
 @media(min-width:769px){.nav-mobile{display:none}}
