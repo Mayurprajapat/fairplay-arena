@@ -19,7 +19,7 @@ export default function Results({ result, save, go, speech, voiceLang = "hi" }) 
   useEffect(() => {
     sfx.victory();
     if (great) sfx.crowd();
-    speech.speak(L.final(correct, total, earned), { lang: voiceLang });
+    speech.speak(L.final(correct, total, earned), { lang: voiceLang, preset: "host" });
     return () => speech.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

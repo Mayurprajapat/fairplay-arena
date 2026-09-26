@@ -12,7 +12,7 @@ export default function Intro({ save, setName, go, speech, voiceLang = "hi", onL
   const [hostState, setHostState] = useState("speaking");
 
   useEffect(() => {
-    speech.speak(L.intro, { lang: voiceLang, onend: () => setHostState("excited") });
+    speech.speak(L.intro, { lang: voiceLang, preset: "host", onend: () => setHostState("excited") });
     setHostState("speaking");
     return () => speech.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps

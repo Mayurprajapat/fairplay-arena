@@ -1,6 +1,7 @@
 // Host voice lines — English + Hindi (original lines, KBC-style feel)
 export const LINES = {
   en: {
+    opt: "Option",
     welcome:
       "Welcome to Anti-Doping Champion. Your knowledge of clean sport is about to be tested. Are you ready?",
     intro:
@@ -21,6 +22,7 @@ export const LINES = {
       `Congratulations! You have completed the Anti-Doping Champion challenge. ${c} correct out of ${t}, earning ${e} Fair Play Points.`,
   },
   hi: {
+    opt: "विकल्प",
     welcome:
       "एंटी डोपिंग चैंपियन में आपका स्वागत है। स्वच्छ खेल के आपके ज्ञान की परीक्षा होने वाली है। क्या आप तैयार हैं?",
     intro:

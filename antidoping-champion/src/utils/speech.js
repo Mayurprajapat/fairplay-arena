@@ -38,8 +38,8 @@ export function speakOnce(text, opts = {}) {
     try {
       u.lang = v?.lang || (lang === "hi" ? "hi-IN" : "en-IN");
     } catch { /* noop */ }
-    u.rate = opts.rate ?? (lang === "hi" ? 0.95 : 0.98);
-    u.pitch = opts.pitch ?? 1.02;
+    u.rate = opts.rate ?? (opts.preset === "host" ? (lang === "hi" ? 0.88 : 0.92) : lang === "hi" ? 0.95 : 0.98);
+    u.pitch = opts.pitch ?? (opts.preset === "host" ? 0.7 : 1.02);
     u.onend = opts.onend;
     window.speechSynthesis.speak(u);
     return true;

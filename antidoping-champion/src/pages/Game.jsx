@@ -41,9 +41,11 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
   const timeUsed = 30 - seconds;
 
   const speakQ = useCallback(
-    (qq) => {
+    (qq, map) => {
       setHost("speaking");
-      speech.speak(`${L.nextQ} ${qq.question}`, { lang: voiceLang, onend: () => setHost("thinking") });
+      // Host reads the question + all four options aloud (KBC-style, original voice)
+      const opts = map.options.map((t, i) => `${L.opt} ${LETTERS[i]}: ${t}.`).join(" ");
+      speech.speak(`${L.nextQ} ${qq.question} ${opts}`, { lang: voiceLang, preset: "host", onend: () => setHost("thinking") });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [speech, voiceLang]
@@ -51,7 +53,8 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
 
   // present question
   useEffect(() => {
-    setMapping(shuffleOptions(questions[qi]));
+    const m = shuffleOptions(questions[qi]);
+    setMapping(m);
     setSelected(null);
     setPhase("selecting");
     setEliminated([]);
@@ -60,7 +63,7 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
     setShowExpert(false);
     setSeconds(30);
     sfx.transition();
-    speakQ(questions[qi]);
+    speakQ(questions[qi], m);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qi]);
 
@@ -104,13 +107,13 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
       sfx.correct();
       sfx.crowd();
       setBursts((b) => b + 1);
-      speech.speak(`${pickLine(L.correct, qi)} Plus ${q.ladderPoints} Fair Play Points.`, { lang: voiceLang });
+      speech.speak(`${pickLine(L.correct, qi)} Plus ${q.ladderPoints} Fair Play Points.`, { lang: voiceLang, preset: "host" });
     } else if (timedOut) {
       sfx.timeout();
-      speech.speak(L.timeout, { lang: voiceLang });
+      speech.speak(L.timeout, { lang: voiceLang, preset: "host" });
     } else {
       sfx.wrong();
-      speech.speak(pickLine(L.wrong, qi), { lang: voiceLang });
+      speech.speak(pickLine(L.wrong, qi), { lang: voiceLang, preset: "host" });
     }
     recordAnswer(isCorrect);
     // live achievement check (streak / speed)
@@ -149,7 +152,7 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
     sfx.lifeline();
     sfx.reveal();
     setHost("lifeline");
-    speech.speak(`${L.lifeline} ${id === "advice" ? q.athleteHint : id === "expert" ? q.expertHint : ""}`, { lang: voiceLang });
+    speech.speak(`${L.lifeline} ${id === "advice" ? q.athleteHint : id === "expert" ? q.expertHint : ""}`, { lang: voiceLang, preset: "host" });
     setUsed((u) => [...u, id]);
     stats.current.lifelines += 1;
     if (id === "fifty") {
@@ -208,7 +211,7 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
         <PointsDisplay value={totalFppLive} />
         <div className="flex items-center gap-2 md:gap-3">
           <Timer secondsLeft={seconds} running={phase === "selecting"} />
-          <VoiceControls speech={speech} onReplayText={`${L.nextQ} ${q.question}`} lang={voiceLang} onLang={onLang} />
+          <VoiceControls speech={speech} onReplayText={`${L.nextQ} ${q.question} ${mapping.options.map((t, i) => `${L.opt} ${LETTERS[i]}: ${t}.`).join(" ")}`} lang={voiceLang} onLang={onLang} />
         </div>
       </div>
       <div className="h-1.5 rounded-full bg-white/10 overflow-hidden mt-2">
@@ -237,6 +240,7 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
             onSelect={(i) => {
               if (phase !== "selecting") return;
               sfx.select();
+              speech.stop();
               setSelected(i);
             }}
           />

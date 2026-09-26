@@ -14,7 +14,7 @@ export default function Home({ save, go, speech }) {
 
   const start = () => {
     sfx.start();
-    speech.speak(L.welcome, { lang: save.voiceLang || "hi" });
+    speech.speak(L.welcome, { lang: save.voiceLang || "hi", preset: "host" });
     go("intro");
   };
 
