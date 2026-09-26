@@ -1,35 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Learn Lab{% endblock %}
 {% block content %}
-<h1 class="font-game font-black text-3xl md:text-4xl">📚 LEARN <span class="neon-text">LAB</span></h1>
-<p class="text-gray-400 mt-1">6 missions • 5 minutes each • then test yourself in games. Click "Mark Done +10 XP" to grow!</p>
+<h1 class="font-game font-black text-3xl md:text-4xl">📚 <span id="learnTitle">LEARN LAB</span></h1>
+<p class="text-gray-400 mt-1" id="learnSub">6 missions • 5 minutes each • then test yourself in games. Click "Mark Done +10 XP" to grow!</p>
 <div id="mods" class="grid md:grid-cols-2 gap-4 mt-6"></div>
 <script>
 const MODS=[
- {icon:"📜",t:"1. What is Doping?",d:"WADA Code, spirit of sport, 11 rule violations in simple words.",body:"Doping = breaking any of 11 Anti-Doping Rule Violations (ADRVs): presence of banned drug, using/attempting, refusing test, tampering, trafficking, assisting others. <b>Spirit of sport</b> = ethics, health, fair play, honesty. WADA Code applies worldwide; NADA enforces it in India."},
- {icon:"🚫",t:"2. Prohibited List 2025",d:"S1-S9 + M1-M3 + P1 explained with examples.",body:"<b>Always banned:</b> S1 Steroids, S2 Hormones (EPO/hGH), S4 Modulators (Meldonium), S5 Diuretics. <b>In-competition:</b> S6 Stimulants, S7 Narcotics (Tramadol!), S8 Cannabis, S9 Glucocorticoids. <b>Methods:</b> M1 blood doping, M2 tampering, M3 gene doping. <b>P1:</b> Beta-blockers in shooting/archery."},
- {icon:"💊",t:"3. TUE — Medical Safety Net",d:"How to legally use a banned medicine.",body:"Sick? <b>Step 1:</b> Check medicine on Global DRO. <b>Step 2:</b> Doctor prescribes + documents. <b>Step 3:</b> Apply TUE to NADA/IF BEFORE use (emergency = retroactive). 4 criteria: genuine need, no extra performance boost, no alternative, fair. Never borrow someone's prescription!"},
- {icon:"🧪",t:"4. Testing — Doping Control",d:"Sample collection, A/B bottles, rights & duties.",body:"Officer can come <b>anytime, anywhere</b> (6 AM too!). Carry ID. Give sample under observation. Sample splits into <b>A & B bottles</b>. You can watch sealing + note medicines on form. You have the right to ask for B-sample test + interpreter. Refusing = violation!"},
- {icon:"⚠️",t:"5. Supplements Danger Zone",d:"Strict liability + contamination truth.",body:"<b>Strict liability:</b> whatever is in your body = YOUR fault, even by mistake. Studies: many supplements hide steroids/stimulants. Rules: 1) Food first 2) Only Informed-Sport batch-tested 3) Keep bills + photos 4) Check with doctor. No certificate = no gulp!"},
- {icon:"⛔",t:"6. Bans & Consequences",d:"4 years to lifetime — money, medal, health.",body:"Intentional doping = <b>up to 4-year ban</b> (1st), lifetime (repeat). Lose medals, prize money, sponsorship, government job quota. Health: heart attack, infertility, depression, liver failure. Coaches/traffickers also banned. One shortcut can erase 10 years of training."},
+ {icon:"📜",t:"1. What is Doping?",d:"WADA Code, spirit of sport, 11 rule violations in simple words.",body:"Doping = breaking any of 11 Anti-Doping Rule Violations (ADRVs): presence of banned drug, using/attempting, refusing test, tampering, trafficking, assisting others. <b>Spirit of sport</b> = ethics, health, fair play, honesty. WADA Code applies worldwide; NADA enforces it in India.",
+  th:"1. डोपिंग क्या है?",dh:"WADA कोड, खेल की भावना, 11 नियम-उल्लंघन आसान शब्दों में।",bodyh:"डोपिंग = 11 एंटी-डोपिंग नियम उल्लंघनों (ADRVs) में से कोई एक तोड़ना: प्रतिबंधित दवा मिलना, उपयोग/कोशिश, टेस्ट से इनकार, छेड़छाड़, तस्करी, दूसरों की मदद। <b>खेल की भावना</b> = नैतिकता, स्वास्थ्य, फेयर प्ले, ईमानदारी। WADA कोड पूरी दुनिया में; भारत में NADA लागू करता है।"},
+ {icon:"🚫",t:"2. Prohibited List 2026",d:"S1-S9 + M1-M3 + P1 explained with examples.",body:"<b>Always banned:</b> S1 Steroids, S2 Hormones (EPO/hGH), S4 Modulators (Meldonium), S5 Diuretics. <b>In-competition:</b> S6 Stimulants, S7 Narcotics (Tramadol!), S8 Cannabis, S9 Glucocorticoids. <b>Methods:</b> M1 blood doping, M2 tampering, M3 gene doping. <b>P1:</b> Beta-blockers in shooting/archery.",
+  th:"2. प्रतिबंधित सूची 2026",dh:"S1-S9 + M1-M3 + P1 उदाहरणों के साथ।",bodyh:"<b>हमेशा प्रतिबंधित:</b> S1 स्टेरॉयड, S2 हार्मोन (EPO/hGH), S4 मोड्यूलेटर (Meldonium), S5 डाइयूरेटिक्स। <b>प्रतियोगिता में:</b> S6 उत्तेजक, S7 नशीली (Tramadol!), S8 भांग, S9 ग्लूकोकॉर्टिकॉइड्स। <b>तरीके:</b> M1 रक्त डोपिंग, M2 छेड़छाड़, M3 जीन डोपिंग। <b>P1:</b> निशानेबाजी/तीरंदाजी में बीटा-ब्लॉकर्स।"},
+ {icon:"💊",t:"3. TUE — Medical Safety Net",d:"How to legally use a banned medicine.",body:"Sick? <b>Step 1:</b> Check medicine on Global DRO. <b>Step 2:</b> Doctor prescribes + documents. <b>Step 3:</b> Apply TUE to NADA/IF BEFORE use (emergency = retroactive). 4 criteria: genuine need, no extra performance boost, no alternative, fair. Never borrow someone's prescription!",
+  th:"3. TUE — इलाज का सुरक्षा कवच",dh:"प्रतिबंधित दवा कानूनी तरीके से कैसे लें।",bodyh:"बीमार? <b>चरण 1:</b> Global DRO पर दवा चेक करो। <b>चरण 2:</b> डॉक्टर की पर्ची + दस्तावेज़। <b>चरण 3:</b> उपयोग से PEHLE NADA को TUE आवेदन (आपातकाल में बाद में भी)। 4 शर्तें: असली जरूरत, अतिरिक्त प्रदर्शन-लाभ नहीं, कोई विकल्प नहीं, निष्पक्ष। किसी और की पर्ची कभी मत लो!"},
+ {icon:"🧪",t:"4. Testing — Doping Control",d:"Sample collection, A/B bottles, rights & duties.",body:"Officer can come <b>anytime, anywhere</b> (6 AM too!). Carry ID. Give sample under observation. Sample splits into <b>A & B bottles</b>. You can watch sealing + note medicines on form. You have the right to ask for B-sample test + interpreter. Refusing = violation!",
+  th:"4. टेस्टिंग — डोप नियंत्रण",dh:"नमूना संग्रह, A/B बोतलें, अधिकार व कर्तव्य।",bodyh:"अधिकारी <b>कभी भी, कहीं भी</b> आ सकता है (सुबह 6 बजे भी!)। ID साथ रखो। निगरानी में नमूना दो। नमूना <b>A व B बोतलों</b> में बँटता है। सीलिंग देख सकते हो + फॉर्म पर दवाएँ लिखो। B-नमूना टेस्ट + दुभाषिया तुम्हारा अधिकार। इनकार = उल्लंघन!"},
+ {icon:"⚠️",t:"5. Supplements Danger Zone",d:"Strict liability + contamination truth.",body:"<b>Strict liability:</b> whatever is in your body = YOUR fault, even by mistake. Studies: many supplements hide steroids/stimulants. Rules: 1) Food first 2) Only Informed-Sport batch-tested 3) Keep bills + photos 4) Check with doctor. No certificate = no gulp!",
+  th:"5. सप्लीमेंट खतरा ज़ोन",dh:"सख्त दायित्व + मिलावट की सच्चाई।",bodyh:"<b>सख्त दायित्व:</b> तुम्हारे शरीर में जो भी है = तुम्हारी गलती, भले गलती से हो। शोध: कई सप्लीमेंट्स में छिपे स्टेरॉयड/उत्तेजक। नियम: 1) पहले भोजन 2) सिर्फ Informed-Sport batch-tested 3) बिल + फोटो रखो 4) डॉक्टर से पूछो। सर्टिफिकेट नहीं = मत लो!"},
+ {icon:"⛔",t:"6. Bans & Consequences",d:"4 years to lifetime — money, medal, health.",body:"Intentional doping = <b>up to 4-year ban</b> (1st), lifetime (repeat). Lose medals, prize money, sponsorship, government job quota. Health: heart attack, infertility, depression, liver failure. Coaches/traffickers also banned. One shortcut can erase 10 years of training.",
+  th:"6. बैन और परिणाम",dh:"4 साल से आजीवन — पैसा, पदक, सेहत।",bodyh:"जानबूझकर डोपिंग = <b>4 साल तक बैन</b> (पहली बार), दोबारा पर आजीवन। पदक, इनाम, स्पॉन्सरशिप, सरकारी नौकरी कोटा — सब गया। सेहत: हार्ट अटैक, बांझपन, डिप्रेशन, लिवर फेल। कोच/तस्कर भी बैन। एक शॉर्टकट 10 साल की मेहनत मिटा सकता है।"},
 ];
 const box=document.getElementById('mods');
 let done=JSON.parse(localStorage.getItem('fp_mods')||'[]');
 function render(){
+ const hi=LANG()==='hi';
+ document.getElementById('learnTitle').textContent=hi?'लर्न लैब':'LEARN LAB';
+ document.getElementById('learnSub').textContent=hi?'6 मिशन • हर एक 5 मिनट • फिर गेम्स में खुद को परखो। "Mark Done +10 XP" दबाकर बढ़ो!':'6 missions • 5 minutes each • then test yourself in games. Click "Mark Done +10 XP" to grow!';
  box.innerHTML=MODS.map((m,i)=>`
- <div class="glass rounded-3xl p-5 card-hover ${done.includes(i)?'border-emerald-400/60':''}">
+ <div class="glass rounded-3xl p-5 card-hover reveal in ${done.includes(i)?'border-emerald-400/60':''}">
   <div class="text-4xl">${m.icon}</div>
-  <div class="font-game font-black mt-2">${m.t}</div>
-  <div class="text-sm text-emerald-300 font-semibold">${m.d}</div>
-  <p class="text-sm text-gray-300 mt-3">${m.body}</p>
-  <button onclick="completeMod(${i})" class="mt-4 w-full ${done.includes(i)?'glass':'btn-neon'} rounded-xl py-2 font-bold text-sm">${done.includes(i)?'✅ Completed':'Mark Done +10 XP'}</button>
+  <div class="font-game font-black mt-2">${hi?m.th:m.t}</div>
+  <div class="text-sm text-emerald-300 font-semibold">${hi?m.dh:m.d}</div>
+  <p class="text-sm text-gray-300 mt-3">${hi?m.bodyh:m.body}</p>
+  <button onclick="completeMod(${i})" class="mt-4 w-full ${done.includes(i)?'glass':'btn-neon'} rounded-xl py-2 font-bold text-sm">${done.includes(i)?(hi?'✅ पूरा हुआ':'✅ Completed'):(hi?'पूरा किया +10 XP':'Mark Done +10 XP')}</button>
  </div>`).join('');
 }
 function completeMod(i){
  if(done.includes(i))return;
  done.push(i);localStorage.setItem('fp_mods',JSON.stringify(done));
- addXP(10);pushScore('learn',10);say('Module complete! +10 XP. Keep going champ!');render();
+ addXP(10);pushScore('learn',10);say(LANG()==='hi'?'मॉड्यूल पूरा! +10 XP। लगे रहो चैंपियन!':'Module complete! +10 XP. Keep going champ!');render();
 }
+function afterLangChange(){render()}
 render();
 </script>
 {% endblock %}

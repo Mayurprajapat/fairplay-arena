@@ -167,26 +167,26 @@ DOPE_NOPE = [
 ]
 
 STORY = [
- {"chapter":"District Trials","text":"You are 17-year-old sprinter Aarav. Coach says 'beta, ye injection le lo, selection pakka'. Teammate offers an unknown powder for instant energy. What do you do?","choices":[
-   {"t":"Refuse & ask what's inside + report to NADA","score":20,"fb":"Brave! You protected your career. +20 Clean Score"},
-   {"t":"Take it once, 'ek baar se kya hoga'","score":-20,"fb":"Risky! One dose can fail a test for months. -20"},
-   {"t":"Ask parents + doctor first","score":10,"fb":"Smart pause. Trusted advice matters. +10"}]},
- {"chapter":"National Camp","text":"You have asthma. Big final in 3 days. Doctor prescribes an inhaler that is on the banned list above certain dose. What now?","choices":[
-   {"t":"Apply for TUE + check Global DRO with doctor","score":20,"fb":"Perfect process! TUE protects you. +20"},
-   {"t":"Use secretly, nobody will know","score":-20,"fb":"Secret use = violation if tested. -20"},
-   {"t":"Skip medicine & suffer in silence","score":-10,"fb":"Health first! Never skip care — ask for TUE. -10"}]},
- {"chapter":"Sponsor Offer","text":"A supplement brand offers ₹50,000 to promote 'SuperBulk Powder' with no lab certificate. Teammates use it. Your move?","choices":[
-   {"t":"Demand batch-test certificate, refuse till then","score":20,"fb":"Pro move! No certificate = no deal. +20"},
-   {"t":"Promote it, money + fame!","score":-20,"fb":"Contaminated product could end your career. -20"},
-   {"t":"Take free supply but don't promote","score":-10,"fb":"Still risky — contamination doesn't care about money. -10"}]},
- {"chapter":"Surprise Test","text":"6 AM knock — Doping Control Officer at your hostel. You drank 2L water, feeling nervous. Officer asks for sample. You…","choices":[
-   {"t":"Cooperate, show ID, give sample, note medicines","score":20,"fb":"Champion behaviour! Rights + duties both done. +20"},
-   {"t":"Say 'I'm sleeping, come tomorrow'","score":-20,"fb":"Refusal/evasion = violation. -20"},
-   {"t":"Add water to sample to dilute","score":-20,"fb":"Tampering = 4-year ban. Never! -20"}]},
- {"chapter":"The Final","text":"Gold-medal race! Rival whispers 'everyone dopes, you can't win clean'. Crowd roars. Last decision…","choices":[
-   {"t":"Run clean, trust training + chant Fair Play Oath","score":20,"fb":"LEGEND! Clean gold shines forever. +20 — Certificate unlocked!"},
-   {"t":"Take rival's 'energy pill' in washroom","score":-30,"fb":"One pill destroyed years of training. Career over. -30"},
-   {"t":"Report rival's tip to officials after race","score":15,"fb":"Clean + courageous citizen of sport. +15"}]},
+ {"chapter":"District Trials","hchapter":"जिला ट्रायल्स","text":"You are 17-year-old sprinter Aarav. Coach says 'beta, ye injection le lo, selection pakka'. Teammate offers an unknown powder for instant energy. What do you do?","htext":"तुम 17 साल के धावक आरव हो। कोच कहता है 'बेटा, ये इंजेक्शन ले लो, सिलेक्शन पक्का'। साथी तुरंत एनर्जी के लिए अनजान पाउडर देता है। क्या करोगे?","choices":[
+   {"t":"Refuse & ask what's inside + report to NADA","ht":"इनकार करो, पूछो अंदर क्या है + NADA को बताओ","score":20,"fb":"Brave! You protected your career. +20 Clean Score","hfb":"बहादुर! तुमने करियर बचाया। +20 क्लीन स्कोर"},
+   {"t":"Take it once, 'ek baar se kya hoga'","ht":"एक बार ले लो, 'एक बार से क्या होगा'","score":-20,"fb":"Risky! One dose can fail a test for months. -20","hfb":"खतरनाक! एक खुराक महीनों तक टेस्ट फेल करा सकती है। -20"},
+   {"t":"Ask parents + doctor first","ht":"पहले माता-पिता + डॉक्टर से पूछो","score":10,"fb":"Smart pause. Trusted advice matters. +10","hfb":"समझदारी भरा ठहराव। भरोसेमंद सलाह जरूरी। +10"}]},
+ {"chapter":"National Camp","hchapter":"राष्ट्रीय शिविर","text":"You have asthma. Big final in 3 days. Doctor prescribes an inhaler that is on the banned list above certain dose. What now?","htext":"तुम्हें दमा है। 3 दिन में बड़ा फाइनल। डॉक्टर ने इनहेलर लिखा जो एक खुराक से ऊपर प्रतिबंधित सूची में है। अब क्या?","choices":[
+   {"t":"Apply for TUE + check Global DRO with doctor","ht":"TUE आवेदन करो + डॉक्टर से Global DRO चेक कराओ","score":20,"fb":"Perfect process! TUE protects you. +20","hfb":"एकदम सही प्रक्रिया! TUE तुम्हें बचाएगा। +20"},
+   {"t":"Use secretly, nobody will know","ht":"चुपके से ले लो, किसी को पता नहीं चलेगा","score":-20,"fb":"Secret use = violation if tested. -20","hfb":"छिपा उपयोग = टेस्ट में उल्लंघन। -20"},
+   {"t":"Skip medicine & suffer in silence","ht":"दवा छोड़ दो और चुपचाप सहो","score":-10,"fb":"Health first! Never skip care — ask for TUE. -10","hfb":"सेहत पहले! इलाज मत छोड़ो — TUE माँगो। -10"}]},
+ {"chapter":"Sponsor Offer","hchapter":"स्पॉन्सर ऑफर","text":"A supplement brand offers ₹50,000 to promote 'SuperBulk Powder' with no lab certificate. Teammates use it. Your move?","htext":"एक सप्लीमेंट ब्रांड बिना लैब सर्टिफिकेट वाले 'सुपरबल्क पाउडर' के प्रचार के लिए ₹50,000 देता है। साथी इसे लेते हैं। तुम्हारी चाल?","choices":[
+   {"t":"Demand batch-test certificate, refuse till then","ht":"बैच-टेस्ट सर्टिफिकेट माँगो, तब तक इनकार","score":20,"fb":"Pro move! No certificate = no deal. +20","hfb":"प्रो चाल! सर्टिफिकेट नहीं = डील नहीं। +20"},
+   {"t":"Promote it, money + fame!","ht":"प्रचार करो, पैसा + शोहरत!","score":-20,"fb":"Contaminated product could end your career. -20","hfb":"मिलावटी उत्पाद करियर खत्म कर सकता है। -20"},
+   {"t":"Take free supply but don't promote","ht":"मुफ्त सप्लाई लो पर प्रचार मत करो","score":-10,"fb":"Still risky — contamination doesn't care about money. -10","hfb":"फिर भी खतरनाक — मिलावट पैसे नहीं देखती। -10"}]},
+ {"chapter":"Surprise Test","hchapter":"अचानक टेस्ट","text":"6 AM knock — Doping Control Officer at your hostel. You drank 2L water, feeling nervous. Officer asks for sample. You…","htext":"सुबह 6 बजे दस्तक — हॉस्टल में डोपिंग नियंत्रण अधिकारी। तुम 2 लीटर पानी पी चुके, घबराहट है। अधिकारी नमूना माँगता है। तुम…","choices":[
+   {"t":"Cooperate, show ID, give sample, note medicines","ht":"सहयोग करो, ID दिखाओ, नमूना दो, दवाएँ लिखो","score":20,"fb":"Champion behaviour! Rights + duties both done. +20","hfb":"चैंपियन जैसा व्यवहार! अधिकार + कर्तव्य दोनों। +20"},
+   {"t":"Say 'I'm sleeping, come tomorrow'","ht":"कहो 'सो रहा हूँ, कल आना'","score":-20,"fb":"Refusal/evasion = violation. -20","hfb":"इनकार/बचना = उल्लंघन। -20"},
+   {"t":"Add water to sample to dilute","ht":"नमूने में पानी मिलाकर पतला करो","score":-20,"fb":"Tampering = 4-year ban. Never! -20","hfb":"छेड़छाड़ = 4 साल बैन। कभी नहीं! -20"}]},
+ {"chapter":"The Final","hchapter":"फाइनल","text":"Gold-medal race! Rival whispers 'everyone dopes, you can't win clean'. Crowd roars. Last decision…","htext":"गोल्ड मेडल रेस! प्रतिद्वंद्वी फुसफुसाता है 'सब डोप करते हैं, साफ खेलकर नहीं जीत सकते'। भीड़ गरजती है। आखिरी फैसला…","choices":[
+   {"t":"Run clean, trust training + chant Fair Play Oath","ht":"साफ दौड़ो, मेहनत पर भरोसा + फेयर प्ले शपथ","score":20,"fb":"LEGEND! Clean gold shines forever. +20 — Certificate unlocked!","hfb":"लीजेंड! साफ सोना हमेशा चमकता है। +20 — प्रमाणपत्र अनलॉक!"},
+   {"t":"Take rival's 'energy pill' in washroom","ht":"वॉशरूम में प्रतिद्वंद्वी की 'एनर्जी गोली' लो","score":-30,"fb":"One pill destroyed years of training. Career over. -30","hfb":"एक गोली ने सालों की मेहनत मिटाई। करियर खत्म। -30"},
+   {"t":"Report rival's tip to officials after race","ht":"रेस के बाद प्रतिद्वंद्वी की बात अधिकारियों को बताओ","score":15,"fb":"Clean + courageous citizen of sport. +15","hfb":"खेल के साफ व साहसी नागरिक। +15"}]},
 ]
 
 # ---------------- ROUTES ----------------

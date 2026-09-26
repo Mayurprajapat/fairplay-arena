@@ -2,7 +2,7 @@
 {% block title %}Quiz Quest{% endblock %}
 {% block content %}
 <div class="flex flex-wrap items-center gap-3">
- <h1 class="font-game font-black text-3xl">🎯 QUIZ <span class="neon-text">QUEST</span></h1>
+ <h1 class="font-game font-black text-3xl" id="quizTitle">🎯 QUIZ QUEST</h1>
  <span class="glass px-3 py-1 rounded-full text-sm font-bold">⏱ <span id="timer">20</span>s</span>
  <span class="glass px-3 py-1 rounded-full text-sm font-bold"><span id="streakFire">🔥</span> <span id="streak">0</span></span>
  <span class="glass px-3 py-1 rounded-full text-sm font-bold">Q <span id="qi">0</span>/15</span>
@@ -30,9 +30,9 @@
 <div id="quizBox" class="glass rounded-3xl p-5 md:p-8 mt-3">
  <div id="qStart" class="text-center py-6">
   <div class="flex justify-center gap-4 text-6xl"><span class="char-idle">🏃</span><span class="font-game text-3xl self-center">⚔️</span><span class="villain">😈</span></div>
-  <h2 class="font-game font-black text-2xl mt-3">BEAT DOPU • 15 ROUNDS</h2>
-  <p class="text-gray-400 text-sm mt-1">Sahi jawab = tumhe XP + Dopu ko damage 😈 • 3 streak = <b class="text-amber-300">COMBO +5 bonus</b> • Galat = Dopu hansta hai</p>
-  <button onclick="startQuiz()" class="btn-champ px-8 py-3 rounded-2xl font-game mt-4">⚔️ START BATTLE</button>
+  <h2 class="font-game font-black text-2xl mt-3" id="qsTitle">BEAT DOPU • 15 ROUNDS</h2>
+  <p class="text-gray-400 text-sm mt-1" id="qsSub">Sahi jawab = tumhe XP + Dopu ko damage 😈 • 3 streak = COMBO +5 bonus • Galat = Dopu hansta hai</p>
+  <button onclick="startQuiz()" class="btn-champ px-8 py-3 rounded-2xl font-game mt-4" id="qsBtn">⚔️ START BATTLE</button>
  </div>
  <div id="qPlay" class="hidden">
   <div id="qText" class="font-bold text-lg md:text-xl"></div>
@@ -58,6 +58,35 @@
 {% block scripts %}
 <script>
 let QS=[],i=0,score=0,vil=0,streak=0,locked=false,tInt=null,lifeUsed=false;
+const HIQ=[
+ {q:"वर्ल्ड एंटी-डोपिंग कोड कौन प्रकाशित करता है?",o:["WADA","FIFA","IOC","सिर्फ NADA"],f:"WADA (वर्ल्ड एंटी-डोपिंग एजेंसी) कोड व प्रतिबंधित सूची संभालता है।"},
+ {q:"TUE का मतलब क्या है?",o:["चिकित्सीय उपयोग छूट","कुल मूत्र परीक्षा","थकान तक टेस्ट","मूल्यांकन में चिकित्सा"],f:"TUE से एथलीट असली बीमारी में मंजूरी लेकर प्रतिबंधित दवा ले सकता है।"},
+ {q:"एनाबॉलिक स्टेरॉयड प्रतिबंधित हैं क्योंकि वे…",o:["नाजायज तरीके से मांसपेशी व ताकत बढ़ाते हैं","नजर सुधारते हैं","सुरक्षित वजन घटाते हैं","चोट तुरंत ठीक करते हैं"],f:"स्टेरॉयड = S1 एनाबॉलिक एजेंट, हमेशा प्रतिबंधित।"},
+ {q:"ब्लड डोपिंग मुख्य रूप से बढ़ाती है…",o:["ऑक्सीजन पहुँच/स्टैमिना","लचीलापन","सिर्फ प्रतिक्रिया समय","हड्डी घनत्व"],f:"EPO व रक्त चढ़ाना लाल रक्त कोशिकाएँ बढ़ाते हैं — M1 में प्रतिबंधित।"},
+ {q:"टेस्ट के समय एथलीट नमूना देने से इनकार करे। यह है…",o:["एंटी-डोपिंग नियम उल्लंघन","थकान में allowed","साल में एक बार allowed","सिर्फ चेतावनी"],f:"नमूना देने से इनकार/बचना = उल्लंघन (अनुच्छेद 2.3)।"},
+ {q:"मिलावटी सप्लीमेंट्स का आम खतरा क्या है?",o:["छिपे प्रतिबंधित पदार्थ","सिर्फ अतिरिक्त विटामिन","हमेशा अच्छी नींद","कोई खतरा नहीं"],f:"कई सप्लीमेंट्स में मिलावट होती है। सख्त दायित्व लागू — एथलीट जिम्मेदार!"},
+ {q:"व्हेयरअबाउट्स नियम लागू होता है…",o:["रजिस्टर्ड टेस्टिंग पूल एथलीटों पर","सभी स्कूली छात्रों पर","सिर्फ कोचों पर","सिर्फ संन्यासियों पर"],f:"RTP एथलीटों को रोज 1 घंटे का टेस्ट स्लॉट देना होता है।"},
+ {q:"प्रतियोगिता में भांग (THC) है…",o:["प्रतिबंधित","हमेशा allowed","सभी खेलों में allowed","सिर्फ तैराकी में प्रतिबंधित"],f:"S8 कैनाबिनॉइड्स सीमा से ऊपर प्रतियोगिता में प्रतिबंधित।"},
+ {q:"डाइयूरेटिक्स प्रतिबंधित हैं मुख्य रूप से क्योंकि वे…",o:["दूसरी दवाएँ छिपाते व तेजी से वजन घटाते हैं","मांसपेशी बनाते हैं","लंबाई बढ़ाते हैं","याददाश्त सुधारते हैं"],f:"S5 डाइयूरेटिक्स सबूत छिपाते हैं व खतरनाक निर्जलीकरण करते हैं।"},
+ {q:"ग्रोथ हार्मोन (hGH) किस श्रेणी में है?",o:["पेप्टाइड हार्मोन (S2)","उत्तेजक","नशीली दवाएँ","बीटा-ब्लॉकर्स"],f:"S2 पेप्टाइड हार्मोन, ग्रोथ फैक्टर्स — हमेशा प्रतिबंधित।"},
+ {q:"एथलीट को प्रतिबंधित खुराक वाला इनहेलर चाहिए। सही कदम?",o:["उपयोग से पहले TUE आवेदन करो","अधिकारियों से छिपाओ","दोस्त का इनहेलर उधार लो","चुपचाप इलाज बंद करो"],f:"Global DRO चेक करो + NADA/WADA से TUE आवेदन करो।"},
+ {q:"A व B नमूना बोतलें किस लिए हैं?",o:["A पॉजिटिव हो तो B पुष्टि करता है","दो अलग एथलीटों के लिए","अभ्यास टेस्ट के लिए","पानी रखने के लिए"],f:"A पॉजिटिव हो तो एथलीट B-नमूना जाँच माँग सकता है।"},
+ {q:"एम्फेटामाइन जैसे उत्तेजक हैं…",o:["प्रतियोगिता में प्रतिबंधित","खुलेआम allowed","सिर्फ शतरंज में प्रतिबंधित","कभी टेस्ट नहीं होते"],f:"S6 उत्तेजक प्रतियोगिता में प्रतिबंधित (कुछ प्रतियोगिता के बाहर भी)।"},
+ {q:"बीटा-ब्लॉकर्स किन खेलों में प्रतिबंधित हैं?",o:["निशानेबाजी, तीरंदाजी, गोल्फ, डार्ट्स","सिर्फ 100m दौड़","फुटबॉल","मैराथन"],f:"P1 बीटा-ब्लॉकर्स सटीकता वाले खेलों में प्रतिबंधित (कंपन शांत = फायदा)।"},
+ {q:"पहले गंभीर जानबूझकर डोपिंग पर अधिकतम बैन?",o:["4 साल","1 हफ्ता","1 महीना","सभी मामलों में आजीवन"],f:"जानबूझकर उल्लंघन = 4 साल तक। दूसरी बार आजीवन हो सकता है।"},
+];
+function LQ(idx){const q=QS[idx];if(LANG()==='hi'&&HIQ[idx])return{q:HIQ[idx].q,options:HIQ[idx].o,answer:q.answer,fact:HIQ[idx].f};return q}
+function quizStatic(){
+ const hi=LANG()==='hi';
+ document.getElementById('quizTitle').textContent=hi?'🎯 क्विज़ क्वेस्ट':'🎯 QUIZ QUEST';
+ document.getElementById('qsTitle').textContent=hi?'डोपू को हराओ • 15 राउंड':'BEAT DOPU • 15 ROUNDS';
+ document.getElementById('qsSub').textContent=hi?'सही जवाब = तुम्हें XP + डोपू को डैमेज 😈 • 3 स्ट्रीक = COMBO +5 बोनस • गलत = डोपू हँसता है':'Sahi jawab = tumhe XP + Dopu ko damage 😈 • 3 streak = COMBO +5 bonus • Galat = Dopu hansta hai';
+ document.getElementById('qsBtn').textContent=hi?'⚔️ लड़ाई शुरू करो':'⚔️ START BATTLE';
+ document.getElementById('lifeBtn').textContent=hi?'🪄 50/50 लाइफलाइन':'🪄 50/50 Lifeline';
+ document.getElementById('nextBtn').textContent=hi?'📖 समझ गया, Next →':'📖 Samajh gaya, Next →';
+}
+function afterLangChange(){quizStatic();if(!document.getElementById('qPlay').classList.contains('hidden')&&QS.length){showQ()}}
+quizStatic();
 document.getElementById('heroChar').textContent=getAvatar();
 async function startQuiz(){
  const r=await fetch('/api/questions');QS=await r.json();
@@ -74,7 +103,7 @@ function updArena(){
 }
 function showQ(){
  locked=false;document.getElementById('nextBtn').classList.add('hidden');document.getElementById('qFact').classList.add('hidden');
- const q=QS[i];document.getElementById('qi').textContent=(i+1);document.getElementById('bar').style.width=((i)/QS.length*100)+'%';
+ const q=LQ(i);document.getElementById('qi').textContent=(i+1);document.getElementById('bar').style.width=((i)/QS.length*100)+'%';
  document.getElementById('qText').textContent=(i+1)+'. '+q.q;
  document.getElementById('qOpts').innerHTML=q.options.map((o,k)=>`<button onclick="answer(${k})" data-k="${k}" class="opt-btn glass rounded-xl px-4 py-3 text-left font-semibold choice-in" style="animation-delay:${k*0.07}s">${['A','B','C','D'][k]}. ${o}</button>`).join('');
  let t=20;const te=document.getElementById('timer');te.textContent=t;te.classList.remove('timer-danger');clearInterval(tInt);
@@ -89,18 +118,19 @@ function comboMsg(){
 }
 function answer(k){
  if(locked)return;locked=true;clearInterval(tInt);
- const q=QS[i];const btns=[...document.querySelectorAll('#qOpts button')];
+ const hi=LANG()==='hi';
+ const q=LQ(i);const btns=[...document.querySelectorAll('#qOpts button')];
  btns.forEach(b=>{b.style.pointerEvents='none'});
  btns[q.answer].classList.add('opt-correct');
  const ok=(k===q.answer);
  const f=document.getElementById('qFact');f.classList.remove('hidden');
  f.className='mt-4 rounded-2xl p-4 text-left pop border '+(ok?'bg-emerald-400/10 border-emerald-400/50':'bg-pink-500/10 border-pink-500/50');
- f.innerHTML=(ok?'<div class="font-black">✅ DIRECT HIT on Dopu! 😈💥</div>':'<div class="font-black">❌ Dopu hans raha hai 😈 — sahi jawab padho 👇</div>')
-  +`<div class="text-sm mt-1">✔ <b>Correct: ${['A','B','C','D'][q.answer]}. ${q.options[q.answer]}</b></div>`
-  +`<div class="text-sm mt-2 text-gray-200">📚 <b>Learn:</b> ${q.fact}</div>`
-  +`<div class="text-xs mt-2 text-gray-400">⏸ Timer ruka hai — padhke Next dabao.</div>`;
- if(ok){let pts=10+(streak>=2?5:0);score+=pts;streak++;confetti(45);sfx('good');say(streak>=3?'COMBO! +'+pts+' XP 🔥🔥':'Sahi! Dopu ko laga! +'+pts+' XP 💥')}
- else{streak=0;vil++;sfx('bad');if(k>=0)btns[k].classList.add('opt-wrong','shake');say(k===-1?'Time up! Green wala sahi tha — padhke Next dabao.':'Dopu: "hehe!" 😈 Green wala padho, phir harayenge!')}
+ f.innerHTML=(ok?(hi?'<div class="font-black">✅ डोपू पर सीधा वार! 😈💥</div>':'<div class="font-black">✅ DIRECT HIT on Dopu! 😈💥</div>'):(hi?'<div class="font-black">❌ डोपू हँस रहा है 😈 — सही जवाब पढ़ो 👇</div>':'<div class="font-black">❌ Dopu hans raha hai 😈 — sahi jawab padho 👇</div>'))
+  +`<div class="text-sm mt-1">✔ <b>${hi?'सही':'Correct'}: ${['A','B','C','D'][q.answer]}. ${q.options[q.answer]}</b></div>`
+  +`<div class="text-sm mt-2 text-gray-200">📚 <b>${hi?'सीखो':'Learn'}:</b> ${q.fact}</div>`
+  +`<div class="text-xs mt-2 text-gray-400">${hi?'⏸ टाइमर रुका है — पढ़कर Next दबाओ।':'⏸ Timer ruka hai — padhke Next dabao.'}</div>`;
+ if(ok){let pts=10+(streak>=2?5:0);score+=pts;streak++;confetti(45);sfx('good');say(hi?(streak>=3?'कॉम्बो! +'+pts+' XP 🔥🔥':'सही! डोपू को लगा! +'+pts+' XP 💥'):(streak>=3?'COMBO! +'+pts+' XP 🔥🔥':'Sahi! Dopu ko laga! +'+pts+' XP 💥'))}
+ else{streak=0;vil++;sfx('bad');if(k>=0)btns[k].classList.add('opt-wrong','shake');say(k===-1?(hi?'समय खत्म! हरा वाला सही था — पढ़कर Next दबाओ।':'Time up! Green wala sahi tha — padhke Next dabao.'):(hi?'डोपू: "हीही!" 😈 हरा वाला पढ़ो, फिर हराएँगे!':'Dopu: "hehe!" 😈 Green wala padho, phir harayenge!'))}
  document.getElementById('streak').textContent=streak;
  document.getElementById('streakFire').className=streak>=3?'fire-streak':'';
  comboMsg();updArena();
@@ -116,13 +146,14 @@ function nextQ(){i++;if(i>=QS.length){finish();return}showQ()}
 function finish(){
  document.getElementById('qPlay').classList.add('hidden');const e=document.getElementById('qEnd');e.classList.remove('hidden');
  document.getElementById('bar').style.width='100%';
+ const hi=LANG()==='hi';
  addXP(score);pushScore('quiz',score);
  const win=score>=vil*8+40;
  document.getElementById('endEmoji').textContent=win?'🏆':'😈';
- document.getElementById('endTitle').textContent=win?`VICTORY! Dopu hara! ${score} XP`:`Dopu jeet gaya 😈 (${score} XP) — REMATCH?`;
- document.getElementById('endText').textContent=win?'Tum champion ho! Certificate claim karo!':'Koi baat nahi champ — haar ke jeetne wale ko Baazigar kehte hain. Phir khel!';
+ document.getElementById('endTitle').textContent=win?(hi?`जीत! डोपू हारा! ${score} XP`:`VICTORY! Dopu hara! ${score} XP`):(hi?`डोपू जीत गया 😈 (${score} XP) — फिर लड़ोगे?`:`Dopu jeet gaya 😈 (${score} XP) — REMATCH?`);
+ document.getElementById('endText').textContent=win?(hi?'तुम चैंपियन हो! प्रमाणपत्र लो!':'Tum champion ho! Certificate claim karo!'):(hi?'कोई बात नहीं चैंप — हारकर जीतने वाले को बाज़ीगर कहते हैं। फिर खेलो!':'Koi baat nahi champ — haar ke jeetne wale ko Baazigar kehte hain. Phir khel!');
  if(win){confetti(140);sfx('level')}
- say('Quiz battle khatam! +'+score+' XP!');
+ say((hi?'क्विज़ लड़ाई खत्म! +':'Quiz battle khatam! +')+score+' XP!');
 }
 </script>
 {% endblock %}

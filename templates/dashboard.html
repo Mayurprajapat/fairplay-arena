@@ -1,33 +1,46 @@
 {% extends "base.html" %}
 {% block title %}Ranks{% endblock %}
 {% block content %}
-<h1 class="font-game font-black text-3xl">🏆 HALL OF <span class="neon-text">FAME</span></h1>
+<h1 class="font-game font-black text-3xl" id="dashTitle">🏆 HALL OF FAME</h1>
 <div class="grid md:grid-cols-2 gap-4 mt-4">
  <div class="glass rounded-3xl p-5">
-  <h2 class="font-game font-bold">⭐ MY PROGRESS</h2>
+  <h2 class="font-game font-bold" id="dashProg">⭐ MY PROGRESS</h2>
   <div class="text-5xl font-game font-black neon-text mt-2"><span id="dXP">0</span><span class="text-lg text-gray-400"> XP</span></div>
   <div id="dBadges" class="flex flex-wrap gap-2 mt-3"></div>
-  <div class="mt-4 text-sm text-gray-300">Levels: Rookie(0) → Trainee(50) → Challenger(120) → Pro(250) → Legend(400)</div>
-  <a href="/certificate" class="btn-neon inline-block px-5 py-2 rounded-xl font-bold mt-3 text-sm">🏅 Claim Certificate (100+ XP)</a>
+  <div class="mt-4 text-sm text-gray-300" id="dashLvls">Levels: Rookie(0) → Trainee(50) → Challenger(120) → Pro(250) → Legend(400)</div>
+  <a href="/certificate" class="btn-neon inline-block px-5 py-2 rounded-xl font-bold mt-3 text-sm" id="dashCert">🏅 Claim Certificate (100+ XP)</a>
  </div>
  <div class="glass rounded-3xl p-5">
-  <div class="flex items-center justify-between"><h2 class="font-game font-bold">🌍 LEADERBOARD (server)</h2><button onclick="loadLB()" class="glass px-3 py-1 rounded-full text-xs font-bold">↻ Refresh</button></div>
+  <div class="flex items-center justify-between"><h2 class="font-game font-bold" id="dashLB">🌍 LEADERBOARD (server)</h2><button onclick="loadLB()" class="glass px-3 py-1 rounded-full text-xs font-bold" id="dashRef">↻ Refresh</button></div>
   <div id="lb" class="mt-3 space-y-2 text-sm"><div class="text-gray-400">Loading…</div></div>
  </div>
 </div>
 {% endblock %}
 {% block scripts %}
 <script>
+function dashStatic(){
+ const hi=LANG()==='hi';
+ document.getElementById('dashTitle').textContent=hi?'🏆 प्रसिद्धि हॉल':'🏆 HALL OF FAME';
+ document.getElementById('dashProg').textContent=hi?'⭐ मेरी प्रगति':'⭐ MY PROGRESS';
+ document.getElementById('dashLvls').textContent=hi?'लेवल: रूकी(0) → प्रशिक्षु(50) → चैलेंजर(120) → प्रो(250) → लेजेंड(400)':'Levels: Rookie(0) → Trainee(50) → Challenger(120) → Pro(250) → Legend(400)';
+ document.getElementById('dashCert').textContent=hi?'🏅 प्रमाणपत्र लो (100+ XP)':'🏅 Claim Certificate (100+ XP)';
+ document.getElementById('dashLB').textContent=hi?'🌍 लीडरबोर्ड (सर्वर)':'🌍 LEADERBOARD (server)';
+ document.getElementById('dashRef').textContent=hi?'↻ ताज़ा करो':'↻ Refresh';
+}
+function afterLangChange(){dashStatic();renderDash();loadLB()}
+dashStatic();
 function renderDash(){
+ const hi=LANG()==='hi';
  document.getElementById('dXP').textContent=getXP();
  const ub=JSON.parse(localStorage.getItem('fp_badges')||'[]');
- const all=[{id:'first',t:'🎯 First Steps',need:20},{id:'half',t:'⚡ Challenger',need:120},{id:'pro',t:'🔥 Pro Athlete',need:250},{id:'legend',t:'🏆 Clean Legend',need:400}];
+ const all=hi?[{id:'first',t:'🎯 पहली शुरुआत',need:20},{id:'half',t:'⚡ चैलेंजर',need:120},{id:'pro',t:'🔥 प्रो एथलीट',need:250},{id:'legend',t:'🏆 क्लीन लेजेंड',need:400}]:[{id:'first',t:'🎯 First Steps',need:20},{id:'half',t:'⚡ Challenger',need:120},{id:'pro',t:'🔥 Pro Athlete',need:250},{id:'legend',t:'🏆 Clean Legend',need:400}];
  document.getElementById('dBadges').innerHTML=all.map(b=>{const has=ub.includes(b.id)||getXP()>=b.need;return `<span class="px-3 py-1.5 rounded-full text-xs font-bold ${has?'bg-gradient-to-r from-emerald-400 to-cyan-400 text-black':'glass badge-lock'}">${b.t} • ${b.need} XP</span>`}).join('');
 }
 async function loadLB(){
+ const hi=LANG()==='hi';
  try{const r=await(await fetch('/api/leaderboard')).json();
-  document.getElementById('lb').innerHTML=r.length?r.map((p,i)=>`<div class="flex items-center gap-2 bg-black/30 rounded-xl px-3 py-2 ${p.player===getName()?'border border-emerald-400/60':''}"><span class="font-game font-black w-7">${['🥇','🥈','🥉'][i]||(i+1)}</span><b class="flex-1">${p.player}</b><span class="text-gray-400 text-xs">${p.games} games</span><span class="font-black text-emerald-300">${p.xp} XP</span></div>`).join(''):'<div class="text-gray-400">No scores yet — be the first! Play Quiz now.</div>';
- }catch(e){document.getElementById('lb').innerHTML='Offline mode — XP saved on device.'}
+  document.getElementById('lb').innerHTML=r.length?r.map((p,i)=>`<div class="flex items-center gap-2 bg-black/30 rounded-xl px-3 py-2 ${p.player===getName()?'border border-emerald-400/60':''}"><span class="font-game font-black w-7">${['🥇','🥈','🥉'][i]||(i+1)}</span><b class="flex-1">${p.player}</b><span class="text-gray-400 text-xs">${p.games} ${hi?'गेम':'games'}</span><span class="font-black text-emerald-300">${p.xp} XP</span></div>`).join(''):(hi?'<div class="text-gray-400">अभी कोई स्कोर नहीं — पहले तुम खेलो! क्विज़ शुरू करो।</div>':'<div class="text-gray-400">No scores yet — be the first! Play Quiz now.</div>');
+ }catch(e){document.getElementById('lb').innerHTML=hi?'ऑफलाइन मोड — XP डिवाइस में सुरक्षित।':'Offline mode — XP saved on device.'}
 }
 renderDash();loadLB();
 </script>

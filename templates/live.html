@@ -2,11 +2,11 @@
 {% block title %}Live Centre{% endblock %}
 {% block content %}
 <div class="flex flex-wrap items-center gap-3">
- <h1 class="font-game font-black text-3xl">🔴 LIVE <span class="neon-text">CENTRE</span></h1>
+ <h1 class="font-game font-black text-3xl" id="liveTitle">🔴 LIVE CENTRE</h1>
  <span id="liveBadge" class="glass px-3 py-1 rounded-full text-xs font-bold">⏳ syncing…</span>
- <button onclick="loadLive(true)" class="btn-green px-4 py-1.5 rounded-full text-sm font-bold">↻ Refresh</button>
+ <button onclick="loadLive(true)" class="btn-green px-4 py-1.5 rounded-full text-sm font-bold" id="liveRef">↻ Refresh</button>
 </div>
-<p class="text-gray-400 text-sm mt-1">Real anti-doping world — auto-updates every 5 min. Sources linked for viva proof. <span id="liveUpdated" class="text-amber-300"></span></p>
+<p class="text-gray-400 text-sm mt-1"><span id="liveSub">Real anti-doping world — auto-updates every 5 min. Sources linked for viva proof.</span> <span id="liveUpdated" class="text-amber-300"></span></p>
 
 <!-- WADA LIST STATUS -->
 <div class="glass-gold rounded-3xl p-5 mt-4">
@@ -44,20 +44,29 @@
 {% endblock %}
 {% block scripts %}
 <script>
+function liveStatic(){
+ const hi=LANG()==='hi';
+ document.getElementById('liveTitle').textContent=hi?'🔴 लाइव सेंटर':'🔴 LIVE CENTRE';
+ document.getElementById('liveRef').textContent=hi?'↻ ताज़ा करो':'↻ Refresh';
+ document.getElementById('liveSub').textContent=hi?'असली एंटी-डोपिंग दुनिया — हर 5 मिनट में ऑटो-अपडेट। वाइवा प्रूफ के लिए स्रोत लिंक।':'Real anti-doping world — auto-updates every 5 min. Sources linked for viva proof.';
+}
+function afterLangChange(){liveStatic();loadLive()}
+liveStatic();
 async function loadLive(manual){
  const badge=document.getElementById('liveBadge');
+ const hi=LANG()==='hi';
  if(manual)badge.textContent='⏳ syncing…';
  try{
   const r=await fetch('/api/live-news');const d=await r.json();
-  document.getElementById('liveUpdated').textContent='• Synced: '+d.updated+(d.live?' • LIVE FEED':' • cached official');
-  badge.innerHTML=d.live?'<span class="live-dot"></span> LIVE':'📌 OFFICIAL CACHE';
+  document.getElementById('liveUpdated').textContent=(hi?'• सिंक: ':'• Synced: ')+d.updated+(d.live?(hi?' • लाइव फीड':' • LIVE FEED'):(hi?' • आधिकारिक कैश':' • cached official'));
+  badge.innerHTML=d.live?'<span class="live-dot"></span> LIVE':'📌 '+(hi?'आधिकारिक कैश':'OFFICIAL CACHE');
   document.getElementById('newsBox').innerHTML=d.items.map(n=>`
    <a href="${n.url}" target="_blank" class="news-card glass rounded-2xl p-4 block">
     <div class="flex gap-2 items-center text-[10px] font-black"><span class="px-2 py-0.5 rounded-full ${n.tag==='LIVE'?'bg-red-500 text-white':'bg-amber-400 text-black'}">${n.tag}</span><span class="text-gray-400">${n.src} • ${n.date}</span></div>
     <div class="font-bold mt-1.5 text-[15px]">${n.title}</div>
-    <div class="text-amber-300 text-xs font-bold mt-1">Read source →</div>
+    <div class="text-amber-300 text-xs font-bold mt-1">${hi?'स्रोत पढ़ो →':'Read source →'}</div>
    </a>`).join('');
- }catch(e){badge.textContent='📴 offline — cached';}
+ }catch(e){badge.textContent=hi?'📴 ऑफलाइन — कैश':'📴 offline — cached';}
 }
 loadLive();setInterval(loadLive,5*60*1000);
 </script>

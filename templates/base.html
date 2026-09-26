@@ -19,8 +19,8 @@
 <div id="avatarModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4">
  <div class="glass rounded-3xl p-6 max-w-sm w-full text-center pop">
   <div class="text-5xl char-idle">🏃</div>
-  <h2 class="font-game font-black text-xl mt-2">CHOOSE YOUR <span class="neon-text">ATHLETE</span></h2>
-  <p class="text-xs text-gray-400">Ye character har game me tumhare saath ladega 💪</p>
+  <h2 class="font-game font-black text-xl mt-2" data-i18n="av.title">CHOOSE YOUR ATHLETE</h2>
+  <p class="text-xs text-gray-400" data-i18n="av.sub">Ye character har game me tumhare saath ladega 💪</p>
   <div id="avatarGrid" class="grid grid-cols-4 gap-2 mt-4"></div>
  </div>
 </div>
@@ -29,15 +29,15 @@
 <div id="lvlModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4" onclick="this.classList.add('hidden')">
  <div class="glass-gold rounded-3xl p-8 max-w-sm w-full text-center pop podium-1">
   <div class="text-6xl char-idle">🏆</div>
-  <h2 class="font-game font-black text-2xl mt-2 neon-text">LEVEL UP!</h2>
+  <h2 class="font-game font-black text-2xl mt-2 neon-text" data-i18n="lvl.title">LEVEL UP!</h2>
   <div id="lvlText" class="font-bold mt-1"></div>
-  <div class="text-sm text-gray-300 mt-1">Tap anywhere to continue 🔥</div>
+  <div class="text-sm text-gray-300 mt-1" data-i18n="lvl.sub">Tap anywhere to continue 🔥</div>
  </div>
 </div>
 
 <!-- LIVE TICKER (real 2026 updates) -->
 <div class="relative z-20 bg-gradient-to-r from-amber-400 via-orange-500 to-emerald-500 text-black text-xs md:text-sm font-bold py-1.5 overflow-hidden">
-  <div class="ticker inline-block px-4">🔴 LIVE • WADA 2026 Prohibited List IN FORCE since 1 Jan 2026 &nbsp;•&nbsp; 2027 List published (in force 1 Jan 2027) &nbsp;•&nbsp; NEW: non-diagnostic carbon-monoxide use banned (M1.4) &nbsp;•&nbsp; NADA India hosted GAIIN intel conference, New Delhi &nbsp;•&nbsp; Play 5 games • Earn 500 XP • Unlock Certificate 🏅</div>
+  <div class="ticker inline-block px-4" data-i18n="tick">🔴 LIVE • WADA 2026 Prohibited List IN FORCE since 1 Jan 2026 &nbsp;•&nbsp; 2027 List published (in force 1 Jan 2027) &nbsp;•&nbsp; NEW: non-diagnostic carbon-monoxide use banned (M1.4) &nbsp;•&nbsp; NADA India hosted GAIIN intel conference, New Delhi &nbsp;•&nbsp; Play 5 games • Earn 500 XP • Unlock Certificate 🏅</div>
 </div>
 
 <!-- NAVBAR -->
@@ -46,16 +46,16 @@
  <nav class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
   <a href="/" class="flex items-center gap-2">
     <img src="/static/icon.svg" class="w-9 h-9 rounded-xl" alt="logo">
-    <div><div class="font-game font-black text-lg leading-none neon-text">FAIRPLAY</div><div class="text-[10px] tracking-[.3em] text-gray-400">ARENA • 🇮🇳 CLEAN SPORT INDIA</div></div>
+    <div><div class="font-game font-black text-lg leading-none neon-text">FAIRPLAY</div><div class="text-[10px] tracking-[.3em] text-gray-400" data-i18n="nav.tag">ARENA • 🇮🇳 CLEAN SPORT INDIA</div></div>
   </a>
   <div class="nav-desktop items-center gap-5 text-sm font-semibold text-gray-300">
-    <a href="/" class="hover:text-amber-300">Home</a>
-    <a href="/live" class="hover:text-amber-300 flex items-center gap-1"><span class="live-dot"></span>Live Centre</a>
-    <a href="/learn" class="hover:text-amber-300">Learn</a>
-    <a href="/quiz" class="hover:text-amber-300">Quiz Quest</a>
-    <a href="/story" class="hover:text-amber-300">Road to Gold</a>
-    <a href="/checker" class="hover:text-amber-300">Checker</a>
-    <a href="/dashboard" class="hover:text-amber-300">Ranks</a>
+    <a href="/" class="hover:text-amber-300" data-i18n="nav.home">Home</a>
+    <a href="/live" class="hover:text-amber-300 flex items-center gap-1"><span class="live-dot"></span><span data-i18n="nav.live">Live Centre</span></a>
+    <a href="/learn" class="hover:text-amber-300" data-i18n="nav.learn">Learn</a>
+    <a href="/quiz" class="hover:text-amber-300" data-i18n="nav.quiz">Quiz Quest</a>
+    <a href="/story" class="hover:text-amber-300" data-i18n="nav.story">Road to Gold</a>
+    <a href="/checker" class="hover:text-amber-300" data-i18n="nav.checker">Checker</a>
+    <a href="/dashboard" class="hover:text-amber-300" data-i18n="nav.ranks">Ranks</a>
   </div>
   <div class="flex items-center gap-2">
     <div class="hidden md:block w-40">
@@ -63,6 +63,7 @@
       <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div id="xpFill" class="xp-fill h-full rounded-full" style="width:5%"></div></div>
     </div>
     <button onclick="askName()" id="playerChip" class="glass px-3 py-1.5 rounded-full text-sm font-bold">👤 Guest</button>
+    <button onclick="toggleLang()" id="langBtn" class="glass px-3 py-1.5 rounded-full text-sm font-bold border border-amber-400/50" title="Hindi / English">EN | हिंदी</button>
     <button onclick="openAvatar()" class="glass px-3 py-1.5 rounded-full text-sm font-bold" title="Change avatar">🎭</button>
     <span id="streakChip" class="glass px-2.5 py-1.5 rounded-full text-sm font-bold hidden md:inline">🔥 0d</span>
     <a href="/certificate" class="btn-champ px-3 py-1.5 rounded-full text-sm hidden sm:inline-block">🏅 Certificate</a>
@@ -92,9 +93,10 @@
  <a href="/dashboard" class="flex flex-col items-center">🏆<span>Ranks</span></a>
 </nav>
 
-<footer class="relative z-10 text-center text-gray-500 text-xs pb-10 px-4">FairPlay Arena • Major Project • Gamification of Anti-Doping Education • Sources: WADA + NADA India (linked) • Made for athletes 🏅<br>
-<button onclick="installPWA()" class="mt-2 glass px-4 py-1.5 rounded-full text-white font-bold">📲 Install App (APK-like)</button></footer>
+<footer class="relative z-10 text-center text-gray-500 text-xs pb-10 px-4"><span data-i18n="foot">FairPlay Arena • Major Project • Gamification of Anti-Doping Education • Sources: WADA + NADA India (linked) • Made for athletes 🏅</span><br>
+<button onclick="installPWA()" class="mt-2 glass px-4 py-1.5 rounded-full text-white font-bold" data-i18n="nav.install">📲 Install App (APK-like)</button></footer>
 
+<script src="/static/js/i18n.js"></script>
 <script src="/static/js/main.js"></script>
 {% block scripts %}{% endblock %}
 </body>

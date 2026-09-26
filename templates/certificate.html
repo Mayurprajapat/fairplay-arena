@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Certificate{% endblock %}
 {% block content %}
-<h1 class="font-game font-black text-3xl">🏅 FAIR PLAY <span class="neon-text">CERTIFICATE</span></h1>
-<p class="text-gray-400 text-sm">Need 100+ XP to unlock. Enter name exactly as on college ID.</p>
+<h1 class="font-game font-black text-3xl" id="certTitle">🏅 FAIR PLAY CERTIFICATE</h1>
+<p class="text-gray-400 text-sm" id="certSub">Need 100+ XP to unlock. Enter name exactly as on college ID.</p>
 <div class="max-w-2xl mx-auto mt-4">
  <div class="flex gap-2">
   <input id="certName" placeholder="Your full name" class="flex-1 glass rounded-2xl px-4 py-3 outline-none">
-  <button onclick="makeCert()" class="btn-neon px-5 rounded-2xl font-bold">Generate</button>
+  <button onclick="makeCert()" class="btn-neon px-5 rounded-2xl font-bold" id="certBtn">Generate</button>
  </div>
  <div id="certLock" class="glass rounded-3xl p-6 mt-4 text-center"></div>
  <div id="certPaper" class="hidden cert-paper rounded-3xl p-8 mt-4 text-center border-4 border-double border-yellow-500 pop">
@@ -24,15 +24,25 @@
 {% block scripts %}
 <script>
 document.getElementById('certName').value=getName()==='Guest'?'':getName();
+function certStatic(){
+ const hi=LANG()==='hi';
+ document.getElementById('certTitle').textContent=hi?'🏅 फेयर प्ले प्रमाणपत्र':'🏅 FAIR PLAY CERTIFICATE';
+ document.getElementById('certSub').textContent=hi?'अनलॉक के लिए 100+ XP चाहिए। कॉलेज ID वाला पूरा नाम लिखो।':'Need 100+ XP to unlock. Enter name exactly as on college ID.';
+ document.getElementById('certName').placeholder=hi?'तुम्हारा पूरा नाम':'Your full name';
+ document.getElementById('certBtn').textContent=hi?'बनाओ':'Generate';
+}
+function afterLangChange(){certStatic();makeCert()}
+certStatic();
 function makeCert(){
+ const hi=LANG()==='hi';
  const n=document.getElementById('certName').value.trim();
  if(n)localStorage.setItem('fp_name',n);
  const xp=getXP();renderXP();
  const lock=document.getElementById('certLock'),paper=document.getElementById('certPaper');
- if(xp<100){paper.classList.add('hidden');lock.innerHTML=`🔒 Locked! You have <b>${xp} XP</b>, need <b>100 XP</b>.<br><span class="text-sm text-gray-400">Fast path: Quiz (100) + 1 Learn module (10) = unlocked in 10 min!</span><br><a href="/quiz" class="btn-neon inline-block px-5 py-2 rounded-xl font-bold mt-2 text-sm">Play Quiz Now →</a>`;say('Only '+(100-xp)+' XP away from certificate!')}
- else{lock.innerHTML=`✅ Unlocked! <b>${xp} XP</b> — Clean Athlete status! Take screenshot for viva.`;paper.classList.remove('hidden');
+ if(xp<100){paper.classList.add('hidden');lock.innerHTML=hi?`🔒 बंद है! तुम्हारे पास <b>${xp} XP</b> है, <b>100 XP</b> चाहिए।<br><span class="text-sm text-gray-400">तेज रास्ता: क्विज़ (100) + 1 लर्न मॉड्यूल (10) = 10 मिनट में अनलॉक!</span><br><a href="/quiz" class="btn-neon inline-block px-5 py-2 rounded-xl font-bold mt-2 text-sm">अभी क्विज़ खेलो →</a>`:`🔒 Locked! You have <b>${xp} XP</b>, need <b>100 XP</b>.<br><span class="text-sm text-gray-400">Fast path: Quiz (100) + 1 Learn module (10) = unlocked in 10 min!</span><br><a href="/quiz" class="btn-neon inline-block px-5 py-2 rounded-xl font-bold mt-2 text-sm">Play Quiz Now →</a>`;say(hi?'प्रमाणपत्र से सिर्फ '+(100-xp)+' XP दूर!':'Only '+(100-xp)+' XP away from certificate!')}
+ else{lock.innerHTML=hi?`✅ खुल गया! <b>${xp} XP</b> — क्लीन एथलीट! वाइवा के लिए स्क्रीनशॉट लो।`:`✅ Unlocked! <b>${xp} XP</b> — Clean Athlete status! Take screenshot for viva.`;paper.classList.remove('hidden');
  document.getElementById('certWho').textContent=n||getName();document.getElementById('certXP').textContent=xp;document.getElementById('certDate').textContent=new Date().toLocaleDateString('en-IN');
- pushScore('certificate',0);say('Certificate unlocked! Proud of you champ! 🏅')}
+ pushScore('certificate',0);say(hi?'प्रमाणपत्र अनलॉक! तुम पर गर्व है चैंपियन! 🏅':'Certificate unlocked! Proud of you champ! 🏅')}
 }
 makeCert();
 </script>

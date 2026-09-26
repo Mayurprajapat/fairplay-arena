@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Memory Match{% endblock %}
 {% block content %}
-<h1 class="font-game font-black text-3xl">🧠 MEMORY <span class="neon-text">MATCH</span></h1>
-<p class="text-gray-400 text-sm"><span class="char-idle">🛡️</span> DopeGuard ne cards chhupaye! Jodi banao • <span id="starShow">⭐⭐⭐</span> • max 60 XP</p>
-<div class="flex gap-2 mt-3 text-sm font-bold flex-wrap"><span class="glass px-3 py-1 rounded-full">Moves: <span id="mMoves">0</span></span><span class="glass px-3 py-1 rounded-full">Pairs: <span id="mPairs">0</span>/6</span><span class="glass px-3 py-1 rounded-full">Rank: <span id="mRank">⭐⭐⭐</span></span><button onclick="startMemo()" class="btn-champ px-4 py-1 rounded-full">↻ Shuffle</button></div>
+<h1 class="font-game font-black text-3xl" id="memTitle">🧠 MEMORY MATCH</h1>
+<p class="text-gray-400 text-sm" id="memSub">DopeGuard ne cards chhupaye! Jodi banao • max 60 XP</p>
+<div class="flex gap-2 mt-3 text-sm font-bold flex-wrap"><span class="glass px-3 py-1 rounded-full"><span id="memMovesL">Moves</span>: <span id="mMoves">0</span></span><span class="glass px-3 py-1 rounded-full"><span id="memPairsL">Pairs</span>: <span id="mPairs">0</span>/6</span><span class="glass px-3 py-1 rounded-full"><span id="memRankL">Rank</span>: <span id="mRank">⭐⭐⭐</span></span><button onclick="startMemo()" class="btn-champ px-4 py-1 rounded-full" id="memBtn">↻ Shuffle</button></div>
 <div id="memoGrid" class="grid grid-cols-3 md:grid-cols-4 gap-3 mt-4 max-w-3xl"></div>
 <div id="memoWin" class="hidden glass-gold rounded-2xl p-5 mt-4 max-w-3xl text-center font-bold"></div>
 {% endblock %}
@@ -20,7 +20,18 @@ function startMemo(){
  updM();
 }
 function updM(){document.getElementById('mMoves').textContent=moves;document.getElementById('mPairs').textContent=pairs;
- const r=moves<=10?'⭐⭐⭐':moves<=16?'⭐⭐':'⭐';document.getElementById('mRank').textContent=r;document.getElementById('starShow').textContent=r}
+ const r=moves<=10?'⭐⭐⭐':moves<=16?'⭐⭐':'⭐';document.getElementById('mRank').textContent=r}
+function memStatic(){
+ const hi=LANG()==='hi';
+ document.getElementById('memTitle').textContent=hi?'🧠 मेमोरी मैच':'🧠 MEMORY MATCH';
+ document.getElementById('memSub').textContent=hi?'डोपगार्ड ने पत्ते छिपाए! जोड़ी बनाओ • अधिकतम 60 XP':'DopeGuard ne cards chhupaye! Jodi banao • max 60 XP';
+ document.getElementById('memMovesL').textContent=hi?'चालें':'Moves';
+ document.getElementById('memPairsL').textContent=hi?'जोड़ियाँ':'Pairs';
+ document.getElementById('memRankL').textContent=hi?'रैंक':'Rank';
+ document.getElementById('memBtn').textContent=hi?'↻ फेंटो':'↻ Shuffle';
+}
+function afterLangChange(){memStatic()}
+memStatic();
 function flipM(el){
  if(lockM||el.classList.contains('flip'))return;
  el.classList.add('flip');sfx('good');
@@ -35,11 +46,12 @@ function flipM(el){
  updM();
 }
 function winM(){
+ const hi=LANG()==='hi';
  let xp=Math.max(20,60-moves*2);addXP(xp);pushScore('memory',xp);confetti(130);sfx('level');
- const stars=moves<=10?'⭐⭐⭐ LEGENDARY!':moves<=16?'⭐⭐ SUPER!':'⭐ NICE!';
+ const stars=moves<=10?(hi?'⭐⭐⭐ शानदार!':'⭐⭐⭐ LEGENDARY!'):moves<=16?(hi?'⭐⭐ बढ़िया!':'⭐⭐ SUPER!'):(hi?'⭐ अच्छा!':'⭐ NICE!');
  const w=document.getElementById('memoWin');w.classList.remove('hidden');
- w.innerHTML=`<div class="text-4xl char-idle">🏆</div><div class="font-game font-black text-xl mt-1">${stars}</div><div>All 6 pairs in ${moves} moves! +${xp} XP</div><a href="/story" class="btn-champ inline-block px-5 py-2 rounded-xl mt-2 text-sm">Next: Road to Gold →</a>`;
- say('Memory master! '+stars+' +'+xp+' XP');
+ w.innerHTML=`<div class="text-4xl char-idle">🏆</div><div class="font-game font-black text-xl mt-1">${stars}</div><div>${hi?`6 जोड़ियाँ ${moves} चालों में! +${xp} XP`:`All 6 pairs in ${moves} moves! +${xp} XP`}</div><a href="/story" class="btn-champ inline-block px-5 py-2 rounded-xl mt-2 text-sm">${hi?'Next: गोल्ड तक का सफर →':'Next: Road to Gold →'}</a>`;
+ say((hi?'मेमोरी मास्टर! ':'Memory master! ')+stars+' +'+xp+' XP');
 }
 startMemo();
 </script>

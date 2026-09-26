@@ -29,19 +29,46 @@
 {% block scripts %}
 <script>
 let DN=[],di=0,ds=0,lock=false,dstreak=0;
+const HIDN=[
+ {t:"टेस्ट से पहले सामान्य पानी पीना डोपिंग है",w:"हाइड्रेशन ठीक है, बल्कि जरूरी है।"},
+ {t:"फाइनल से पहले दोस्त का इनहेलर लेना ठीक है",w:"कभी दूसरे की पर्ची मत लो। खुद की TUE + पर्ची चाहिए।"},
+ {t:"सर्टिफाइड (Informed-Sport) ब्रांड का प्रोटीन ज्यादा सुरक्षित है",w:"Batch-tested = मिलावट का खतरा कम।"},
+ {t:"डोप टेस्ट से इनकार करने पर कोई सजा नहीं",w:"इनकार = उल्लंघन, 4 साल तक बैन।"},
+ {t:"EPO अवैध तरीके से स्टैमिना बढ़ाता है",w:"EPO लाल रक्त कोशिकाएँ बढ़ाता है — S2 में प्रतिबंधित।"},
+ {t:"सामान्य चाय/कॉफी में कैफीन प्रतिबंधित है",w:"कैफीन allowed है।"},
+ {t:"डाइयूरेटिक्स दूसरी दवाएँ छिपा सकते हैं",w:"हाँ — S5 हमेशा प्रतिबंधित।"},
+ {t:"TUE से असली बीमारी में प्रतिबंधित दवा ले सकते हो",w:"NADA/WADA मंजूरी के साथ, हाँ।"},
+ {t:"बीटा-ब्लॉकर्स निशानेबाजी में फायदा देते हैं",w:"कंपन कम करते हैं — सटीकता खेलों में प्रतिबंधित।"},
+ {t:"सप्लीमेंट्स में कभी मिलावट नहीं हो सकती",w:"शोध में मिलावट आम है। सख्त दायित्व!"},
+ {t:"A-सैंपल पॉजिटिव हो तो B-सैंपल माँग सकते हो",w:"एथलीट का अधिकार — B-सैंपल जाँच।"},
+ {t:"मैच के दिन भांग allowed है",w:"सीमा से ऊपर प्रतियोगिता में प्रतिबंधित।"},
+ {t:"प्रदर्शन के लिए रक्त चढ़ाना कानूनी है",w:"M1 निषिद्ध तरीका — प्रतिबंधित।"},
+ {t:"बुखार में पैरासिटामोल आमतौर पर allowed है",w:"प्रतिबंधित सूची में नहीं है।"},
+ {t:"डोपिंग में मदद करने पर कोच को भी सजा हो सकती है",w:"तस्करी/मिलीभगत = सपोर्ट स्टाफ के लिए भी उल्लंघन।"},
+];
+function LDN(idx){const c=DN[idx];if(LANG()==='hi'&&HIDN[idx])return{t:HIDN[idx].t,a:c.a,why:HIDN[idx].w};return c}
+function dnStatic(){
+ const hi=LANG()==='hi';
+ document.querySelector('#dnStart .font-game').textContent=hi?'डोपू के झूठ पकड़ो!':'DOPU KE JHOOTH PAKDO!';
+ document.querySelector('#dnStart p').textContent=hi?'डोपू तुम्हें confuse करेगा। सही पकड़ो = +5 XP + कंफ़ेटी 🎉':'Dopu tumhe confuse karega. Sahi pakdo = +5 XP + confetti 🎉';
+ document.querySelector('#dnStart button').textContent=hi?'🥊 लड़ाई शुरू करो':'🥊 START FIGHT';
+ document.getElementById('dnNext').textContent=hi?'📖 समझ गया, Next →':'📖 Samajh gaya, Next →';
+}
+function afterLangChange(){dnStatic();if(!document.getElementById('dnPlay').classList.contains('hidden')&&DN.length){showDN()}}
+dnStatic();
 document.getElementById('dnHero').textContent=getAvatar();
 document.getElementById('dnHeroBig').textContent=getAvatar();
 document.getElementById('dnH').textContent=getAvatar();
 async function startDN(){DN=await(await fetch('/api/dope-nope')).json();di=0;ds=0;dstreak=0;lock=false;
  document.getElementById('dnStart').classList.add('hidden');document.getElementById('dnEnd').classList.add('hidden');document.getElementById('dnPlay').classList.remove('hidden');showDN()}
-function showDN(){lock=false;const c=DN[di];document.getElementById('dnI').textContent=di+1;document.getElementById('dnS').textContent=ds;
+function showDN(){lock=false;const c=LDN(di);document.getElementById('dnI').textContent=di+1;document.getElementById('dnS').textContent=ds;
  document.getElementById('dnBar').style.width=(di/DN.length*100)+'%';
  const el=document.getElementById('dnCard');el.className='swipe-card bg-black/40 border border-white/15 rounded-3xl p-8 mt-3 text-xl font-bold min-h-[140px] flex items-center justify-center card-enter';
  el.textContent='😈 "'+c.t+'"';el.style.borderColor='rgba(255,255,255,.15)';
  document.getElementById('dnWhy').classList.add('hidden');
  document.getElementById('dnBtns').classList.remove('hidden');
  document.getElementById('dnNext').classList.add('hidden')}
-function dnAns(v){if(lock)return;lock=true;const c=DN[di];
+function dnAns(v){if(lock)return;lock=true;const hi=LANG()==='hi';const c=LDN(di);
  const ok=(v===c.a);
  const card=document.getElementById('dnCard');
  card.classList.add(ok?'card-throw-right':'card-throw-left');
@@ -50,19 +77,20 @@ function dnAns(v){if(lock)return;lock=true;const c=DN[di];
  if(ok){ds+=5;dstreak++;confetti(40);sfx('good')}else{dstreak=0;sfx('bad')}
  const cb=document.getElementById('dnCombo');
  cb.textContent=dstreak>=3?'🔥 COMBO x'+dstreak+'!':'';cb.className=dstreak>=3?'fire-streak text-amber-300':'';
- const head=ok?'✅ PAKDA! Dopu ka jhooth fail! +5 XP':'❌ Dopu hans raha 😈 — sach padho 👇';
- const truth=c.a?'✔ Correct: <b>DOPE (TRUE)</b> — statement sahi hai.':'✔ Correct: <b>NOPE (FALSE)</b> — statement galat hai.';
+ const head=ok?(hi?'✅ पकड़ा! डोपू का झूठ फेल! +5 XP':'✅ PAKDA! Dopu ka jhooth fail! +5 XP'):(hi?'❌ डोपू हँस रहा 😈 — सच पढ़ो 👇':'❌ Dopu hans raha 😈 — sach padho 👇');
+ const truth=c.a?(hi?'✔ सही: <b>DOPE (सच)</b> — कथन सही है।':'✔ Correct: <b>DOPE (TRUE)</b> — statement sahi hai.'):(hi?'✔ सही: <b>NOPE (झूठ)</b> — कथन गलत है।':'✔ Correct: <b>NOPE (FALSE)</b> — statement galat hai.');
  w.className='mt-3 rounded-2xl p-4 text-left pop '+(ok?'bg-emerald-400/10 border border-emerald-400/50':'bg-pink-500/10 border border-pink-500/50');
- w.innerHTML=`<div class="font-black text-base">${head}</div><div class="text-sm mt-1">${truth}</div><div class="text-sm mt-2 text-gray-200">📚 <b>Learn:</b> ${c.why}</div>`;
+ w.innerHTML=`<div class="font-black text-base">${head}</div><div class="text-sm mt-1">${truth}</div><div class="text-sm mt-2 text-gray-200">📚 <b>${hi?'सीखो':'Learn'}:</b> ${c.why}</div>`;
  document.getElementById('dnS').textContent=ds;
  document.getElementById('dnBtns').classList.add('hidden');
  document.getElementById('dnNext').classList.remove('hidden');
  w.scrollIntoView({behavior:'smooth',block:'nearest'})}
 function dnNext(){di++;if(di>=DN.length){finDN()}else showDN()}
 function finDN(){document.getElementById('dnPlay').classList.add('hidden');const e=document.getElementById('dnEnd');e.classList.remove('hidden');
+ const hi=LANG()==='hi';
  const win=ds>=45;document.getElementById('dnEndEmoji').textContent=win?'🏆':'😈';
- document.getElementById('dnT').textContent=win?`DOPU HARA! ${ds} XP`:`${ds} XP — Dopu: "phir aana!" 😈`;
- document.getElementById('dnSub').textContent=win?'Shandaar! Memory game me aur XP lo!':'Rematch lo — ab tum uske saare jhooth jaante ho!';
+ document.getElementById('dnT').textContent=win?(hi?`डोपू हारा! ${ds} XP`:`DOPU HARA! ${ds} XP`):(hi?`${ds} XP — डोपू: "फिर आना!" 😈`:`${ds} XP — Dopu: "phir aana!" 😈`);
+ document.getElementById('dnSub').textContent=win?(hi?'शानदार! मेमोरी गेम में और XP लो!':'Shandaar! Memory game me aur XP lo!'):(hi?'फिर लड़ो — अब उसके सारे झूठ जानते हो!':'Rematch lo — ab tum uske saare jhooth jaante ho!');
  if(win){confetti(120);sfx('level')}
  addXP(ds);pushScore('dope-nope',ds)}
 </script>

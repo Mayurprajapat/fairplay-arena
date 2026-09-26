@@ -71,7 +71,10 @@ function askName(){
  if(n&&n.trim()){localStorage.setItem('fp_name',n.trim().slice(0,30));renderXP();say('Nice! I saved your name as '+n.trim());}
 }
 function say(t){const b=document.getElementById('mascotBox'),x=document.getElementById('mascotText');if(!b)return;b.classList.remove('hidden');x.textContent=t;clearTimeout(window._mt);window._mt=setTimeout(()=>b.classList.add('hidden'),4500)}
-function toggleMascot(){const tips=['2026 List is IN FORCE since 1 Jan 2026 — check Live Centre!','NEW 2026: non-diagnostic carbon-monoxide use banned (M1.4)!','Strict liability: YOU are responsible for everything in your body!','Supplements? Only batch-tested (Informed-Sport) brands!','Need medicine? Check Global DRO + ask for TUE!','NADA helpline: report doping at speakup-nada@gov.in'];say(tips[Math.floor(Math.random()*tips.length)])}
+function toggleMascot(){
+ const hi=(typeof LANG==='function'&&LANG()==='hi');
+ const tips=hi?HI_TIPS:['2026 List is IN FORCE since 1 Jan 2026 — check Live Centre!','NEW 2026: non-diagnostic carbon-monoxide use banned (M1.4)!','Strict liability: YOU are responsible for everything in your body!','Supplements? Only batch-tested (Informed-Sport) brands!','Need medicine? Check Global DRO + ask for TUE!','NADA helpline: report doping at speakup-nada@gov.in'];
+ say(tips[Math.floor(Math.random()*tips.length)])}
 const BADGES=[{id:'first',xp:20,t:'🎯 First Steps'},{id:'half',xp:120,t:'⚡ Challenger'},{id:'pro',xp:250,t:'🔥 Pro Athlete'},{id:'legend',xp:400,t:'🏆 Clean Legend'}];
 function checkBadges(){
  const xp=getXP();let ub=JSON.parse(localStorage.getItem('fp_badges')||'[]');
