@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+airplay.db
+live_cache.json
+.vercel

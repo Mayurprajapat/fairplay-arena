@@ -1,7 +1,13 @@
 # 🏟️ FairPlay Arena — Gamification of Anti-Doping Information
 ### Major Project | Play. Learn. Stay Clean.
 
+**🌍 LIVE SITE: https://fairplay-arena-theta.vercel.app**
+
 Attractive gamified website + mobile-app-like (PWA) for athletes to learn anti-doping through games.
+
+## 🔄 Auto-update workflow (changes live kaise honge)
+- **Option A (permanent):** GitHub repo connect karo → har `git push` pe Vercel khud redeploy karega (neeche steps).
+- **Option B (quick):** Is folder me `vercel --prod` chalao → 20 sec me live site update.
 
 ## ✨ Features (jury ko impress karne wale)
 - 🎯 **Quiz Quest** — 15 timed WADA questions, streak bonus, 50/50 lifeline, +100 XP
