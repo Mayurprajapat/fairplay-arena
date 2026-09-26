@@ -41,11 +41,12 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
   const timeUsed = 30 - seconds;
 
   const speakQ = useCallback(
-    (qq, map) => {
+    (qq, map, last) => {
       setHost("speaking");
       // Host reads the question + all four options aloud (KBC-style, original voice)
       const opts = map.options.map((t, i) => `${L.opt} ${LETTERS[i]}: ${t}.`).join(" ");
-      speech.speak(`${L.nextQ} ${qq.question} ${opts}`, { lang: voiceLang, preset: "host", onend: () => setHost("thinking") });
+      const pre = last ? `${L.lastQ} ` : "";
+      speech.speak(`${pre}${L.nextQ} ${qq.question} ${opts}`, { lang: voiceLang, preset: "host", onend: () => setHost("thinking") });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [speech, voiceLang]
@@ -63,7 +64,7 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
     setShowExpert(false);
     setSeconds(30);
     sfx.transition();
-    speakQ(questions[qi], m);
+    speakQ(questions[qi], m, qi === questions.length - 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qi]);
 
@@ -79,7 +80,13 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seconds, phase]);
 
-  useEffect(() => () => { speech.stop(); clearTimeout(lockTimer.current); }, [speech]);
+  // 10-second warning from the host
+  useEffect(() => {
+    if (phase === "selecting" && seconds === 10) {
+      speech.speak(L.tenSec, { lang: voiceLang, preset: "host" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seconds, phase]);
 
   const recordAnswer = (isCorrect) => {
     const s = stats.current;
@@ -100,6 +107,8 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
     setLog((l) => [...l, { id: q.id, correct: isCorrect, time: timeUsed, lifelines: used.length }]);
   };
 
+  useEffect(() => () => { speech.stop(); clearTimeout(lockTimer.current); }, [speech]);
+
   const reveal = (isCorrect, timedOut) => {
     setPhase("revealed");
     setHost(isCorrect ? "correct" : "wrong");
@@ -107,7 +116,8 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
       sfx.correct();
       sfx.crowd();
       setBursts((b) => b + 1);
-      speech.speak(`${pickLine(L.correct, qi)} Plus ${q.ladderPoints} Fair Play Points.`, { lang: voiceLang, preset: "host" });
+      const praise = streak + 1 >= 3 ? L.streak : pickLine(L.correct, qi);
+      speech.speak(`${praise} Plus ${q.ladderPoints} Fair Play Points.`, { lang: voiceLang, preset: "host" });
     } else if (timedOut) {
       sfx.timeout();
       speech.speak(L.timeout, { lang: voiceLang, preset: "host" });
@@ -128,6 +138,7 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
     if (phase !== "selecting") return;
     sfx.lock();
     sfx.drumroll();
+    speech.speak(L.locking, { lang: voiceLang, preset: "host" });
     setPhase("locked");
     setHost("thinking");
     speech.stop();
@@ -139,6 +150,7 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
     if (phase !== "selecting") return;
     sfx.lock();
     sfx.drumroll();
+    speech.speak(L.locking, { lang: voiceLang, preset: "host" });
     setPhase("locked");
     setHost("thinking");
     speech.stop();
@@ -240,8 +252,9 @@ export default function Game({ save, onFinish, notifyAchievements, speech, voice
             onSelect={(i) => {
               if (phase !== "selecting") return;
               sfx.select();
-              speech.stop();
               setSelected(i);
+              setHost("speaking");
+              speech.speak(L.confirm(LETTERS[i]), { lang: voiceLang, preset: "host", onend: () => setHost("thinking") });
             }}
           />
 

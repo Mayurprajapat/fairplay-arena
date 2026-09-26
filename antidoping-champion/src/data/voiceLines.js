@@ -18,6 +18,11 @@ export const LINES = {
     ],
     lifeline: "You've chosen to use a lifeline.",
     timeout: "Time's up! Let's see the correct answer.",
+    confirm: (letter) => `Option ${letter}. Are you confident? Shall I lock it?`,
+    locking: "Locking your final answer!",
+    lastQ: "Final question! Twenty thousand Fair Play Points at stake!",
+    tenSec: "Only ten seconds left! Decide fast!",
+    streak: "Three in a row! Outstanding play!",
     final: (c, t, e) =>
       `Congratulations! You have completed the Anti-Doping Champion challenge. ${c} correct out of ${t}, earning ${e} Fair Play Points.`,
   },
@@ -39,6 +44,11 @@ export const LINES = {
     ],
     lifeline: "आपने लाइफलाइन चुनी है।",
     timeout: "समय समाप्त! चलिए सही उत्तर देखते हैं।",
+    confirm: (letter) => `विकल्प ${letter}। पक्का? लॉक कर दूँ?`,
+    locking: "आपका अंतिम उत्तर लॉक हो रहा है!",
+    lastQ: "आखिरी प्रश्न! बीस हज़ार फेयर प्ले पॉइंट्स दांव पर!",
+    tenSec: "सिर्फ दस सेकंड बचे हैं! जल्दी फैसला कीजिए!",
+    streak: "लगातार तीन सही! क्या बात है!",
     final: (c, t, e) =>
       `बधाई हो! आपने एंटी डोपिंग चैंपियन चुनौती पूरी कर ली। ${t} में से ${c} सही उत्तर, और ${e} फेयर प्ले पॉइंट्स।`,
   },
