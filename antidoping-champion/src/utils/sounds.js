@@ -110,4 +110,26 @@ export const sfx = {
   tick() {
     tone(1000, 1000, 0.05, "square", 0.07);
   },
+  // KBC-style suspense drumroll before answer reveal (original synth)
+  drumroll() {
+    for (let i = 0; i < 10; i++) noise(0.07, 0.16, 900, i * 0.085);
+    tone(90, 70, 0.9, "sine", 0.16);
+  },
+  // stadium crowd cheer
+  crowd() {
+    noise(1.5, 0.14, 1600);
+    noise(1.2, 0.1, 900, 0.15);
+    [659, 784, 1046].forEach((f, i) => tone(f, f, 0.2, "triangle", 0.1, 0.1 + i * 0.12));
+  },
+  // time's up sting
+  timeout() {
+    tone(392, 392, 0.14, "square", 0.14);
+    tone(311, 311, 0.14, "square", 0.14, 0.13);
+    tone(233, 180, 0.4, "sawtooth", 0.16, 0.26);
+  },
+  // lifeline / poll panel reveal shimmer
+  reveal() {
+    tone(500, 1200, 0.25, "sine", 0.12);
+    tone(1200, 1600, 0.2, "sine", 0.08, 0.18);
+  },
 };

@@ -2,22 +2,21 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Host from "../components/Host";
 import VoiceControls from "../components/VoiceControls";
+import { LINES } from "../data/voiceLines";
 import { sfx } from "../utils/sounds";
 
-const INTRO_LINE =
-  "Welcome to Anti-Doping Champion. Today, your knowledge of clean sport will be tested. Answer questions, earn Fair Play Points and unlock exclusive achievements.";
-
 // Host introduction stage with name entry
-export default function Intro({ save, setName, go, speech }) {
+export default function Intro({ save, setName, go, speech, voiceLang = "hi", onLang }) {
+  const L = LINES[voiceLang] || LINES.en;
   const [name, setNameLocal] = useState(save.name || "");
   const [hostState, setHostState] = useState("speaking");
 
   useEffect(() => {
-    speech.speak(INTRO_LINE, { onend: () => setHostState("excited") });
+    speech.speak(L.intro, { lang: voiceLang, onend: () => setHostState("excited") });
     setHostState("speaking");
     return () => speech.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [voiceLang]);
 
   useEffect(() => {
     setHostState(speech.speaking ? "speaking" : "excited");
@@ -40,9 +39,9 @@ export default function Intro({ save, setName, go, speech }) {
           <Host state={hostState} size={190} jersey={save.jersey} />
           <div className="glass rounded-2xl p-4 mt-4 max-w-xl text-left">
             <div className="text-[11px] tracking-widest text-amber-300 font-bold">🎙️ ARJUN SAYS</div>
-            <p className="mt-1 text-sm md:text-base">“{INTRO_LINE}”</p>
+            <p className="mt-1 text-sm md:text-base">“{L.intro}”</p>
             <div className="mt-3 flex justify-end">
-              <VoiceControls speech={speech} onReplayText={INTRO_LINE} />
+              <VoiceControls speech={speech} onReplayText={L.intro} lang={voiceLang} onLang={onLang} />
             </div>
           </div>
           <div className="w-full max-w-sm mt-5">

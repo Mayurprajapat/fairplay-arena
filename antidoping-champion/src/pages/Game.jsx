@@ -9,18 +9,13 @@ import PointsDisplay from "../components/PointsDisplay";
 import VoiceControls from "../components/VoiceControls";
 import Confetti from "../components/Confetti";
 import { LETTERS, makePoll, pickGameQuestions, shuffleOptions } from "../utils/gameLogic";
+import { LINES, pickLine } from "../data/voiceLines";
 import { fmt, levelFor } from "../utils/points";
 import { checkAchievements, ACHIEVEMENTS } from "../utils/achievements";
 import { sfx } from "../utils/sounds";
 
-const HOST_LINES = {
-  welcome: "Here comes your next question.",
-  correct: "That's correct! Excellent work.",
-  wrong: "That's not quite right. But remember, every mistake is an opportunity to learn.",
-  lifeline: "You've chosen to use a lifeline.",
-};
-
-export default function Game({ save, onFinish, notifyAchievements, speech }) {
+export default function Game({ save, onFinish, notifyAchievements, speech, voiceLang = "hi", onLang }) {
+  const L = LINES[voiceLang] || LINES.en;
   const [questions] = useState(() => pickGameQuestions());
   const [qi, setQi] = useState(0);
   const [mapping, setMapping] = useState(() => shuffleOptions(questions[0]));
@@ -48,9 +43,10 @@ export default function Game({ save, onFinish, notifyAchievements, speech }) {
   const speakQ = useCallback(
     (qq) => {
       setHost("speaking");
-      speech.speak(`${HOST_LINES.welcome} ${qq.question}`, { onend: () => setHost("thinking") });
+      speech.speak(`${L.nextQ} ${qq.question}`, { lang: voiceLang, onend: () => setHost("thinking") });
     },
-    [speech]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [speech, voiceLang]
   );
 
   // present question
@@ -101,16 +97,20 @@ export default function Game({ save, onFinish, notifyAchievements, speech }) {
     setLog((l) => [...l, { id: q.id, correct: isCorrect, time: timeUsed, lifelines: used.length }]);
   };
 
-  const reveal = (isCorrect) => {
+  const reveal = (isCorrect, timedOut) => {
     setPhase("revealed");
     setHost(isCorrect ? "correct" : "wrong");
     if (isCorrect) {
       sfx.correct();
+      sfx.crowd();
       setBursts((b) => b + 1);
-      speech.speak(`${HOST_LINES.correct} Plus ${q.ladderPoints} Fair Play Points.`);
+      speech.speak(`${pickLine(L.correct, qi)} Plus ${q.ladderPoints} Fair Play Points.`, { lang: voiceLang });
+    } else if (timedOut) {
+      sfx.timeout();
+      speech.speak(L.timeout, { lang: voiceLang });
     } else {
       sfx.wrong();
-      speech.speak(HOST_LINES.wrong);
+      speech.speak(pickLine(L.wrong, qi), { lang: voiceLang });
     }
     recordAnswer(isCorrect);
     // live achievement check (streak / speed)
@@ -124,27 +124,32 @@ export default function Game({ save, onFinish, notifyAchievements, speech }) {
   const doLock = () => {
     if (phase !== "selecting") return;
     sfx.lock();
+    sfx.drumroll();
     setPhase("locked");
     setHost("thinking");
     speech.stop();
     const wasCorrect = selected !== null && selected === correctIdx;
-    lockTimer.current = setTimeout(() => reveal(wasCorrect), 950);
+    lockTimer.current = setTimeout(() => reveal(wasCorrect, false), 1400);
   };
 
   const autoLock = () => {
     if (phase !== "selecting") return;
+    sfx.lock();
+    sfx.drumroll();
     setPhase("locked");
     setHost("thinking");
     speech.stop();
-    const wasCorrect = selected !== null && selected === correctIdx;
-    lockTimer.current = setTimeout(() => reveal(wasCorrect), 950);
+    const noAnswer = selected === null;
+    const wasCorrect = !noAnswer && selected === correctIdx;
+    lockTimer.current = setTimeout(() => reveal(wasCorrect, noAnswer), 1400);
   };
 
   const useLifeline = (id) => {
     if (used.includes(id) || phase !== "selecting") return;
     sfx.lifeline();
+    sfx.reveal();
     setHost("lifeline");
-    speech.speak(`${HOST_LINES.lifeline} ${id === "advice" ? q.athleteHint : id === "expert" ? q.expertHint : ""}`);
+    speech.speak(`${L.lifeline} ${id === "advice" ? q.athleteHint : id === "expert" ? q.expertHint : ""}`, { lang: voiceLang });
     setUsed((u) => [...u, id]);
     stats.current.lifelines += 1;
     if (id === "fifty") {
@@ -203,7 +208,7 @@ export default function Game({ save, onFinish, notifyAchievements, speech }) {
         <PointsDisplay value={totalFppLive} />
         <div className="flex items-center gap-2 md:gap-3">
           <Timer secondsLeft={seconds} running={phase === "selecting"} />
-          <VoiceControls speech={speech} onReplayText={`${HOST_LINES.welcome} ${q.question}`} />
+          <VoiceControls speech={speech} onReplayText={`${L.nextQ} ${q.question}`} lang={voiceLang} onLang={onLang} />
         </div>
       </div>
       <div className="h-1.5 rounded-full bg-white/10 overflow-hidden mt-2">

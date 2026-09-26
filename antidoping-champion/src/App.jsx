@@ -178,13 +178,13 @@ export default function App() {
       <main className="flex-1">
         {route === "home" && <Home save={save} go={go} speech={speech} />}
         {route === "intro" && (
-          <Intro save={save} setName={(n) => patch({ name: n })} go={go} speech={speech} />
+          <Intro save={save} setName={(n) => patch({ name: n })} go={go} speech={speech} voiceLang={save.voiceLang || "hi"} onLang={(l) => patch({ voiceLang: l })} />
         )}
         {route === "game" && (
-          <Game save={save} onFinish={finishGame} notifyAchievements={notifyAchievements} speech={speech} />
+          <Game save={save} onFinish={finishGame} notifyAchievements={notifyAchievements} speech={speech} voiceLang={save.voiceLang || "hi"} onLang={(l) => patch({ voiceLang: l })} />
         )}
         {route === "results" && result && (
-          <Results result={result} save={save} go={go} speech={speech} />
+          <Results result={result} save={save} go={go} speech={speech} voiceLang={save.voiceLang || "hi"} />
         )}
         {route === "results" && !result && <Home save={save} go={go} speech={speech} />}
         {route === "store" && <RewardStore save={save} redeem={redeem} go={go} />}

@@ -1,12 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Web Speech API wrapper: speak / pause / resume / replay / stop / mute
-function pickVoice() {
+// Supports English (en-IN) + Hindi (hi-IN) voices — KBC-style feel, original lines
+function pickVoice(lang = "en") {
   try {
     const vs = window.speechSynthesis?.getVoices?.() || [];
+    const low = (l) => (l || "").toLowerCase();
+    if (lang === "hi") {
+      return (
+        vs.find((v) => low(v.lang).startsWith("hi")) ||
+        vs.find((v) => low(v.name).includes("hindi")) ||
+        vs.find((v) => low(v.lang).startsWith("en-in")) ||
+        vs.find((v) => low(v.lang).startsWith("en")) ||
+        vs[0] ||
+        null
+      );
+    }
     return (
-      vs.find((v) => v.lang?.toLowerCase().startsWith("en-in")) ||
-      vs.find((v) => v.lang?.toLowerCase().startsWith("en")) ||
+      vs.find((v) => low(v.lang).startsWith("en-in")) ||
+      vs.find((v) => low(v.lang).startsWith("en")) ||
       vs[0] ||
       null
     );
@@ -20,9 +32,13 @@ export function speakOnce(text, opts = {}) {
     if (!("speechSynthesis" in window)) return false;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    const v = pickVoice();
+    const lang = opts.lang || "en";
+    const v = pickVoice(lang);
     if (v) u.voice = v;
-    u.rate = opts.rate ?? 0.98;
+    try {
+      u.lang = v?.lang || (lang === "hi" ? "hi-IN" : "en-IN");
+    } catch { /* noop */ }
+    u.rate = opts.rate ?? (lang === "hi" ? 0.95 : 0.98);
     u.pitch = opts.pitch ?? 1.02;
     u.onend = opts.onend;
     window.speechSynthesis.speak(u);

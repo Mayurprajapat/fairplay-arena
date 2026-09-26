@@ -15,6 +15,7 @@ export const defaultSave = () => ({
   expertBadge: false,
   muted: false,
   voiceOff: false,
+  voiceLang: "hi",
   lastPlayed: null,
 });
 

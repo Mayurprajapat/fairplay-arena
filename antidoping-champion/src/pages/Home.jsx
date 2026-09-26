@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Host from "../components/Host";
 import PointsDisplay from "../components/PointsDisplay";
+import { LINES } from "../data/voiceLines";
 import { levelFor, progressToNext, fmt } from "../utils/points";
 import { sfx } from "../utils/sounds";
 
@@ -9,10 +10,11 @@ export default function Home({ save, go, speech }) {
   const [showHow, setShowHow] = useState(false);
   const lvl = levelFor(save.fpp);
   const prog = progressToNext(save.fpp);
+  const L = LINES[save.voiceLang || "hi"] || LINES.en;
 
   const start = () => {
     sfx.start();
-    speech.speak("Welcome to Anti-Doping Champion. Your knowledge of clean sport is about to be tested. Are you ready?");
+    speech.speak(L.welcome, { lang: save.voiceLang || "hi" });
     go("intro");
   };
 

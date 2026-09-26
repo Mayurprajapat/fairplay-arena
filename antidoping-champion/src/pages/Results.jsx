@@ -3,11 +3,13 @@ import { motion } from "framer-motion";
 import Host from "../components/Host";
 import PointsDisplay from "../components/PointsDisplay";
 import Confetti from "../components/Confetti";
+import { LINES } from "../data/voiceLines";
 import { fmt, levelFor } from "../utils/points";
 import { sfx } from "../utils/sounds";
 
 // Cinematic final result screen
-export default function Results({ result, save, go, speech }) {
+export default function Results({ result, save, go, speech, voiceLang = "hi" }) {
+  const L = LINES[voiceLang] || LINES.en;
   const { earned, correct, lifelinesUsed } = result;
   const total = 15;
   const acc = ((correct / total) * 100).toFixed(1);
@@ -16,7 +18,8 @@ export default function Results({ result, save, go, speech }) {
 
   useEffect(() => {
     sfx.victory();
-    speech.speak(`Congratulations! You have completed the Anti-Doping Champion challenge. You scored ${correct} out of ${total}, earning ${earned} Fair Play Points.`);
+    if (great) sfx.crowd();
+    speech.speak(L.final(correct, total, earned), { lang: voiceLang });
     return () => speech.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

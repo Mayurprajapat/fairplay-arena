@@ -1,8 +1,8 @@
-// Voice control buttons: Play / Pause / Replay / Mute
-export default function VoiceControls({ speech, onReplayText }) {
+// Voice control buttons: Play / Pause / Replay / Mute + Hindi-English toggle
+export default function VoiceControls({ speech, onReplayText, lang = "hi", onLang }) {
   if (!speech.supported) return null;
   const btn =
-    "glass rounded-full w-9 h-9 flex items-center justify-center text-base btn-show hover:border-amber-300/60";
+    "glass rounded-full h-9 min-w-9 px-2 flex items-center justify-center text-base btn-show hover:border-amber-300/60 font-bold";
   return (
     <div className="flex items-center gap-2">
       <button
@@ -26,6 +26,15 @@ export default function VoiceControls({ speech, onReplayText }) {
       >
         {speech.voiceOff ? "🔇" : "🎙️"}
       </button>
+      {onLang && (
+        <button
+          className={`${btn} text-xs border-amber-300/50`}
+          title="Host voice: Hindi / English"
+          onClick={() => onLang(lang === "hi" ? "en" : "hi")}
+        >
+          {lang === "hi" ? "🇮🇳 हिंदी" : "EN"}
+        </button>
+      )}
     </div>
   );
 }
