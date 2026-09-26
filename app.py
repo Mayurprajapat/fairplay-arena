@@ -220,6 +220,9 @@ def certificate(): return render_template("certificate.html")
 @app.route("/live")
 def live(): return render_template("live.html")
 
+@app.route("/champion")
+def champion(): return render_template("champion.html")
+
 # ---------------- LIVE APIs ----------------
 @app.route("/api/live-news")
 def api_live():

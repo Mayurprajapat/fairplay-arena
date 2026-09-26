@@ -3,3 +3,5 @@ __pycache__/
 airplay.db
 live_cache.json
 .vercel
+antidoping-champion/node_modules/
+antidoping-champion/dist/

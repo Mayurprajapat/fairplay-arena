@@ -3,3 +3,6 @@ live_cache.json
 __pycache__/
 *.pyc
 .git/
+antidoping-champion/node_modules
+antidoping-champion/dist
+antidoping-champion/src

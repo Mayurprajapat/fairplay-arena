@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Cinzel", "Georgia", serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --color-stage: #0a0620;
+  --color-stage2: #140b38;
+  --color-gold: #f5c518;
+  --color-goldsoft: #ffe08a;
+  --color-neonblue: #38bdf8;
+  --color-stagepurple: #7c3aed;
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(124, 58, 237, 0.35), transparent 60%),
+    radial-gradient(900px 500px at 90% 110%, rgba(56, 189, 248, 0.18), transparent 60%),
+    radial-gradient(700px 500px at 5% 100%, rgba(245, 197, 24, 0.10), transparent 60%),
+    linear-gradient(180deg, #0a0620 0%, #120a33 55%, #070417 100%);
+  color: #f1efff;
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display { font-family: var(--font-display); }
+
+.glass {
+  background: linear-gradient(160deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.gold-text {
+  background: linear-gradient(92deg, #fff3c4 0%, #f5c518 40%, #ff9d2e 70%, #ffe08a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gold-frame {
+  border: 1px solid rgba(245, 197, 24, 0.55);
+  box-shadow: 0 0 0 1px rgba(245, 197, 24, 0.15), 0 0 42px rgba(245, 197, 24, 0.18), inset 0 0 60px rgba(124, 58, 237, 0.12);
+}
+
+.btn-show {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.25s ease, filter 0.2s ease;
+}
+.btn-show:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.btn-show:active { transform: scale(0.97); }
+.btn-show::after {
+  content: "";
+  position: absolute; top: 0; left: -80%;
+  width: 50%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: shine 3s infinite;
+}
+@keyframes shine { 0% { left: -80%; } 55%, 100% { left: 130%; } }
+
+@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.animate-floaty { animation: floaty 5s ease-in-out infinite; }
+
+@keyframes spotlight { 0%, 100% { opacity: 0.55; transform: rotate(-4deg); } 50% { opacity: 1; transform: rotate(4deg); } }
+.spotlight { animation: spotlight 7s ease-in-out infinite; transform-origin: top center; }
+
+@keyframes glowPulse { 0%, 100% { box-shadow: 0 0 18px rgba(245,197,24,0.35); } 50% { box-shadow: 0 0 46px rgba(245,197,24,0.75); } }
+.animate-glow { animation: glowPulse 2.2s ease-in-out infinite; }
+
+@keyframes blinkEye { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.08); } }
+.host-eyes { animation: blinkEye 4.5s infinite; transform-origin: center; transform-box: fill-box; }
+
+@keyframes mouthTalk { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+.host-talking { animation: mouthTalk 0.45s infinite; transform-origin: center; transform-box: fill-box; }
+
+@keyframes hostBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.host-bob { animation: hostBob 3.2s ease-in-out infinite; }
+
+@keyframes thinkTilt { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+.host-think { animation: thinkTilt 2.4s ease-in-out infinite; transform-origin: 50% 20%; }
+
+@keyframes celebrateJump { 0%, 100% { transform: translateY(0) scale(1); } 30% { transform: translateY(-14px) scale(1.04); } 60% { transform: translateY(0) scale(1); } }
+.host-celebrate { animation: celebrateJump 0.9s ease-in-out infinite; }
+
+@keyframes timerDanger { from { transform: scale(1); } to { transform: scale(1.18); } }
+.timer-danger { animation: timerDanger 0.5s infinite alternate; color: #ff6b6b !important; }
+
+@keyframes ladderUp { 0% { transform: scale(1); background: rgba(245,197,24,0.15);} 40% { transform: scale(1.12); background: rgba(245,197,24,0.45);} 100% { transform: scale(1); } }
+.ladder-up { animation: ladderUp 0.9s ease; }
+
+@keyframes popIn { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.pop-in { animation: popIn 0.35s cubic-bezier(0.2, 1.6, 0.4, 1); }
+
+.stadium-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 30%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 30%, #000 30%, transparent 75%);
+}
+
+.scroll-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: rgba(245,197,24,0.4); border-radius: 99px; }
+.scroll-thin::-webkit-scrollbar-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
