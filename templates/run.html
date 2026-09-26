@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Doping Run{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center gap-3">
+ <h1 class="font-game font-black text-3xl" id="runTitle">🏃 DOPING RUN</h1>
+ <span class="glass px-3 py-1 rounded-full text-sm font-bold" id="runHearts">❤❤❤</span>
+ <span class="glass px-3 py-1 rounded-full text-sm font-bold"><span id="runScore">0</span> pts</span>
+ <span class="glass px-3 py-1 rounded-full text-sm font-bold"><span id="runDist">0</span>m</span>
+</div>
+<p class="text-gray-400 text-sm mt-1" id="runSub">Jump over doping traps, grab clean fuel! Space / Up / TAP = jump • 3 lives</p>
+
+<div class="glass rounded-3xl p-4 mt-3 max-w-3xl mx-auto">
+ <div id="runStart" class="text-center py-6">
+  <div class="flex justify-center gap-3 text-6xl"><span class="char-idle" id="runHeroBig">🏃</span><span class="villain">😈</span></div>
+  <div class="font-game font-black text-xl mt-2" id="runVs">DOPU NE TRACK PE JAAL BICHHAYA!</div>
+  <p class="text-sm text-gray-400 mt-1" id="runHow">Dodge syringes, powders and pills — grab banana, water and milk for points. More distance = more XP!</p>
+  <div class="text-xs mt-2 text-gray-500">💉 syringe (steroid) • 🧪 powder (stimulant) • 💊 pill (narcotic!) • 🍌🥛💧 clean fuel</div>
+  <button onclick="startRun()" class="btn-champ px-8 py-3 rounded-2xl font-game mt-4" id="runBtn">🏃 START RUN</button>
+ </div>
+ <div id="runPlay" class="hidden">
+  <canvas id="runCv" class="w-full rounded-2xl bg-black/40 border border-amber-400/30" style="height:260px;touch-action:none"></canvas>
+  <div id="runFact" class="mt-2 text-sm rounded-xl p-2.5 bg-amber-400/10 border border-amber-400/40 min-h-[44px]">Jump and grab clean fuel!</div>
+  <div class="flex gap-2 mt-2">
+   <button onclick="runJump()" class="btn-champ flex-1 rounded-xl py-3 font-game">JUMP</button>
+   <button onclick="endRun(true)" class="glass px-5 rounded-xl font-bold">🏁 <span id="runEndL">Finish</span></button>
+  </div>
+ </div>
+ <div id="runEnd" class="hidden text-center py-6">
+  <div class="text-6xl char-idle" id="runEmoji">🏁</div>
+  <h2 class="font-game font-black text-2xl mt-2" id="runT"></h2>
+  <p class="text-gray-300 text-sm" id="runD"></p>
+  <div class="flex flex-wrap justify-center gap-2 mt-3">
+   <button onclick="startRun()" class="btn-champ px-6 py-2 rounded-xl font-bold" id="runAgain">Run Again</button>
+   <a href="/raid" class="glass px-6 py-2 rounded-xl font-bold" id="runNext">Next: Supplement Raid</a>
+  </div>
+ </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let R=null;
+document.getElementById('runHeroBig').textContent=getAvatar();
+const CLEAN=[
+ {e:'🍌',f:'Banana = natural fuel, 100% clean!'},
+ {e:'💧',f:'Water = best recovery drink!'},
+ {e:'🥛',f:'Milk = natural protein, no risk!'}];
+const DOPES=[
+ {e:'💉',f:'Syringe = S1 steroid danger! 4-year ban!'},
+ {e:'🧪',f:'Unknown powder = stimulant risk! Strict liability!'},
+ {e:'💊',f:'Energy pill = narcotic like Tramadol! Banned in-competition!'}];
+const CLEAN_HI=[
+ {e:'🍌',f:'केला = natural fuel, 100% clean!'},
+ {e:'💧',f:'पानी = सबसे अच्छी recovery drink!'},
+ {e:'🥛',f:'दूध = natural protein, कोई खतरा नहीं!'}];
+const DOPES_HI=[
+ {e:'💉',f:'सिरिंज = S1 स्टेरॉयड खतरा! 4 साल बैन!'},
+ {e:'🧪',f:'अनजान पाउडर = उत्तेजक खतरा! Strict liability!'},
+ {e:'💊',f:'एनर्जी गोली = Tramadol जैसी नशीली! प्रतियोगिता में बैन!'}];
+function runStatic(){
+ const hi=LANG()==='hi';
+ document.getElementById('runTitle').textContent=hi?'🏃 डोपिंग रन':'🏃 DOPING RUN';
+ document.getElementById('runSub').textContent=hi?'डोपिंग जाल से कूदकर बचो, साफ ईंधन पकड़ो! Space / Up / TAP = छलांग • 3 जान':'Jump over doping traps, grab clean fuel! Space / Up / TAP = jump • 3 lives';
+ document.getElementById('runVs').textContent=hi?'डोपू ने ट्रैक पर जाल बिछाया!':'DOPU NE TRACK PE JAAL BICHHAYA!';
+ document.getElementById('runHow').textContent=hi?'सिरिंज, पाउडर, गोलियों से बचो — केला, पानी, दूध पकड़ो। जितनी दूर, उतना XP!':'Dodge syringes, powders and pills — grab banana, water and milk for points. More distance = more XP!';
+ document.getElementById('runBtn').textContent=hi?'🏃 दौड़ शुरू करो':'🏃 START RUN';
+ document.getElementById('runEndL').textContent=hi?'समाप्त':'Finish';
+ document.getElementById('runAgain').textContent=hi?'↻ फिर दौड़ो':'↻ Run Again';
+ document.getElementById('runNext').textContent=hi?'Next: सप्लीमेंट रेड →':'Next: Supplement Raid →';
+}
+function afterLangChange(){runStatic()}
+runStatic();
+function startRun(){
+ document.getElementById('runStart').classList.add('hidden');
+ document.getElementById('runEnd').classList.add('hidden');
+ document.getElementById('runPlay').classList.remove('hidden');
+ const cv=document.getElementById('runCv'),ctx=cv.getContext('2d');
+ const d=Math.min(2,devicePixelRatio||1),W=cv.clientWidth,H=260;
+ cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0);
+ const G=H-46;
+ R={ctx:ctx,W:W,H:H,G:G,py:G,vy:0,jump:false,obs:[],spawn:70,hearts:3,score:0,dist:0,speed:4.2,over:false,bob:0,hero:getAvatar()};
+ document.getElementById('runFact').textContent=(LANG()==='hi'?'🛡️ डोपगार्ड: कूदो और साफ ईंधन पकड़ो!':'🛡️ DopeGuard: jump and grab clean fuel!');
+ updRunHUD();
+ cv.onpointerdown=function(){runJump()};
+ document.onkeydown=function(e){if((e.key===' '||e.key==='ArrowUp')&&R&&!R.over){e.preventDefault();runJump()}};
+ say(LANG()==='hi'?'दौड़ो चैंपियन! डोपू का जाल तोड़ दो!':'Run champ! Smash Dopu\'s traps!');
+ requestAnimationFrame(runLoop);
+}
+function runJump(){if(!R||R.over||R.jump)return;R.jump=true;R.vy=-13;sfx('good')}
+function updRunHUD(){
+ const h=Math.max(0,R.hearts);
+ document.getElementById('runHearts').textContent='❤'.repeat(h)+'🖤'.repeat(Math.max(0,3-h));
+ document.getElementById('runScore').textContent=R.score;
+ document.getElementById('runDist').textContent=Math.floor(R.dist/10);
+}
+function runLoop(){
+ if(!R||R.over)return;
+ const hi=LANG()==='hi';
+ const ctx=R.ctx,W=R.W,H=R.H,G=R.G;
+ R.dist+=R.speed;R.speed=Math.min(9,R.speed+0.004);R.bob+=0.25;
+ if(R.jump){R.py+=R.vy;R.vy+=0.7;if(R.py>=G){R.py=G;R.jump=false}}
+ if(--R.spawn<=0){
+  R.spawn=Math.max(34,78-Math.floor(R.dist/90));
+  const isDope=Math.random()<0.55;
+  const pool=isDope?(hi?DOPES_HI:DOPES):(hi?CLEAN_HI:CLEAN);
+  const it=pool[Math.floor(Math.random()*pool.length)];
+  R.obs.push({x:W+30,e:it.e,f:it.f,dope:isDope,y:isDope?(G-6):(G-86)});
+ }
+ const px=64;
+ for(let k=R.obs.length-1;k>=0;k--){
+  const o=R.obs[k];o.x-=R.speed;
+  const hit=Math.abs(o.x-px)<28&&Math.abs(o.y-R.py)<34;
+  if(hit){
+   if(o.dope){
+    R.hearts--;sfx('bad');
+    document.getElementById('runFact').textContent='😈 '+o.f+(hi?' ❤ गया!':' Heart lost!');
+    cvShake();
+    if(R.hearts<=0){updRunHUD();endRun(false);return}
+   }else{
+    R.score+=5;sfx('good');confetti(15);
+    document.getElementById('runFact').textContent='✅ +5 '+(hi?'पकड़ा! ':'grabbed! ')+o.f;
+   }
+   R.obs.splice(k,1);updRunHUD();
+  }else if(o.x<-40){R.obs.splice(k,1)}
+ }
+ updRunHUD();
+ ctx.clearRect(0,0,W,H);
+ ctx.strokeStyle='rgba(255,255,255,.15)';ctx.setLineDash([8,8]);
+ ctx.beginPath();ctx.moveTo(0,G+24);ctx.lineTo(W,G+24);ctx.stroke();ctx.setLineDash([]);
+ ctx.font='20px serif';ctx.fillText('🏟️',W-34,26);
+ for(const o of R.obs){ctx.font='30px serif';ctx.fillText(o.e,o.x,o.y+24)}
+ const bounce=R.jump?0:Math.abs(Math.sin(R.bob))*7;
+ ctx.font='38px serif';ctx.fillText(R.hero,px-19,R.py+30-bounce);
+ if(R.jump){ctx.font='15px serif';ctx.fillText('💨',px-36,R.py+34)}
+ requestAnimationFrame(runLoop);
+}
+function cvShake(){const cv=document.getElementById('runCv');cv.classList.add('shake');setTimeout(function(){cv.classList.remove('shake')},400)}
+function endRun(quit){
+ if(!R||R.over)return;R.over=true;document.onkeydown=null;
+ const hi=LANG()==='hi';
+ const distM=Math.floor(R.dist/10);
+ const xp=Math.min(100,Math.floor(distM/6)+R.score);
+ addXP(xp);pushScore('run',xp);
+ if(xp>=40){confetti(120);sfx('level')}
+ document.getElementById('runPlay').classList.add('hidden');
+ document.getElementById('runEnd').classList.remove('hidden');
+ document.getElementById('runEmoji').textContent=xp>=40?'🏆':'🏃';
+ document.getElementById('runT').textContent=hi?(distM+'m दौड़ + '+R.score+' pts = '+xp+' XP!'):(distM+'m run + '+R.score+' pts = '+xp+' XP!');
+ document.getElementById('runD').textContent=hi?(xp>=40?'शानदार! डोपू का जाल तोड़ दिया!':'अच्छी दौड़! कूदने का अभ्यास करो!'):(xp>=40?'Fantastic! You smashed the traps!':'Good run! Practice jumping!');
+ say((hi?'दौड़ खत्म! +':'Run over! +')+xp+' XP!');
+}
+</script>
+{% endblock %}

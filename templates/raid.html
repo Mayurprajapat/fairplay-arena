@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Supplement Raid{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center gap-3">
+ <h1 class="font-game font-black text-3xl" id="raidTitle">🥷 SUPPLEMENT RAID</h1>
+ <span class="glass px-3 py-1 rounded-full text-sm font-bold">⏱ <span id="raidTime">45</span>s</span>
+ <span class="glass px-3 py-1 rounded-full text-sm font-bold">⭐ <span id="raidScore">0</span></span>
+ <span class="glass px-3 py-1 rounded-full text-sm font-bold"><span id="raidCombo">🔥 0</span></span>
+</div>
+<p class="text-gray-400 text-sm mt-1" id="raidSub">Raid the shady lab! Smash BANNED items (💉💊🧪💸), SPARE clean food (🍌💧🥛🥗). Wrong smash = -3!</p>
+
+<div class="glass rounded-3xl p-4 mt-3 max-w-xl mx-auto text-center">
+ <div id="raidStart" class="py-6">
+  <div class="flex justify-center gap-3 text-6xl"><span class="char-idle">🥷</span><span class="villain">🧪</span></div>
+  <div class="font-game font-black text-xl mt-2" id="raidVs">DOPU KI SECRET LAB PE RAID!</div>
+  <p class="text-sm text-gray-400 mt-1" id="raidHow">45 seconds • banned pakdo +5 • clean chhodo • 3 combo = bonus!</p>
+  <button onclick="startRaid()" class="btn-green px-8 py-3 rounded-2xl font-game mt-4" id="raidBtn">🥷 START RAID</button>
+ </div>
+ <div id="raidPlay" class="hidden">
+  <div class="h-2 bg-white/10 rounded-full overflow-hidden"><div id="raidBar" class="h-full bg-gradient-to-r from-emerald-400 to-amber-300" style="width:100%"></div></div>
+  <div id="raidGrid" class="grid grid-cols-3 gap-2.5 mt-3"></div>
+  <div id="raidMsg" class="mt-2 text-sm font-bold min-h-[24px]"></div>
+ </div>
+ <div id="raidEnd" class="hidden py-6">
+  <div class="text-6xl char-idle" id="raidEmoji">🎉</div>
+  <h2 class="font-game font-black text-2xl mt-2" id="raidT"></h2>
+  <p class="text-gray-300 text-sm" id="raidD"></p>
+  <div class="flex flex-wrap justify-center gap-2 mt-3">
+   <button onclick="startRaid()" class="btn-green px-6 py-2 rounded-xl font-bold" id="raidAgain">Raid Again</button>
+   <a href="/quiz" class="glass px-6 py-2 rounded-xl font-bold" id="raidNext">Next: Quiz Quest</a>
+  </div>
+ </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let RD=null;
+const BANNED=[{e:'💉',n:'Syringe'},{e:'💊',n:'Pill'},{e:'🧪',n:'Powder'},{e:'💸',n:'Bribe cash'}];
+const CLEANR=['🍌','💧','🥛','🥗'];
+function raidStatic(){
+ const hi=LANG()==='hi';
+ document.getElementById('raidTitle').textContent=hi?'🥷 सप्लीमेंट रेड':'🥷 SUPPLEMENT RAID';
+ document.getElementById('raidSub').textContent=hi?'छिपी लैब पर छापा! प्रतिबंधित चीज़ें तोड़ो (💉💊🧪💸), साफ खाना छोड़ो (🍌💧🥛🥗)। गलत वार = -3!':'Raid the shady lab! Smash BANNED items, SPARE clean food. Wrong smash = -3!';
+ document.getElementById('raidVs').textContent=hi?'डोपू की सीक्रेट लैब पर छापा!':'DOPU KI SECRET LAB PE RAID!';
+ document.getElementById('raidHow').textContent=hi?'45 सेकंड • प्रतिबंधित पकड़ो +5 • साफ छोड़ो • 3 कॉम्बो = बोनस!':'45 seconds • banned pakdo +5 • clean chhodo • 3 combo = bonus!';
+ document.getElementById('raidBtn').textContent=hi?'🥷 छापा शुरू करो':'🥷 START RAID';
+ document.getElementById('raidAgain').textContent=hi?'↻ फिर छापा':'↻ Raid Again';
+ document.getElementById('raidNext').textContent=hi?'Next: क्विज़ क्वेस्ट →':'Next: Quiz Quest →';
+}
+function afterLangChange(){raidStatic()}
+raidStatic();
+function startRaid(){
+ document.getElementById('raidStart').classList.add('hidden');
+ document.getElementById('raidEnd').classList.add('hidden');
+ document.getElementById('raidPlay').classList.remove('hidden');
+ RD={score:0,combo:0,best:0,time:45,over:false,lock:false,timers:[]};
+ document.getElementById('raidGrid').innerHTML='';
+ for(let k=0;k<9;k++){
+  const d=document.createElement('div');
+  d.className='glass rounded-2xl aspect-square flex items-center justify-center text-4xl cursor-pointer select-none';
+  d.style.minHeight='86px';d.id='rc'+k;
+  d.onclick=(function(idx){return function(){raidTap(idx)}})(k);
+  document.getElementById('raidGrid').appendChild(d);
+ }
+ updRaid();
+ raidTick();
+ schedulePop();
+ say(LANG()==='hi'?'छापा शुरू! प्रतिबंधित पकड़ो!':'Raid shuru! Banned pakdo!');
+}
+function updRaid(){
+ document.getElementById('raidScore').textContent=RD.score;
+ document.getElementById('raidTime').textContent=RD.time;
+ document.getElementById('raidCombo').textContent='🔥 '+RD.combo;
+ document.getElementById('raidBar').style.width=(RD.time/45*100)+'%';
+}
+function raidMsg(t,good){
+ const m=document.getElementById('raidMsg');
+ m.textContent=t;m.className='mt-2 text-sm font-bold min-h-[24px] pop '+(good?'text-emerald-300':'text-pink-400');
+}
+function schedulePop(){
+ if(!RD||RD.over)return;
+ const gap=Math.max(320,720-(45-RD.time)*9);
+ RD.timers.push(setTimeout(function(){
+  if(!RD||RD.over)return;
+  const idx=Math.floor(Math.random()*9);
+  const cell=document.getElementById('rc'+idx);
+  if(!cell||cell.dataset.busy){schedulePop();return}
+  const isBanned=Math.random()<0.6;
+  const emoji=isBanned?BANNED[Math.floor(Math.random()*BANNED.length)].e:CLEANR[Math.floor(Math.random()*CLEANR.length)];
+  cell.dataset.busy='1';cell.dataset.banned=isBanned?'1':'';
+  cell.textContent=emoji;cell.classList.add('card-enter');
+  const hi=LANG()==='hi';
+  RD.timers.push(setTimeout(function(){
+   if(cell.dataset.busy){cell.dataset.busy='';cell.dataset.banned='';cell.textContent='';cell.classList.remove('card-enter')}
+  },Math.max(550,950-(45-RD.time)*8)));
+  schedulePop();
+ },gap));
+}
+function raidTap(idx){
+ if(!RD||RD.over)return;
+ const hi=LANG()==='hi';
+ const cell=document.getElementById('rc'+idx);
+ if(!cell||!cell.dataset.busy){
+  RD.combo=0;updRaid();
+  raidMsg(hi?'❌ खाली जगह! ध्यान से!':'❌ Empty! Focus!',false);sfx('bad');return;
+ }
+ const banned=cell.dataset.banned==='1';
+ cell.dataset.busy='';cell.textContent='';cell.classList.remove('card-enter');
+ if(banned){
+  RD.combo++;RD.best=Math.max(RD.best,RD.combo);
+  let pts=5+(RD.combo>=3?3:0);
+  RD.score+=pts;confetti(20);sfx('good');
+  raidMsg((hi?'✅ पकड़ा! +':'✅ Busted! +')+pts+(RD.combo>=3?(hi?' (कॉम्बो!)':' (combo!)'):''),true);
+ }else{
+  RD.score=Math.max(0,RD.score-3);RD.combo=0;sfx('bad');
+  cell.classList.add('shake');setTimeout(function(){cell.classList.remove('shake')},400);
+  raidMsg(hi?'❌ अरे! ये तो साफ खाना था! -3':'❌ Oops! That was clean food! -3',false);
+ }
+ updRaid();
+}
+function raidTick(){
+ if(!RD||RD.over)return;
+ RD.timers.push(setTimeout(function(){
+  if(!RD||RD.over)return;
+  RD.time--;updRaid();
+  if(RD.time<=0){endRaid()}else{raidTick()}
+ },1000));
+}
+function endRaid(){
+ if(!RD||RD.over)return;RD.over=true;
+ RD.timers.forEach(clearTimeout);
+ const hi=LANG()==='hi';
+ const xp=Math.min(100,Math.max(5,RD.score));
+ addXP(xp);pushScore('raid',xp);
+ if(xp>=45){confetti(130);sfx('level')}
+ document.getElementById('raidPlay').classList.add('hidden');
+ document.getElementById('raidEnd').classList.remove('hidden');
+ document.getElementById('raidEmoji').textContent=xp>=45?'🏆':'🥷';
+ document.getElementById('raidT').textContent=hi?('स्कोर '+RD.score+' • बेस्ट कॉम्बो x'+RD.best+' = '+xp+' XP!'):('Score '+RD.score+' • best combo x'+RD.best+' = '+xp+' XP!');
+ document.getElementById('raidD').textContent=hi?(xp>=45?'लैब साफ! तुम असली रेडर हो!':'अच्छा छापा! निशाना और तेज करो!'):(xp>=45?'Lab cleaned! True raider!':'Good raid! Sharpen your aim!');
+ say((hi?'छापा खत्म! +':'Raid over! +')+xp+' XP!');
+}
+</script>
+{% endblock %}

@@ -205,6 +205,12 @@ def dope_nope(): return render_template("dope_nope.html")
 @app.route("/memory")
 def memory(): return render_template("memory.html")
 
+@app.route("/run")
+def run(): return render_template("run.html")
+
+@app.route("/raid")
+def raid(): return render_template("raid.html")
+
 @app.route("/story")
 def story(): return render_template("story.html")
 

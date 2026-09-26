@@ -10,6 +10,8 @@ Attractive gamified website + mobile-app-like (PWA) for athletes to learn anti-d
 - **Option B (quick):** Is folder me `vercel --prod` chalao → 20 sec me live site update.
 
 ## ✨ Features (jury ko impress karne wale)
+- 🏃 **Doping Run (NEW ACTION!)** — endless runner: jump syringes/pills/powders, grab banana/milk/water, speed rises, +100 XP
+- 🥷 **Supplement Raid (NEW ACTION!)** — 45-sec whack-a-mole raid on the shady lab, combo bonus, +100 XP
 - 🎯 **Quiz Quest** — 15 timed WADA questions, streak bonus, 50/50 lifeline, +100 XP
 - ⚡ **Dope or Nope** — speed True/False battle, +75 XP
 - 🧠 **Memory Match** — banned substance ↔ category pairs, +60 XP
