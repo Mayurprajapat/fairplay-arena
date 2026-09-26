@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Dope or Nope{% endblock %}
+{% block content %}
+<h1 class="font-game font-black text-3xl">⚡ DOPE <span class="neon-text">OR NOPE</span></h1>
+<p class="text-gray-400 text-sm">✅ DOPE = TRUE • ❌ NOPE = FALSE • <span id="dnHero" class="char-idle text-lg">🏃</span> tum vs <span class="villain text-lg">😈</span> Dopu • 3 streak = COMBO!</p>
+<div class="glass rounded-3xl p-5 mt-4 max-w-2xl mx-auto text-center">
+ <div id="dnStart">
+  <div class="flex justify-center gap-3 text-6xl"><span class="char-idle" id="dnHeroBig">🏃</span><span class="villain">😈</span></div>
+  <div class="font-game font-bold mt-2">DOPU KE JHOOTH PAKDO!</div>
+  <p class="text-xs text-gray-400">Dopu tumhe confuse karega. Sahi pakdo = +5 XP + confetti 🎉</p>
+  <button onclick="startDN()" class="btn-green px-8 py-3 rounded-2xl font-game mt-3">🥊 START FIGHT</button>
+ </div>
+ <div id="dnPlay" class="hidden">
+  <div class="text-sm font-bold text-gray-400">ROUND <span id="dnI">1</span>/15 • SCORE <span id="dnS">0</span> • <span id="dnCombo"></span></div>
+  <div class="flex justify-center gap-6 mt-1 text-3xl"><span id="dnH" class="char-idle">🏃</span><span class="text-lg self-center font-game">⚡</span><span class="villain">😈</span></div>
+  <div class="h-2 bg-white/10 rounded-full mt-2 overflow-hidden"><div id="dnBar" class="xp-fill h-full" style="width:0%"></div></div>
+  <div id="dnCard" class="swipe-card bg-black/40 border border-white/15 rounded-3xl p-8 mt-3 text-xl font-bold min-h-[140px] flex items-center justify-center"></div>
+  <div id="dnWhy" class="hidden mt-3 rounded-2xl p-4 text-left pop"></div>
+  <div id="dnBtns" class="grid grid-cols-2 gap-3 mt-4">
+   <button onclick="dnAns(false)" class="rounded-2xl py-4 font-game font-black text-lg bg-gradient-to-r from-pink-500 to-red-500 hover:scale-105 transition">❌ NOPE</button>
+   <button onclick="dnAns(true)" class="rounded-2xl py-4 font-game font-black text-lg bg-gradient-to-r from-emerald-400 to-cyan-400 text-black hover:scale-105 transition">✅ DOPE</button>
+  </div>
+  <button id="dnNext" onclick="dnNext()" class="hidden btn-champ w-full rounded-2xl py-3 font-bold mt-3">📖 Samajh gaya, Next →</button>
+ </div>
+ <div id="dnEnd" class="hidden"><div class="text-6xl char-idle" id="dnEndEmoji">⚡</div><h2 id="dnT" class="font-game font-black text-2xl mt-2"></h2><p id="dnSub" class="text-sm text-gray-400"></p>
+ <div class="flex justify-center gap-2 mt-3 flex-wrap"><button onclick="startDN()" class="btn-green px-6 py-2 rounded-xl font-bold">↻ Rematch</button><a href="/memory" class="glass px-6 py-2 rounded-xl font-bold">Next: Memory →</a></div></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let DN=[],di=0,ds=0,lock=false,dstreak=0;
+document.getElementById('dnHero').textContent=getAvatar();
+document.getElementById('dnHeroBig').textContent=getAvatar();
+document.getElementById('dnH').textContent=getAvatar();
+async function startDN(){DN=await(await fetch('/api/dope-nope')).json();di=0;ds=0;dstreak=0;lock=false;
+ document.getElementById('dnStart').classList.add('hidden');document.getElementById('dnEnd').classList.add('hidden');document.getElementById('dnPlay').classList.remove('hidden');showDN()}
+function showDN(){lock=false;const c=DN[di];document.getElementById('dnI').textContent=di+1;document.getElementById('dnS').textContent=ds;
+ document.getElementById('dnBar').style.width=(di/DN.length*100)+'%';
+ const el=document.getElementById('dnCard');el.className='swipe-card bg-black/40 border border-white/15 rounded-3xl p-8 mt-3 text-xl font-bold min-h-[140px] flex items-center justify-center card-enter';
+ el.textContent='😈 "'+c.t+'"';el.style.borderColor='rgba(255,255,255,.15)';
+ document.getElementById('dnWhy').classList.add('hidden');
+ document.getElementById('dnBtns').classList.remove('hidden');
+ document.getElementById('dnNext').classList.add('hidden')}
+function dnAns(v){if(lock)return;lock=true;const c=DN[di];
+ const ok=(v===c.a);
+ const card=document.getElementById('dnCard');
+ card.classList.add(ok?'card-throw-right':'card-throw-left');
+ setTimeout(()=>{card.classList.remove('card-throw-right','card-throw-left')},500);
+ const w=document.getElementById('dnWhy');w.classList.remove('hidden');
+ if(ok){ds+=5;dstreak++;confetti(40);sfx('good')}else{dstreak=0;sfx('bad')}
+ const cb=document.getElementById('dnCombo');
+ cb.textContent=dstreak>=3?'🔥 COMBO x'+dstreak+'!':'';cb.className=dstreak>=3?'fire-streak text-amber-300':'';
+ const head=ok?'✅ PAKDA! Dopu ka jhooth fail! +5 XP':'❌ Dopu hans raha 😈 — sach padho 👇';
+ const truth=c.a?'✔ Correct: <b>DOPE (TRUE)</b> — statement sahi hai.':'✔ Correct: <b>NOPE (FALSE)</b> — statement galat hai.';
+ w.className='mt-3 rounded-2xl p-4 text-left pop '+(ok?'bg-emerald-400/10 border border-emerald-400/50':'bg-pink-500/10 border border-pink-500/50');
+ w.innerHTML=`<div class="font-black text-base">${head}</div><div class="text-sm mt-1">${truth}</div><div class="text-sm mt-2 text-gray-200">📚 <b>Learn:</b> ${c.why}</div>`;
+ document.getElementById('dnS').textContent=ds;
+ document.getElementById('dnBtns').classList.add('hidden');
+ document.getElementById('dnNext').classList.remove('hidden');
+ w.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function dnNext(){di++;if(di>=DN.length){finDN()}else showDN()}
+function finDN(){document.getElementById('dnPlay').classList.add('hidden');const e=document.getElementById('dnEnd');e.classList.remove('hidden');
+ const win=ds>=45;document.getElementById('dnEndEmoji').textContent=win?'🏆':'😈';
+ document.getElementById('dnT').textContent=win?`DOPU HARA! ${ds} XP`:`${ds} XP — Dopu: "phir aana!" 😈`;
+ document.getElementById('dnSub').textContent=win?'Shandaar! Memory game me aur XP lo!':'Rematch lo — ab tum uske saare jhooth jaante ho!';
+ if(win){confetti(120);sfx('level')}
+ addXP(ds);pushScore('dope-nope',ds)}
+</script>
+{% endblock %}

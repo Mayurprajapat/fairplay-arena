@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Memory Match{% endblock %}
+{% block content %}
+<h1 class="font-game font-black text-3xl">🧠 MEMORY <span class="neon-text">MATCH</span></h1>
+<p class="text-gray-400 text-sm"><span class="char-idle">🛡️</span> DopeGuard ne cards chhupaye! Jodi banao • <span id="starShow">⭐⭐⭐</span> • max 60 XP</p>
+<div class="flex gap-2 mt-3 text-sm font-bold flex-wrap"><span class="glass px-3 py-1 rounded-full">Moves: <span id="mMoves">0</span></span><span class="glass px-3 py-1 rounded-full">Pairs: <span id="mPairs">0</span>/6</span><span class="glass px-3 py-1 rounded-full">Rank: <span id="mRank">⭐⭐⭐</span></span><button onclick="startMemo()" class="btn-champ px-4 py-1 rounded-full">↻ Shuffle</button></div>
+<div id="memoGrid" class="grid grid-cols-3 md:grid-cols-4 gap-3 mt-4 max-w-3xl"></div>
+<div id="memoWin" class="hidden glass-gold rounded-2xl p-5 mt-4 max-w-3xl text-center font-bold"></div>
+{% endblock %}
+{% block scripts %}
+<script>
+const PAIRS=[["Stanozolol","S1 Steroid"],["EPO","S2 Hormone"],["Furosemide","S5 Diuretic"],["THC","S8 Banned*"],["Tramadol","S7 Narcotic"],["Meldonium","S4 Banned"]];
+const FACES=['💊','🧪','⚗️','☠️','💉','🔬'];
+let first=null,moves=0,pairs=0,lockM=false;
+function startMemo(){
+ moves=0;pairs=0;first=null;document.getElementById('memoWin').classList.add('hidden');
+ let cards=[];PAIRS.forEach((p,i)=>{cards.push({t:p[0],id:i});cards.push({t:p[1],id:i})});
+ cards.sort(()=>Math.random()-.5);
+ document.getElementById('memoGrid').innerHTML=cards.map((c,k)=>`<div class="memo-card card-enter" style="animation-delay:${k*0.04}s" data-id="${c.id}" onclick="flipM(this)"><div class="memo-inner"><div class="memo-face glass text-3xl wiggle">${FACES[c.id%FACES.length]}</div><div class="memo-face memo-back bg-gradient-to-br from-amber-300 to-orange-500 text-black text-sm">${c.t}</div></div></div>`).join('');
+ updM();
+}
+function updM(){document.getElementById('mMoves').textContent=moves;document.getElementById('mPairs').textContent=pairs;
+ const r=moves<=10?'⭐⭐⭐':moves<=16?'⭐⭐':'⭐';document.getElementById('mRank').textContent=r;document.getElementById('starShow').textContent=r}
+function flipM(el){
+ if(lockM||el.classList.contains('flip'))return;
+ el.classList.add('flip');sfx('good');
+ if(!first){first=el;return}
+ moves++;lockM=true;
+ if(first.dataset.id===el.dataset.id){
+  pairs++;el.classList.add('match-burst');first.classList.add('match-burst');
+  confetti(25);first=null;lockM=false;updM();say('Jodi mil gayi! 🧠 +style!');
+  if(pairs===6)winM();
+ }
+ else{let a=first;first=null;setTimeout(()=>{a.classList.remove('flip','match-burst');el.classList.remove('flip','match-burst');lockM=false},1200);updM()}
+ updM();
+}
+function winM(){
+ let xp=Math.max(20,60-moves*2);addXP(xp);pushScore('memory',xp);confetti(130);sfx('level');
+ const stars=moves<=10?'⭐⭐⭐ LEGENDARY!':moves<=16?'⭐⭐ SUPER!':'⭐ NICE!';
+ const w=document.getElementById('memoWin');w.classList.remove('hidden');
+ w.innerHTML=`<div class="text-4xl char-idle">🏆</div><div class="font-game font-black text-xl mt-1">${stars}</div><div>All 6 pairs in ${moves} moves! +${xp} XP</div><a href="/story" class="btn-champ inline-block px-5 py-2 rounded-xl mt-2 text-sm">Next: Road to Gold →</a>`;
+ say('Memory master! '+stars+' +'+xp+' XP');
+}
+startMemo();
+</script>
+{% endblock %}

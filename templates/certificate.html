@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Certificate{% endblock %}
+{% block content %}
+<h1 class="font-game font-black text-3xl">🏅 FAIR PLAY <span class="neon-text">CERTIFICATE</span></h1>
+<p class="text-gray-400 text-sm">Need 100+ XP to unlock. Enter name exactly as on college ID.</p>
+<div class="max-w-2xl mx-auto mt-4">
+ <div class="flex gap-2">
+  <input id="certName" placeholder="Your full name" class="flex-1 glass rounded-2xl px-4 py-3 outline-none">
+  <button onclick="makeCert()" class="btn-neon px-5 rounded-2xl font-bold">Generate</button>
+ </div>
+ <div id="certLock" class="glass rounded-3xl p-6 mt-4 text-center"></div>
+ <div id="certPaper" class="hidden cert-paper rounded-3xl p-8 mt-4 text-center border-4 border-double border-yellow-500 pop">
+  <div class="text-xs tracking-[.35em] font-bold text-gray-500">FAIRPLAY ARENA • ANTI-DOPING ACADEMY</div>
+  <div class="font-game font-black text-3xl mt-2">🏅 Certificate of Fair Play</div>
+  <div class="mt-2 text-gray-600">This certifies that</div>
+  <div id="certWho" class="font-game font-black text-2xl mt-1 text-emerald-700">Athlete</div>
+  <div class="text-sm text-gray-600 mt-2">successfully completed gamified anti-doping training<br>covering WADA Code, Prohibited List, TUE, Testing & Supplements Safety</div>
+  <div class="flex justify-between mt-6 text-xs font-bold text-gray-600"><div>XP: <span id="certXP"></span><br>CLEAN ATHLETE</div><div>DopeGuard 🛡️<br>CHIEF COACH</div><div>Date: <span id="certDate"></span><br>NADA / WADA aligned</div></div>
+  <div class="mt-4 text-gray-700 font-bold text-sm border-t border-dashed border-gray-300 pt-3">🙏 Fair Play Oath: I will compete clean, respect rivals & never dope.</div>
+  <button onclick="window.print()" class="mt-4 bg-black text-white px-6 py-2 rounded-xl font-bold">🖨️ Print / Save PDF</button>
+ </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('certName').value=getName()==='Guest'?'':getName();
+function makeCert(){
+ const n=document.getElementById('certName').value.trim();
+ if(n)localStorage.setItem('fp_name',n);
+ const xp=getXP();renderXP();
+ const lock=document.getElementById('certLock'),paper=document.getElementById('certPaper');
+ if(xp<100){paper.classList.add('hidden');lock.innerHTML=`🔒 Locked! You have <b>${xp} XP</b>, need <b>100 XP</b>.<br><span class="text-sm text-gray-400">Fast path: Quiz (100) + 1 Learn module (10) = unlocked in 10 min!</span><br><a href="/quiz" class="btn-neon inline-block px-5 py-2 rounded-xl font-bold mt-2 text-sm">Play Quiz Now →</a>`;say('Only '+(100-xp)+' XP away from certificate!')}
+ else{lock.innerHTML=`✅ Unlocked! <b>${xp} XP</b> — Clean Athlete status! Take screenshot for viva.`;paper.classList.remove('hidden');
+ document.getElementById('certWho').textContent=n||getName();document.getElementById('certXP').textContent=xp;document.getElementById('certDate').textContent=new Date().toLocaleDateString('en-IN');
+ pushScore('certificate',0);say('Certificate unlocked! Proud of you champ! 🏅')}
+}
+makeCert();
+</script>
+{% endblock %}

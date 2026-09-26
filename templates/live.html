@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Live Centre{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center gap-3">
+ <h1 class="font-game font-black text-3xl">🔴 LIVE <span class="neon-text">CENTRE</span></h1>
+ <span id="liveBadge" class="glass px-3 py-1 rounded-full text-xs font-bold">⏳ syncing…</span>
+ <button onclick="loadLive(true)" class="btn-green px-4 py-1.5 rounded-full text-sm font-bold">↻ Refresh</button>
+</div>
+<p class="text-gray-400 text-sm mt-1">Real anti-doping world — auto-updates every 5 min. Sources linked for viva proof. <span id="liveUpdated" class="text-amber-300"></span></p>
+
+<!-- WADA LIST STATUS -->
+<div class="glass-gold rounded-3xl p-5 mt-4">
+ <h2 class="font-game font-black">📋 WADA PROHIBITED LIST — REAL STATUS</h2>
+ <div class="grid md:grid-cols-2 gap-3 mt-3 text-sm">
+  <div class="bg-black/30 rounded-2xl p-4"><div class="text-emerald-300 font-black">✅ CURRENT: 2026 List — IN FORCE</div><div class="text-gray-300 mt-1">Effective 1 Jan 2026. Approved Sep 2025. <a class="underline text-amber-300" target="_blank" href="https://www.wada-ama.org/en/prohibited-list">Open official list →</a></div></div>
+  <div class="bg-black/30 rounded-2xl p-4"><div class="text-amber-300 font-black">📢 UPCOMING: 2027 List — PUBLISHED</div><div class="text-gray-300 mt-1">Published 21 Sep 2026 → in force 1 Jan 2027. <a class="underline text-amber-300" target="_blank" href="https://www.wada-ama.org/en/news/wada-publishes-2027-prohibited-list">Read notice →</a></div></div>
+ </div>
+ <div class="mt-3 text-sm bg-black/30 rounded-2xl p-4">
+  <b>⚡ 2026 ke 5 major changes (viva me gold):</b>
+  <ul class="list-disc ml-5 mt-1 text-gray-300 space-y-0.5">
+   <li>Salmeterol dosing intervals changed (max daily dose same)</li>
+   <li>Non-diagnostic carbon-monoxide (CO) use banned — new section M1.4</li>
+   <li>Blood & blood-component withdrawal rules clarified</li>
+   <li>Cell components (mitochondria, nuclei) added to cell-doping ban</li>
+   <li>Glucocorticoid washout table clarified for sustained-release doses</li>
+  </ul>
+ </div>
+</div>
+
+<!-- LIVE HEADLINES -->
+<h2 class="font-game font-black text-xl mt-6">📰 ANTI-DOPING HEADLINES <span class="text-xs text-gray-400">(live feed)</span></h2>
+<div id="newsBox" class="grid md:grid-cols-2 gap-3 mt-3"><div class="glass rounded-2xl p-4 text-gray-400">Loading live headlines…</div></div>
+
+<!-- NADA INDIA -->
+<div class="glass rounded-3xl p-5 mt-6">
+ <h2 class="font-game font-black">🇮🇳 NADA INDIA CORNER</h2>
+ <div class="grid md:grid-cols-3 gap-3 mt-3 text-sm">
+  <a target="_blank" href="https://nadaindia.yas.gov.in/" class="bg-black/30 rounded-2xl p-4 card-hover block"><div class="text-2xl">🏛️</div><b>Official NADA India site</b><br><span class="text-gray-400">Rules, TUE, sanctions, awareness material.</span></a>
+  <a target="_blank" href="https://www.globaldro.com/Home" class="bg-black/30 rounded-2xl p-4 card-hover block"><div class="text-2xl">💊</div><b>Global DRO — Know Your Medicine</b><br><span class="text-gray-400">Real tool athletes use to check medicines.</span></a>
+  <a target="_blank" href="https://adel.wada-ama.org/" class="bg-black/30 rounded-2xl p-4 card-hover block"><div class="text-2xl">🎓</div><b>WADA ADEL e-Learning</b><br><span class="text-gray-400">Free official courses + certificate.</span></a>
+ </div>
+ <div class="mt-3 text-sm bg-red-500/10 border border-red-500/40 rounded-2xl p-4">🚨 <b>See doping? Report:</b> <b>speakup-nada@gov.in</b> (identity protected) • NADA runs dope tests at events + camps across India.</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadLive(manual){
+ const badge=document.getElementById('liveBadge');
+ if(manual)badge.textContent='⏳ syncing…';
+ try{
+  const r=await fetch('/api/live-news');const d=await r.json();
+  document.getElementById('liveUpdated').textContent='• Synced: '+d.updated+(d.live?' • LIVE FEED':' • cached official');
+  badge.innerHTML=d.live?'<span class="live-dot"></span> LIVE':'📌 OFFICIAL CACHE';
+  document.getElementById('newsBox').innerHTML=d.items.map(n=>`
+   <a href="${n.url}" target="_blank" class="news-card glass rounded-2xl p-4 block">
+    <div class="flex gap-2 items-center text-[10px] font-black"><span class="px-2 py-0.5 rounded-full ${n.tag==='LIVE'?'bg-red-500 text-white':'bg-amber-400 text-black'}">${n.tag}</span><span class="text-gray-400">${n.src} • ${n.date}</span></div>
+    <div class="font-bold mt-1.5 text-[15px]">${n.title}</div>
+    <div class="text-amber-300 text-xs font-bold mt-1">Read source →</div>
+   </a>`).join('');
+ }catch(e){badge.textContent='📴 offline — cached';}
+}
+loadLive();setInterval(loadLive,5*60*1000);
+</script>
+{% endblock %}

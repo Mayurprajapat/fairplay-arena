@@ -1,0 +1,5 @@
+fairplay.db
+live_cache.json
+__pycache__/
+*.pyc
+.git/

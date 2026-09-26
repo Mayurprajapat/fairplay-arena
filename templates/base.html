@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}FairPlay Arena{% endblock %} | Play. Learn. Stay Clean.</title>
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#080e2a">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-arena min-h-screen">
+<canvas id="particles"></canvas>
+<canvas id="fx"></canvas>
+
+<!-- AVATAR PICKER MODAL -->
+<div id="avatarModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4">
+ <div class="glass rounded-3xl p-6 max-w-sm w-full text-center pop">
+  <div class="text-5xl char-idle">🏃</div>
+  <h2 class="font-game font-black text-xl mt-2">CHOOSE YOUR <span class="neon-text">ATHLETE</span></h2>
+  <p class="text-xs text-gray-400">Ye character har game me tumhare saath ladega 💪</p>
+  <div id="avatarGrid" class="grid grid-cols-4 gap-2 mt-4"></div>
+ </div>
+</div>
+
+<!-- LEVEL UP MODAL -->
+<div id="lvlModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4" onclick="this.classList.add('hidden')">
+ <div class="glass-gold rounded-3xl p-8 max-w-sm w-full text-center pop podium-1">
+  <div class="text-6xl char-idle">🏆</div>
+  <h2 class="font-game font-black text-2xl mt-2 neon-text">LEVEL UP!</h2>
+  <div id="lvlText" class="font-bold mt-1"></div>
+  <div class="text-sm text-gray-300 mt-1">Tap anywhere to continue 🔥</div>
+ </div>
+</div>
+
+<!-- LIVE TICKER (real 2026 updates) -->
+<div class="relative z-20 bg-gradient-to-r from-amber-400 via-orange-500 to-emerald-500 text-black text-xs md:text-sm font-bold py-1.5 overflow-hidden">
+  <div class="ticker inline-block px-4">🔴 LIVE • WADA 2026 Prohibited List IN FORCE since 1 Jan 2026 &nbsp;•&nbsp; 2027 List published (in force 1 Jan 2027) &nbsp;•&nbsp; NEW: non-diagnostic carbon-monoxide use banned (M1.4) &nbsp;•&nbsp; NADA India hosted GAIIN intel conference, New Delhi &nbsp;•&nbsp; Play 5 games • Earn 500 XP • Unlock Certificate 🏅</div>
+</div>
+
+<!-- NAVBAR -->
+<header class="relative z-20 sticky top-0 glass border-b border-white/10">
+ <div class="tricolor-bar"></div>
+ <nav class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+  <a href="/" class="flex items-center gap-2">
+    <img src="/static/icon.svg" class="w-9 h-9 rounded-xl" alt="logo">
+    <div><div class="font-game font-black text-lg leading-none neon-text">FAIRPLAY</div><div class="text-[10px] tracking-[.3em] text-gray-400">ARENA • 🇮🇳 CLEAN SPORT INDIA</div></div>
+  </a>
+  <div class="nav-desktop items-center gap-5 text-sm font-semibold text-gray-300">
+    <a href="/" class="hover:text-amber-300">Home</a>
+    <a href="/live" class="hover:text-amber-300 flex items-center gap-1"><span class="live-dot"></span>Live Centre</a>
+    <a href="/learn" class="hover:text-amber-300">Learn</a>
+    <a href="/quiz" class="hover:text-amber-300">Quiz Quest</a>
+    <a href="/story" class="hover:text-amber-300">Road to Gold</a>
+    <a href="/checker" class="hover:text-amber-300">Checker</a>
+    <a href="/dashboard" class="hover:text-amber-300">Ranks</a>
+  </div>
+  <div class="flex items-center gap-2">
+    <div class="hidden md:block w-40">
+      <div class="flex justify-between text-[10px] text-gray-400 font-bold"><span id="lvlLabel">LVL 1 ROOKIE</span><span id="xpLabel">0 XP</span></div>
+      <div class="h-2 rounded-full bg-white/10 overflow-hidden"><div id="xpFill" class="xp-fill h-full rounded-full" style="width:5%"></div></div>
+    </div>
+    <button onclick="askName()" id="playerChip" class="glass px-3 py-1.5 rounded-full text-sm font-bold">👤 Guest</button>
+    <button onclick="openAvatar()" class="glass px-3 py-1.5 rounded-full text-sm font-bold" title="Change avatar">🎭</button>
+    <span id="streakChip" class="glass px-2.5 py-1.5 rounded-full text-sm font-bold hidden md:inline">🔥 0d</span>
+    <a href="/certificate" class="btn-champ px-3 py-1.5 rounded-full text-sm hidden sm:inline-block">🏅 Certificate</a>
+  </div>
+ </nav>
+ <div class="nav-mobile flex gap-3 overflow-x-auto px-4 pb-2 text-sm font-semibold text-gray-300">
+   <a href="/live">🔴 Live</a><a href="/learn">Learn</a><a href="/quiz">Quiz</a><a href="/dope-nope">Dope/Nope</a><a href="/memory">Memory</a><a href="/story">Story</a><a href="/checker">Checker</a><a href="/dashboard">Ranks</a>
+ </div>
+</header>
+
+<main class="relative z-10 max-w-7xl mx-auto px-4 pb-28 pt-6">
+{% block content %}{% endblock %}
+</main>
+
+<!-- MASCOT -->
+<div class="fixed bottom-20 md:bottom-6 right-4 z-30">
+ <div id="mascotBox" class="hidden glass rounded-2xl p-3 max-w-[240px] text-sm mb-2 pop"><b>🛡️ DopeGuard:</b> <span id="mascotText">Welcome champ! Check Live Centre for 2026 rule changes!</span></div>
+ <button onclick="toggleMascot()" class="w-14 h-14 rounded-full btn-champ text-2xl float">🛡️</button>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="nav-mobile fixed bottom-0 inset-x-0 z-30 glass border-t border-white/10 flex justify-around py-2 text-[11px] font-bold text-gray-300">
+ <a href="/" class="flex flex-col items-center">🏟️<span>Home</span></a>
+ <a href="/live" class="flex flex-col items-center">🔴<span>Live</span></a>
+ <a href="/quiz" class="flex flex-col items-center">🎯<span>Quiz</span></a>
+ <a href="/checker" class="flex flex-col items-center">🔍<span>Checker</span></a>
+ <a href="/dashboard" class="flex flex-col items-center">🏆<span>Ranks</span></a>
+</nav>
+
+<footer class="relative z-10 text-center text-gray-500 text-xs pb-10 px-4">FairPlay Arena • Major Project • Gamification of Anti-Doping Education • Sources: WADA + NADA India (linked) • Made for athletes 🏅<br>
+<button onclick="installPWA()" class="mt-2 glass px-4 py-1.5 rounded-full text-white font-bold">📲 Install App (APK-like)</button></footer>
+
+<script src="/static/js/main.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

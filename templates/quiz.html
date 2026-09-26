@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Quiz Quest{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center gap-3">
+ <h1 class="font-game font-black text-3xl">🎯 QUIZ <span class="neon-text">QUEST</span></h1>
+ <span class="glass px-3 py-1 rounded-full text-sm font-bold">⏱ <span id="timer">20</span>s</span>
+ <span class="glass px-3 py-1 rounded-full text-sm font-bold"><span id="streakFire">🔥</span> <span id="streak">0</span></span>
+ <span class="glass px-3 py-1 rounded-full text-sm font-bold">Q <span id="qi">0</span>/15</span>
+</div>
+
+<!-- VS ARENA -->
+<div class="glass rounded-3xl p-4 mt-3 flex items-center justify-between gap-2">
+ <div class="text-center flex-1">
+  <div id="heroChar" class="char-vs char-idle">🏃</div>
+  <div class="font-game font-bold text-sm mt-1">YOU</div>
+  <div class="h-2.5 bg-white/10 rounded-full mt-1 overflow-hidden"><div id="heroBar" class="h-full rounded-full bg-gradient-to-r from-amber-300 to-emerald-400" style="width:0%"></div></div>
+  <div class="text-xs font-bold text-emerald-300"><span id="heroScore">0</span> XP</div>
+ </div>
+ <div class="font-game font-black text-2xl text-amber-300 wiggle">VS</div>
+ <div class="text-center flex-1">
+  <div class="char-vs villain">😈</div>
+  <div class="font-game font-bold text-sm mt-1 text-pink-300">DOPU <span class="text-[10px]">cheat-king</span></div>
+  <div class="h-2.5 bg-white/10 rounded-full mt-1 overflow-hidden"><div id="vilBar" class="h-full rounded-full bg-gradient-to-r from-pink-500 to-red-500" style="width:0%"></div></div>
+  <div class="text-xs font-bold text-pink-300"><span id="vilScore">0</span> taunts</div>
+ </div>
+</div>
+<div id="comboLine" class="text-center font-game font-black text-lg h-7 mt-1"></div>
+
+<div class="h-2 bg-white/10 rounded-full mt-1 overflow-hidden"><div id="bar" class="xp-fill h-full" style="width:0%"></div></div>
+<div id="quizBox" class="glass rounded-3xl p-5 md:p-8 mt-3">
+ <div id="qStart" class="text-center py-6">
+  <div class="flex justify-center gap-4 text-6xl"><span class="char-idle">🏃</span><span class="font-game text-3xl self-center">⚔️</span><span class="villain">😈</span></div>
+  <h2 class="font-game font-black text-2xl mt-3">BEAT DOPU • 15 ROUNDS</h2>
+  <p class="text-gray-400 text-sm mt-1">Sahi jawab = tumhe XP + Dopu ko damage 😈 • 3 streak = <b class="text-amber-300">COMBO +5 bonus</b> • Galat = Dopu hansta hai</p>
+  <button onclick="startQuiz()" class="btn-champ px-8 py-3 rounded-2xl font-game mt-4">⚔️ START BATTLE</button>
+ </div>
+ <div id="qPlay" class="hidden">
+  <div id="qText" class="font-bold text-lg md:text-xl"></div>
+  <div id="qOpts" class="grid gap-2 mt-4"></div>
+  <div id="qFact" class="hidden mt-4 rounded-2xl p-4 text-left pop border"></div>
+  <div class="flex gap-2 mt-4">
+   <button onclick="useLifeline()" id="lifeBtn" class="glass px-4 py-2 rounded-xl text-sm font-bold">🪄 50/50 Lifeline</button>
+   <button onclick="nextQ()" id="nextBtn" class="btn-champ px-6 py-2 rounded-xl font-bold hidden ml-auto">📖 Samajh gaya, Next →</button>
+  </div>
+ </div>
+ <div id="qEnd" class="hidden text-center py-6">
+  <div class="text-6xl" id="endEmoji">🏆</div>
+  <h2 class="font-game font-black text-2xl mt-2" id="endTitle"></h2>
+  <p class="text-gray-300" id="endText"></p>
+  <div class="flex flex-wrap justify-center gap-2 mt-4">
+   <button onclick="startQuiz()" class="btn-champ px-6 py-2.5 rounded-xl font-bold">↻ Rematch vs Dopu</button>
+   <a href="/dope-nope" class="glass px-6 py-2.5 rounded-xl font-bold">Next: Dope or Nope →</a>
+   <a href="/certificate" class="glass px-6 py-2.5 rounded-xl font-bold">🏅 Certificate</a>
+  </div>
+ </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let QS=[],i=0,score=0,vil=0,streak=0,locked=false,tInt=null,lifeUsed=false;
+document.getElementById('heroChar').textContent=getAvatar();
+async function startQuiz(){
+ const r=await fetch('/api/questions');QS=await r.json();
+ i=0;score=0;vil=0;streak=0;lifeUsed=false;document.getElementById('lifeBtn').disabled=false;
+ document.getElementById('comboLine').textContent='';
+ document.getElementById('qStart').classList.add('hidden');document.getElementById('qEnd').classList.add('hidden');document.getElementById('qPlay').classList.remove('hidden');
+ updArena();showQ();
+}
+function updArena(){
+ document.getElementById('heroScore').textContent=score;
+ document.getElementById('vilScore').textContent=vil;
+ document.getElementById('heroBar').style.width=Math.min(100,score/1.6)+'%';
+ document.getElementById('vilBar').style.width=Math.min(100,vil*9)+'%';
+}
+function showQ(){
+ locked=false;document.getElementById('nextBtn').classList.add('hidden');document.getElementById('qFact').classList.add('hidden');
+ const q=QS[i];document.getElementById('qi').textContent=(i+1);document.getElementById('bar').style.width=((i)/QS.length*100)+'%';
+ document.getElementById('qText').textContent=(i+1)+'. '+q.q;
+ document.getElementById('qOpts').innerHTML=q.options.map((o,k)=>`<button onclick="answer(${k})" data-k="${k}" class="opt-btn glass rounded-xl px-4 py-3 text-left font-semibold choice-in" style="animation-delay:${k*0.07}s">${['A','B','C','D'][k]}. ${o}</button>`).join('');
+ let t=20;const te=document.getElementById('timer');te.textContent=t;te.classList.remove('timer-danger');clearInterval(tInt);
+ tInt=setInterval(()=>{t--;te.textContent=t;if(t<=5)te.classList.add('timer-danger');if(t<=0){clearInterval(tInt);answer(-1)}},1000);
+}
+function comboMsg(){
+ const c=document.getElementById('comboLine');
+ if(streak>=5){c.innerHTML='<span class="fire-streak">🔥🔥 UNSTOPPABLE x'+streak+'! 🔥🔥</span>';c.className='text-center font-game font-black text-lg h-7 mt-1 text-amber-300 combo-pop'}
+ else if(streak>=3){c.innerHTML='<span class="fire-streak">🔥 COMBO x'+streak+' +5 BONUS!</span>';c.className='text-center font-game font-black text-lg h-7 mt-1 text-orange-300 combo-pop'}
+ else if(streak>=2){c.textContent='🔥 Streak x'+streak+' — ek aur!';c.className='text-center font-game font-black text-lg h-7 mt-1 text-gray-300'}
+ else{c.textContent='';}
+}
+function answer(k){
+ if(locked)return;locked=true;clearInterval(tInt);
+ const q=QS[i];const btns=[...document.querySelectorAll('#qOpts button')];
+ btns.forEach(b=>{b.style.pointerEvents='none'});
+ btns[q.answer].classList.add('opt-correct');
+ const ok=(k===q.answer);
+ const f=document.getElementById('qFact');f.classList.remove('hidden');
+ f.className='mt-4 rounded-2xl p-4 text-left pop border '+(ok?'bg-emerald-400/10 border-emerald-400/50':'bg-pink-500/10 border-pink-500/50');
+ f.innerHTML=(ok?'<div class="font-black">✅ DIRECT HIT on Dopu! 😈💥</div>':'<div class="font-black">❌ Dopu hans raha hai 😈 — sahi jawab padho 👇</div>')
+  +`<div class="text-sm mt-1">✔ <b>Correct: ${['A','B','C','D'][q.answer]}. ${q.options[q.answer]}</b></div>`
+  +`<div class="text-sm mt-2 text-gray-200">📚 <b>Learn:</b> ${q.fact}</div>`
+  +`<div class="text-xs mt-2 text-gray-400">⏸ Timer ruka hai — padhke Next dabao.</div>`;
+ if(ok){let pts=10+(streak>=2?5:0);score+=pts;streak++;confetti(45);sfx('good');say(streak>=3?'COMBO! +'+pts+' XP 🔥🔥':'Sahi! Dopu ko laga! +'+pts+' XP 💥')}
+ else{streak=0;vil++;sfx('bad');if(k>=0)btns[k].classList.add('opt-wrong','shake');say(k===-1?'Time up! Green wala sahi tha — padhke Next dabao.':'Dopu: "hehe!" 😈 Green wala padho, phir harayenge!')}
+ document.getElementById('streak').textContent=streak;
+ document.getElementById('streakFire').className=streak>=3?'fire-streak':'';
+ comboMsg();updArena();
+ document.getElementById('nextBtn').classList.remove('hidden');
+ f.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function useLifeline(){
+ if(lifeUsed||locked)return;lifeUsed=true;document.getElementById('lifeBtn').disabled=true;
+ const q=QS[i];const btns=[...document.querySelectorAll('#qOpts button')];
+ let removed=0;btns.forEach(b=>{const k=+b.dataset.k;if(k!==q.answer&&removed<2){b.style.opacity='.25';b.style.pointerEvents='none';removed++}});
+}
+function nextQ(){i++;if(i>=QS.length){finish();return}showQ()}
+function finish(){
+ document.getElementById('qPlay').classList.add('hidden');const e=document.getElementById('qEnd');e.classList.remove('hidden');
+ document.getElementById('bar').style.width='100%';
+ addXP(score);pushScore('quiz',score);
+ const win=score>=vil*8+40;
+ document.getElementById('endEmoji').textContent=win?'🏆':'😈';
+ document.getElementById('endTitle').textContent=win?`VICTORY! Dopu hara! ${score} XP`:`Dopu jeet gaya 😈 (${score} XP) — REMATCH?`;
+ document.getElementById('endText').textContent=win?'Tum champion ho! Certificate claim karo!':'Koi baat nahi champ — haar ke jeetne wale ko Baazigar kehte hain. Phir khel!';
+ if(win){confetti(140);sfx('level')}
+ say('Quiz battle khatam! +'+score+' XP!');
+}
+</script>
+{% endblock %}

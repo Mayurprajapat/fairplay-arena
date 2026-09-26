@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Learn Lab{% endblock %}
+{% block content %}
+<h1 class="font-game font-black text-3xl md:text-4xl">📚 LEARN <span class="neon-text">LAB</span></h1>
+<p class="text-gray-400 mt-1">6 missions • 5 minutes each • then test yourself in games. Click "Mark Done +10 XP" to grow!</p>
+<div id="mods" class="grid md:grid-cols-2 gap-4 mt-6"></div>
+<script>
+const MODS=[
+ {icon:"📜",t:"1. What is Doping?",d:"WADA Code, spirit of sport, 11 rule violations in simple words.",body:"Doping = breaking any of 11 Anti-Doping Rule Violations (ADRVs): presence of banned drug, using/attempting, refusing test, tampering, trafficking, assisting others. <b>Spirit of sport</b> = ethics, health, fair play, honesty. WADA Code applies worldwide; NADA enforces it in India."},
+ {icon:"🚫",t:"2. Prohibited List 2025",d:"S1-S9 + M1-M3 + P1 explained with examples.",body:"<b>Always banned:</b> S1 Steroids, S2 Hormones (EPO/hGH), S4 Modulators (Meldonium), S5 Diuretics. <b>In-competition:</b> S6 Stimulants, S7 Narcotics (Tramadol!), S8 Cannabis, S9 Glucocorticoids. <b>Methods:</b> M1 blood doping, M2 tampering, M3 gene doping. <b>P1:</b> Beta-blockers in shooting/archery."},
+ {icon:"💊",t:"3. TUE — Medical Safety Net",d:"How to legally use a banned medicine.",body:"Sick? <b>Step 1:</b> Check medicine on Global DRO. <b>Step 2:</b> Doctor prescribes + documents. <b>Step 3:</b> Apply TUE to NADA/IF BEFORE use (emergency = retroactive). 4 criteria: genuine need, no extra performance boost, no alternative, fair. Never borrow someone's prescription!"},
+ {icon:"🧪",t:"4. Testing — Doping Control",d:"Sample collection, A/B bottles, rights & duties.",body:"Officer can come <b>anytime, anywhere</b> (6 AM too!). Carry ID. Give sample under observation. Sample splits into <b>A & B bottles</b>. You can watch sealing + note medicines on form. You have the right to ask for B-sample test + interpreter. Refusing = violation!"},
+ {icon:"⚠️",t:"5. Supplements Danger Zone",d:"Strict liability + contamination truth.",body:"<b>Strict liability:</b> whatever is in your body = YOUR fault, even by mistake. Studies: many supplements hide steroids/stimulants. Rules: 1) Food first 2) Only Informed-Sport batch-tested 3) Keep bills + photos 4) Check with doctor. No certificate = no gulp!"},
+ {icon:"⛔",t:"6. Bans & Consequences",d:"4 years to lifetime — money, medal, health.",body:"Intentional doping = <b>up to 4-year ban</b> (1st), lifetime (repeat). Lose medals, prize money, sponsorship, government job quota. Health: heart attack, infertility, depression, liver failure. Coaches/traffickers also banned. One shortcut can erase 10 years of training."},
+];
+const box=document.getElementById('mods');
+let done=JSON.parse(localStorage.getItem('fp_mods')||'[]');
+function render(){
+ box.innerHTML=MODS.map((m,i)=>`
+ <div class="glass rounded-3xl p-5 card-hover ${done.includes(i)?'border-emerald-400/60':''}">
+  <div class="text-4xl">${m.icon}</div>
+  <div class="font-game font-black mt-2">${m.t}</div>
+  <div class="text-sm text-emerald-300 font-semibold">${m.d}</div>
+  <p class="text-sm text-gray-300 mt-3">${m.body}</p>
+  <button onclick="completeMod(${i})" class="mt-4 w-full ${done.includes(i)?'glass':'btn-neon'} rounded-xl py-2 font-bold text-sm">${done.includes(i)?'✅ Completed':'Mark Done +10 XP'}</button>
+ </div>`).join('');
+}
+function completeMod(i){
+ if(done.includes(i))return;
+ done.push(i);localStorage.setItem('fp_mods',JSON.stringify(done));
+ addXP(10);pushScore('learn',10);say('Module complete! +10 XP. Keep going champ!');render();
+}
+render();
+</script>
+{% endblock %}
