@@ -2,12 +2,16 @@
 ### Major Project | Play. Learn. Stay Clean.
 
 **🌍 LIVE SITE: https://fairplay-arena-theta.vercel.app**
+**📦 SOURCE: https://github.com/Mayurprajapat/fairplay-arena**
 
 Attractive gamified website + mobile-app-like (PWA) for athletes to learn anti-doping through games.
 
 ## 🔄 Auto-update workflow (changes live kaise honge)
-- **Option A (permanent):** GitHub repo connect karo → har `git push` pe Vercel khud redeploy karega (neeche steps).
-- **Option B (quick):** Is folder me `vercel --prod` chalao → 20 sec me live site update.
+- **✅ CONNECTED (Option A):** GitHub repo `Mayurprajapat/fairplay-arena` Vercel se connected hai → har `git push` pe Vercel khud live site redeploy karega.
+  ```bash
+  git add . && git commit -m "update" && git push   # 30 sec me live!
+  ```
+- **Option B (quick manual):** Is folder me `vercel --prod` chalao → 20 sec me live site update.
 
 ## ✨ Features (jury ko impress karne wale — har game sikhata hai!)
 - 🎯 **Quiz Quest** — 15 timed WADA questions, streak bonus, 50/50 lifeline, +100 XP
