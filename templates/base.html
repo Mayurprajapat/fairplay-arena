@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0b0f19">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/style.css?v=10">
+<link rel="stylesheet" href="/static/css/style.css?v=11">
 <style>
   @layer utilities {
     .text-balance { text-wrap: balance; }
@@ -19,8 +19,9 @@
   .reveal { opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
   .chip { display:inline-flex; align-items:center; gap:6px; }
-  .sidebar-overlay { fixed inset-0 z-20 bg-black/40 backdrop-blur-sm hidden md:hidden; }
+  .sidebar-overlay { fixed inset-0 z-20 bg-black/50 backdrop-blur-sm hidden md:hidden; }
   .sidebar-overlay.show { display: block; }
+  .touch-target { min-height: 48px; min-width: 48px; display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
 <body class="bg-[#05070f] text-[#e2e8f0] min-h-screen font-sans overflow-x-hidden selection:bg-indigo-500 selection:text-white">
@@ -55,72 +56,72 @@
  </div>
 </div>
 
-<!-- ================= GAMING DASHBOARD LAYOUT ================= -->
-<div class="flex h-screen flex-col md:flex-row overflow-hidden">
+<!-- ================= LAYOUT ================= -->
+<div class="flex flex-col md:flex-row min-h-screen overflow-hidden">
 
   <!-- SIDEBAR OVERLAY (mobile only) -->
   <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
 
   <!-- LEFT SIDEBAR -->
-  <aside class="fixed left-0 top-0 h-full w-60 bg-[#070810] border-r border-white/6 z-30 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300" id="sidebar">
+  <aside class="fixed left-0 top-0 h-full w-64 bg-[#070810] border-r border-white/6 z-30 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300" id="sidebar">
     <div class="h-16 shrink-0 flex items-center justify-between px-4 border-b border-white/6">
       <div class="flex items-center gap-2">
         <img src="/static/icon.svg" class="w-8 h-8 rounded-lg shadow-[0_0_20px_rgba(99,102,241,0.5)]" alt="logo">
         <div class="font-grotesk font-bold text-white text-sm">FAIRPLAY</div>
       </div>
-      <button id="closeSidebar" class="md:hidden p-1.5 text-slate-400 hover:text-white">✕</button>
+      <button id="closeSidebar" class="md:hidden p-2 touch-target text-slate-400 hover:text-white">✕</button>
     </div>
 
     <nav class="flex-1 overflow-y-auto px-2 py-4 space-y-1">
       <div class="px-3 py-1 text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">MAIN MENU</div>
-      <a href="/" class="nav-link active flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition" onclick="closeSidebar()">
+      <a href="/" class="nav-link active flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition touch-target" onclick="closeSidebar()">
         <span class="text-xl">🏟️</span><span>Dashboard</span>
       </a>
-      <a href="/champion" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/champion" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">👑</span><span>Champion</span>
       </a>
-      <a href="/live" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white flex items-center gap-3" onclick="closeSidebar()">
+      <a href="/live" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">🔴</span><span>Live Centre</span>
       </a>
-      <a href="/learn" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/learn" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">📚</span><span>Learn Lab</span>
       </a>
-      <a href="/quiz" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/quiz" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">🎯</span><span>Quiz Quest</span>
       </a>
-      <a href="/story" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/story" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">🔥</span><span>Road to Gold</span>
       </a>
-      <a href="/checker" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/checker" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">🔍</span><span>Substance Checker</span>
       </a>
-      <a href="/scanner" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/scanner" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">📷</span><span>Camera Scanner</span>
       </a>
-      <a href="/badges" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/badges" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">🏆</span><span>Badges</span>
       </a>
-      <a href="/athlete-profile" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/athlete-profile" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">📊</span><span>Athlete Profile</span>
       </a>
-      <a href="/dashboard" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/dashboard" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">📈</span><span>Ranks</span>
       </a>
 
       <div class="px-3 py-1 mt-6 mb-2 text-[9px] font-black text-slate-500 uppercase tracking-widest">ANTI-DOPING TOOLS</div>
-      <a href="/chatbot" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/chatbot" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">💬</span><span>DopeGuard AI</span>
       </a>
-      <a href="/report-doping" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/report-doping" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">🚨</span><span>Report Doping</span>
       </a>
-      <a href="/tue-application" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/tue-application" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">💊</span><span>TUE Application</span>
       </a>
-      <a href="/whereabouts" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/whereabouts" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">📍</span><span>Whereabouts</span>
       </a>
-      <a href="/certificate" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
+      <a href="/certificate" class="nav-link flex items-center gap-3 px-3 py-3.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white touch-target" onclick="closeSidebar()">
         <span class="text-xl">📜</span><span>Certificate</span>
       </a>
     </nav>
@@ -136,19 +137,19 @@
       <div class="w-full h-[6px] bg-white/8 rounded-full overflow-hidden mb-1.5"><div id="sidebarXpFill" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500" style="width:0%"></div></div>
       <div class="text-[10px] text-slate-400 font-bold" id="sidebarXp">0 XP</div>
       <div class="mt-3 flex gap-1.5">
-        <button onclick="toggleLang()" class="flex-1 py-2 bg-white/5 border border-white/8 rounded-lg text-[9px] font-black text-slate-300 hover:text-white transition uppercase tracking-wider" title="EN / हिंदी">EN | हिंदी</button>
-        <button onclick="toggleMute()" class="px-1.5 py-2 bg-white/5 border border-white/8 rounded-lg text-slate-300 hover:text-white transition" title="Sound">🔊</button>
-        <a href="/certificate" class="flex-1 py-2 bg-indigo-600 border border-indigo-400/60 rounded-lg text-[9px] font-black text-white hover:bg-indigo-500 transition shadow-[0_0_15px_rgba(99,102,241,0.35)] uppercase tracking-wider">🏅 Cert</a>
+        <button onclick="toggleLang()" class="flex-1 py-2 bg-white/5 border border-white/8 rounded-lg text-[9px] font-black text-slate-300 hover:text-white transition uppercase tracking-wider touch-target" title="EN / हिंदी">EN | हिंदी</button>
+        <button onclick="toggleMute()" class="px-2 py-2 bg-white/5 border border-white/8 rounded-lg text-slate-300 hover:text-white transition touch-target" title="Sound">🔊</button>
+        <a href="/certificate" class="flex-1 py-2 bg-indigo-600 border border-indigo-400/60 rounded-lg text-[9px] font-black text-white hover:bg-indigo-500 transition shadow-[0_0_15px_rgba(99,102,241,0.35)] uppercase tracking-wider touch-target">🏅 Cert</a>
       </div>
     </div>
   </aside>
 
   <!-- MAIN AREA -->
-  <div class="flex-1 flex flex-col min-w-0 relative">
+  <div class="flex-1 flex flex-col min-w-0 min-h-[100dvh] relative">
     <!-- TOP HEADER -->
-    <header class="sticky top-0 z-20 bg-[#070810]/90 backdrop-blur-md border-b border-white/6 px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <button id="openSidebar" class="md:hidden p-1.5 bg-white/5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10">≡</button>
+    <header class="sticky top-0 z-20 bg-[#070810]/95 backdrop-blur-md border-b border-white/6 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button id="openSidebar" class="md:hidden p-2 touch-target bg-white/5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10">≡</button>
         <div class="hidden md:flex items-center gap-2">
           <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
           <span class="text-[10px] font-black text-slate-300 uppercase tracking-wider">Online • Clean Sport India</span>
@@ -161,11 +162,11 @@
         </div>
       </div>
       <div class="flex items-center gap-1">
-        <button class="p-1.5 bg-white/5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition" title="Menu">🎮</button>
-        <button class="relative p-1.5 bg-white/5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition" title="Notifications">
+        <button class="p-2 touch-target bg-white/5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition" title="Menu">🎮</button>
+        <button class="relative p-2 touch-target bg-white/5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition" title="Notifications">
           🔔<span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 border border-[#070810]"></span>
         </button>
-        <button onclick="askName()" id="headerPlayer" class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-200 hover:border-indigo-400 hover:text-white transition">👤 <span id="headerName">Guest</span></button>
+        <button onclick="askName()" id="headerPlayer" class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-2.5 py-1 text-xs font-bold text-slate-200 hover:border-indigo-400 hover:text-white transition touch-target">👤 <span id="headerName">Guest</span></button>
       </div>
     </header>
 
@@ -175,7 +176,7 @@
     </div>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 overflow-y-auto p-3 md:p-6 relative z-10">
+    <main class="flex-1 overflow-y-auto p-3 md:p-6 relative z-10 -webkit-overflow-scrolling: touch">
       {% block content %}{% endblock %}
     </main>
 
@@ -189,7 +190,7 @@
 <!-- ================= /LAYOUT ================= -->
 
 <!-- MASCOT -->
-<div id="mascotBox" class="hidden fixed bottom-[110px] md:bottom-20 right-4 z-40 w-72 bg-[#1e293b] border border-white/10 shadow-2xl rounded-2xl p-3 text-xs text-slate-300 pop">
+<div id="mascotBox" class="hidden fixed bottom-[120px] md:bottom-24 right-3 z-40 w-[260px] md:w-72 bg-[#1e293b] border border-white/10 shadow-2xl rounded-2xl p-3 text-xs text-slate-300 pop">
  <div class="flex items-center gap-2 mb-2">
   <span class="text-xl">🛡️</span>
   <div>
@@ -203,7 +204,7 @@
   <button onclick="toggleMascot()" class="bg-indigo-600 text-white px-1.5 py-0.5 rounded text-[9px] font-bold hover:bg-indigo-500">Ask Tip</button>
  </div>
 </div>
-<button class="mascot-toggle fixed bottom-8 right-4 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 via-amber-500 to-rose-500 text-white shadow-xl flex items-center justify-center text-xl transition active:scale-95 border-2 border-white/20" onclick="toggleMascot()" title="Coach tip">🛡️</button>
+<button class="mascot-toggle fixed bottom-4 right-3 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 via-amber-500 to-rose-500 text-white shadow-xl flex items-center justify-center text-xl transition active:scale-95 border-2 border-white/20 touch-target" onclick="toggleMascot()" title="Coach tip">🛡️</button>
 
 <script src="/static/js/i18n.js"></script>
 <script src="/static/js/main.js"></script>
@@ -211,13 +212,13 @@
 <script>
   // Sidebar toggle (mobile)
   const openSidebar = document.getElementById('openSidebar');
-  const closeSidebar = document.getElementById('closeSidebar');
+  const closeSidebarBtn = document.getElementById('closeSidebar');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
-  function openSidebarFn(){ if(sidebar){sidebar.classList.remove('-translate-x-full');} if(overlay){overlay.classList.add('show');} }
-  function closeSidebarFn(){ if(sidebar){sidebar.classList.add('-translate-x-full');} if(overlay){overlay.classList.remove('show');} }
+  function openSidebarFn(){ if(sidebar){sidebar.classList.remove('-translate-x-full');} if(overlay){overlay.classList.add('show');} document.body.style.overflow = 'hidden'; }
+  function closeSidebarFn(){ if(sidebar){sidebar.classList.add('-translate-x-full');} if(overlay){overlay.classList.remove('show');} document.body.style.overflow = ''; }
   if(openSidebar){ openSidebar.addEventListener('click',openSidebarFn); }
-  if(closeSidebar){ closeSidebar.addEventListener('click',closeSidebarFn); }
+  if(closeSidebarBtn){ closeSidebarBtn.addEventListener('click',closeSidebarFn); }
   document.querySelectorAll('#sidebar a').forEach(a=>{a.addEventListener('click',closeSidebarFn);});
 
   // Keep xp/level labels in sync if main.js sets them

@@ -335,34 +335,48 @@ main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:24px 16
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
   .nav-desktop{display:none !important}
-  main{padding:20px 16px 100px}
+  main{padding:16px 14px 110px}
   .nav-inner{padding:8px 16px}
   .arena{padding:14px}
   .opt-btn{font-size:13px;padding:12px}
   .cert-paper{padding:28px;margin:0 12px}
   .chat-container{height:340px}
-  .mascot-toggle{bottom-6 right-3;width:48px;height:48px;font-size:20px}
 
   /* Touch-friendly buttons (min 44px) */
   button, .btn-primary, .btn-outline, .btn-neon, .nav-link, .form-input, .form-select {
-    min-height: 44px;
+    min-height: 48px;
   }
 
   /* Sidebar overlay backdrop */
   .sidebar-overlay.show { display: block !important; }
 
   /* Header compact on mobile */
-  header .flex-1 { display: none; } /* hide search on mobile to save space */
-  header { padding-left: 12px; padding-right: 12px; }
+  header .flex-1 { display: none; }
+  header { padding-left: 10px; padding-right: 10px; min-height: 56px; }
 
-  /* Cards stack better on mobile */
-  .glass-panel { padding: 4px !important; }
+  /* Cards stack better on mobile - don't over-compress padding */
+  .glass-panel { padding: 8px !important; }
   .glass-panel.rounded-3xl { border-radius: 16px !important; }
+  .glass-panel.rounded-2xl { border-radius: 16px !important; }
 
   /* Prevent horizontal scroll */
-  body { overflow-x: hidden; }
-  main { max-width: 100%; }
-  section { max-width: 100%; }
+  body { overflow-x: hidden; position: relative; }
+  main { max-width: 100%; width: 100%; }
+  section { max-width: 100%; width: 100%; }
+
+  /* Ensure hero section doesn't overflow */
+  .glass-panel > div { max-width: 100%; }
+  
+  /* Stack hero buttons vertically on very small screens */
+  .flex.flex-wrap.gap-2.justify-center > a {
+    flex: 1 1 48%;
+    min-width: 140px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Ticker text smaller on mobile */
+  .animate-\\[ticker_30s_linear_infinite\\] { font-size: 10px; }
 }
 
 @media(min-width:769px){
@@ -371,31 +385,58 @@ main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:24px 16
 
 /* ===== MOBILE SPECIFIC ENHANCEMENTS ===== */
 @media(max-width:480px){
-  main{padding:16px 12px 100px}
-  .glass-panel.p-4, .glass-panel.p-6 { padding: 4px !important; }
+  main{padding:12px 10px 110px}
+  .glass-panel.p-4, .glass-panel.p-6 { padding: 6px !important; }
   .rounded-3xl { border-radius: 12px !important; }
   .rounded-2xl { border-radius: 12px !important; }
-  .text-4xl { font-size: 2rem !important; }
-  .text-3xl { font-size: 1.5rem !important; }
-  .text-2xl { font-size: 1.25rem !important; }
-  .text-xl { font-size: 1.125rem !important; }
+  .text-4xl { font-size: 1.75rem !important; }
+  .text-3xl { font-size: 1.35rem !important; }
+  .text-2xl { font-size: 1.2rem !important; }
+  .text-xl { font-size: 1.1rem !important; }
   .text-lg { font-size: 1rem !important; }
 
-  /* Sidebar wider on small mobile */
+  /* Sidebar icons-only on small mobile */
   #sidebar { width: 72px; }
-  #sidebar span { display: none; }
+  #sidebar span { display: none !important; }
   #sidebar .nav-link { justify-content: center; padding-left: 0; padding-right: 0; }
-  #sidebar .nav-link span.text-xl { margin-right: 0; }
-
-  /* Hero buttons full width on very small screens */
-  .flex.flex-wrap.gap-2.justify-center > a {
-    flex: 1 1 45%;
-    min-width: 140px;
-    text-align: center;
-    justify-content: center;
-  }
+  #sidebar .nav-link span.text-xl { margin-right: 0 !important; }
 
   /* Mascot */
-  .mascot-toggle { bottom: 4px; right: 2px; width: 44px; height: 44px; font-size: 18px; }
+  .mascot-toggle { bottom: 2px; right: 2px; width: 44px; height: 44px; font-size: 18px; }
   #mascotBox { bottom: 60px; right: 2px; width: calc(100vw - 8px); max-width: 280px; }
+
+  /* Footer text smaller */
+  footer { font-size: 8px; padding: 12px 8px; }
+
+  /* Hero section compact */
+  .glass-panel.rounded-3xl { padding: 8px !important; }
+  .text-transparent { font-size: 1.5rem !important; }
+}
+
+/* iOS Safari fix - prevent content from jumping */
+@supports (-webkit-touch-callout: none) {
+  main { min-height: -webkit-fill-available; }
+  .flex.flex-col.md\\:flex-row { min-height: -webkit-fill-available; }
+}
+
+/* Ensure modals are touch-friendly on mobile */
+#avatarModal, #lvlModal {
+  touch-action: manipulation;
+}
+
+/* Fix input touch targets on mobile */
+input[type="text"], input[type="number"], input[type="email"], input[type="password"], textarea, select {
+  font-size: 16px !important; /* Prevents iOS zoom on focus */
+  min-height: 48px;
+}
+
+/* Fix game option buttons on mobile */
+.opt-btn {
+  min-height: 52px;
+  font-size: 15px;
+}
+
+/* Make sure all interactive elements have enough spacing */
+button:not(.mascot-toggle), .nav-link, .btn-primary, .btn-outline, .btn-neon {
+  margin-bottom: 8px;
 }
