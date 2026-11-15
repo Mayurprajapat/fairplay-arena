@@ -335,14 +335,67 @@ main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:24px 16
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
   .nav-desktop{display:none !important}
-  main{padding:20px 16px 90px}
+  main{padding:20px 16px 100px}
   .nav-inner{padding:8px 16px}
   .arena{padding:14px}
   .opt-btn{font-size:13px;padding:12px}
   .cert-paper{padding:28px;margin:0 12px}
   .chat-container{height:340px}
-  .mascot-toggle{bottom-8:right-3;width:44px;height:44px;font-size:18px}
+  .mascot-toggle{bottom-6 right-3;width:48px;height:48px;font-size:20px}
+
+  /* Touch-friendly buttons (min 44px) */
+  button, .btn-primary, .btn-outline, .btn-neon, .nav-link, .form-input, .form-select {
+    min-height: 44px;
+  }
+
+  /* Sidebar overlay backdrop */
+  .sidebar-overlay.show { display: block !important; }
+
+  /* Header compact on mobile */
+  header .flex-1 { display: none; } /* hide search on mobile to save space */
+  header { padding-left: 12px; padding-right: 12px; }
+
+  /* Cards stack better on mobile */
+  .glass-panel { padding: 4px !important; }
+  .glass-panel.rounded-3xl { border-radius: 16px !important; }
+
+  /* Prevent horizontal scroll */
+  body { overflow-x: hidden; }
+  main { max-width: 100%; }
+  section { max-width: 100%; }
 }
+
 @media(min-width:769px){
   .nav-mobile{display:none !important}
+}
+
+/* ===== MOBILE SPECIFIC ENHANCEMENTS ===== */
+@media(max-width:480px){
+  main{padding:16px 12px 100px}
+  .glass-panel.p-4, .glass-panel.p-6 { padding: 4px !important; }
+  .rounded-3xl { border-radius: 12px !important; }
+  .rounded-2xl { border-radius: 12px !important; }
+  .text-4xl { font-size: 2rem !important; }
+  .text-3xl { font-size: 1.5rem !important; }
+  .text-2xl { font-size: 1.25rem !important; }
+  .text-xl { font-size: 1.125rem !important; }
+  .text-lg { font-size: 1rem !important; }
+
+  /* Sidebar wider on small mobile */
+  #sidebar { width: 72px; }
+  #sidebar span { display: none; }
+  #sidebar .nav-link { justify-content: center; padding-left: 0; padding-right: 0; }
+  #sidebar .nav-link span.text-xl { margin-right: 0; }
+
+  /* Hero buttons full width on very small screens */
+  .flex.flex-wrap.gap-2.justify-center > a {
+    flex: 1 1 45%;
+    min-width: 140px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Mascot */
+  .mascot-toggle { bottom: 4px; right: 2px; width: 44px; height: 44px; font-size: 18px; }
+  #mascotBox { bottom: 60px; right: 2px; width: calc(100vw - 8px); max-width: 280px; }
 }

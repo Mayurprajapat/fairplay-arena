@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>{% block title %}FairPlay Arena{% endblock %} | Play. Learn. Stay Clean.</title>
 <link rel="manifest" href="/static/manifest.json">
 <meta name="theme-color" content="#0b0f19">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/style.css?v=9">
+<link rel="stylesheet" href="/static/css/style.css?v=10">
 <style>
   @layer utilities {
     .text-balance { text-wrap: balance; }
@@ -19,6 +19,8 @@
   .reveal { opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
   .chip { display:inline-flex; align-items:center; gap:6px; }
+  .sidebar-overlay { fixed inset-0 z-20 bg-black/40 backdrop-blur-sm hidden md:hidden; }
+  .sidebar-overlay.show { display: block; }
 </style>
 </head>
 <body class="bg-[#05070f] text-[#e2e8f0] min-h-screen font-sans overflow-x-hidden selection:bg-indigo-500 selection:text-white">
@@ -34,7 +36,7 @@
 </div>
 
 <!-- AVATAR MODAL -->
-<div id="avatarModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+<div id="avatarModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-black/40 backdrop-blur-sm">
  <div class="bg-[#1e293b] rounded-2xl p-6 max-w-sm w-full text-center border border-white/10 shadow-2xl pop">
   <div class="text-4xl char-idle mb-3">🏃</div>
   <h2 class="font-grotesk font-bold text-lg text-white mb-1">CHOOSE ATHLETE</h2>
@@ -44,7 +46,7 @@
 </div>
 
 <!-- LEVEL UP MODAL -->
-<div id="lvlModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onclick="this.classList.add('hidden')">
+<div id="lvlModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-black/40 backdrop-blur-sm" onclick="this.classList.add('hidden')">
  <div class="bg-gradient-to-br from-indigo-500 via-amber-500 to-rose-500 rounded-2xl p-8 max-w-sm w-full text-center pop shadow-2xl text-white">
   <div class="text-5xl char-idle mb-3">🏆</div>
   <h2 class="font-grotesk font-bold text-lg mb-1">LEVEL UP!</h2>
@@ -56,6 +58,9 @@
 <!-- ================= GAMING DASHBOARD LAYOUT ================= -->
 <div class="flex h-screen flex-col md:flex-row overflow-hidden">
 
+  <!-- SIDEBAR OVERLAY (mobile only) -->
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
   <!-- LEFT SIDEBAR -->
   <aside class="fixed left-0 top-0 h-full w-60 bg-[#070810] border-r border-white/6 z-30 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300" id="sidebar">
     <div class="h-16 shrink-0 flex items-center justify-between px-4 border-b border-white/6">
@@ -63,59 +68,59 @@
         <img src="/static/icon.svg" class="w-8 h-8 rounded-lg shadow-[0_0_20px_rgba(99,102,241,0.5)]" alt="logo">
         <div class="font-grotesk font-bold text-white text-sm">FAIRPLAY</div>
       </div>
-      <button id="closeSidebar" class="md:hidden p-1 text-slate-400 hover:text-white">✕</button>
+      <button id="closeSidebar" class="md:hidden p-1.5 text-slate-400 hover:text-white">✕</button>
     </div>
 
     <nav class="flex-1 overflow-y-auto px-2 py-4 space-y-1">
       <div class="px-3 py-1 text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">MAIN MENU</div>
-      <a href="/" class="nav-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition">
+      <a href="/" class="nav-link active flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition" onclick="closeSidebar()">
         <span class="text-xl">🏟️</span><span>Dashboard</span>
       </a>
-      <a href="/champion" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/champion" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">👑</span><span>Champion</span>
       </a>
-      <a href="/live" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white flex items-center gap-3">
+      <a href="/live" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white flex items-center gap-3" onclick="closeSidebar()">
         <span class="text-xl">🔴</span><span>Live Centre</span>
       </a>
-      <a href="/learn" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/learn" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">📚</span><span>Learn Lab</span>
       </a>
-      <a href="/quiz" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/quiz" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">🎯</span><span>Quiz Quest</span>
       </a>
-      <a href="/story" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/story" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">🔥</span><span>Road to Gold</span>
       </a>
-      <a href="/checker" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/checker" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">🔍</span><span>Substance Checker</span>
       </a>
-      <a href="/scanner" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/scanner" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">📷</span><span>Camera Scanner</span>
       </a>
-      <a href="/badges" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/badges" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">🏆</span><span>Badges</span>
       </a>
-      <a href="/athlete-profile" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/athlete-profile" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">📊</span><span>Athlete Profile</span>
       </a>
-      <a href="/dashboard" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/dashboard" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">📈</span><span>Ranks</span>
       </a>
 
       <div class="px-3 py-1 mt-6 mb-2 text-[9px] font-black text-slate-500 uppercase tracking-widest">ANTI-DOPING TOOLS</div>
-      <a href="/chatbot" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/chatbot" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">💬</span><span>DopeGuard AI</span>
       </a>
-      <a href="/report-doping" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/report-doping" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">🚨</span><span>Report Doping</span>
       </a>
-      <a href="/tue-application" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/tue-application" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">💊</span><span>TUE Application</span>
       </a>
-      <a href="/whereabouts" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/whereabouts" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">📍</span><span>Whereabouts</span>
       </a>
-      <a href="/certificate" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white">
+      <a href="/certificate" class="nav-link flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition hover:bg-white/5 hover:text-white" onclick="closeSidebar()">
         <span class="text-xl">📜</span><span>Certificate</span>
       </a>
     </nav>
@@ -131,9 +136,9 @@
       <div class="w-full h-[6px] bg-white/8 rounded-full overflow-hidden mb-1.5"><div id="sidebarXpFill" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500" style="width:0%"></div></div>
       <div class="text-[10px] text-slate-400 font-bold" id="sidebarXp">0 XP</div>
       <div class="mt-3 flex gap-1.5">
-        <button onclick="toggleLang()" class="flex-1 py-1.5 bg-white/5 border border-white/8 rounded-lg text-[9px] font-black text-slate-300 hover:text-white transition uppercase tracking-wider" title="EN / हिंदी">EN | हिंदी</button>
-        <button onclick="toggleMute()" class="px-1.5 py-1.5 bg-white/5 border border-white/8 rounded-lg text-slate-300 hover:text-white transition" title="Sound">🔊</button>
-        <a href="/certificate" class="flex-1 py-1.5 bg-indigo-600 border border-indigo-400/60 rounded-lg text-[9px] font-black text-white hover:bg-indigo-500 transition shadow-[0_0_15px_rgba(99,102,241,0.35)] uppercase tracking-wider">🏅 Cert</a>
+        <button onclick="toggleLang()" class="flex-1 py-2 bg-white/5 border border-white/8 rounded-lg text-[9px] font-black text-slate-300 hover:text-white transition uppercase tracking-wider" title="EN / हिंदी">EN | हिंदी</button>
+        <button onclick="toggleMute()" class="px-1.5 py-2 bg-white/5 border border-white/8 rounded-lg text-slate-300 hover:text-white transition" title="Sound">🔊</button>
+        <a href="/certificate" class="flex-1 py-2 bg-indigo-600 border border-indigo-400/60 rounded-lg text-[9px] font-black text-white hover:bg-indigo-500 transition shadow-[0_0_15px_rgba(99,102,241,0.35)] uppercase tracking-wider">🏅 Cert</a>
       </div>
     </div>
   </aside>
@@ -141,7 +146,7 @@
   <!-- MAIN AREA -->
   <div class="flex-1 flex flex-col min-w-0 relative">
     <!-- TOP HEADER -->
-    <header class="sticky top-0 z-20 bg-[#070810]/85 backdrop-blur-md border-b border-white/6 px-4 py-3 flex items-center justify-between">
+    <header class="sticky top-0 z-20 bg-[#070810]/90 backdrop-blur-md border-b border-white/6 px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <button id="openSidebar" class="md:hidden p-1.5 bg-white/5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10">≡</button>
         <div class="hidden md:flex items-center gap-2">
@@ -170,7 +175,7 @@
     </div>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-1 overflow-y-auto p-4 md:p-6 relative z-10">
+    <main class="flex-1 overflow-y-auto p-3 md:p-6 relative z-10">
       {% block content %}{% endblock %}
     </main>
 
@@ -208,10 +213,12 @@
   const openSidebar = document.getElementById('openSidebar');
   const closeSidebar = document.getElementById('closeSidebar');
   const sidebar = document.getElementById('sidebar');
-  if(openSidebar){ openSidebar.addEventListener('click',()=>{sidebar.classList.remove('-translate-x-full')}); }
-  if(closeSidebar){ closeSidebar.addEventListener('click',()=>{sidebar.classList.add('-translate-x-full')}); }
-  // Close sidebar when clicking a link (mobile)
-  document.querySelectorAll('#sidebar a').forEach(a=>{a.addEventListener('click',()=>{ if(window.innerWidth<768) sidebar.classList.add('-translate-x-full'); });});
+  const overlay = document.getElementById('sidebarOverlay');
+  function openSidebarFn(){ if(sidebar){sidebar.classList.remove('-translate-x-full');} if(overlay){overlay.classList.add('show');} }
+  function closeSidebarFn(){ if(sidebar){sidebar.classList.add('-translate-x-full');} if(overlay){overlay.classList.remove('show');} }
+  if(openSidebar){ openSidebar.addEventListener('click',openSidebarFn); }
+  if(closeSidebar){ closeSidebar.addEventListener('click',closeSidebarFn); }
+  document.querySelectorAll('#sidebar a').forEach(a=>{a.addEventListener('click',closeSidebarFn);});
 
   // Keep xp/level labels in sync if main.js sets them
   function syncPlayerLabels(){
