@@ -61,30 +61,30 @@
     <div class="text-[9px] text-slate-400 font-semibold tracking-wider uppercase">Arena • Clean Sport India</div>
    </div>
   </a>
-  <div class="hidden md:flex items-center gap-1 text-xs font-bold text-slate-400">
-   <a href="/" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition active" data-i18n="nav.home">Home</a>
-   <a href="/champion" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.champion">Champion</a>
-   <a href="/live" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition flex items-center gap-1.5" data-i18n="nav.live"><span class="live-dot"></span>Live</a>
-   <a href="/learn" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.learn">Learn</a>
-   <a href="/quiz" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.quiz">Quiz</a>
-   <a href="/story" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.story">Story</a>
-   <a href="/checker" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.checker">Checker</a>
-   <a href="/scanner" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.scanner">Scanner</a>
-   <a href="/badges" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.badges">Badges</a>
-   <a href="/athlete-profile" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition">Profile</a>
-   <a href="/dashboard" class="px-2.5 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.ranks">Ranks</a>
+  <div class="hidden md:flex items-center gap-0.5 text-[10px] font-bold text-slate-400">
+   <a href="/" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition active" data-i18n="nav.home">Home</a>
+   <a href="/champion" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.champion">Champion</a>
+   <a href="/live" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition flex items-center gap-1" data-i18n="nav.live"><span class="live-dot"></span>Live</a>
+   <a href="/learn" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.learn">Learn</a>
+   <a href="/quiz" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.quiz">Quiz</a>
+   <a href="/story" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.story">Story</a>
+   <a href="/checker" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.checker">Checker</a>
+   <a href="/scanner" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.scanner">Scanner</a>
+   <a href="/badges" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.badges">Badges</a>
+   <a href="/athlete-profile" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition">Profile</a>
+   <a href="/dashboard" class="nav-btn px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.ranks">Ranks</a>
   </div>
-  <div class="flex items-center gap-1">
+  <div class="flex items-center gap-0.5">
    <div class="hidden md:block text-right">
-    <div id="lvlLabel" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">LVL 1</div>
-    <div id="xpLabel" class="text-xs font-bold text-white">0 XP</div>
-    <div class="w-24 h-[3px] bg-white/10 rounded-full overflow-hidden mt-1"><div id="xpFill" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500" style="width:0%"></div></div>
+    <div id="lvlLabel" class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">LVL 1</div>
+    <div id="xpLabel" class="text-[10px] font-bold text-white">0 XP</div>
+    <div class="w-20 h-[2px] bg-white/10 rounded-full overflow-hidden mt-0.5"><div id="xpFill" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500" style="width:0%"></div></div>
    </div>
-   <button onclick="askName()" id="playerChip" class="bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-2.5 py-1.5 rounded-full text-xs font-bold shadow-sm transition flex items-center gap-1.5">👤 Guest</button>
-   <button onclick="toggleLang()" id="langBtn" class="bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-2.5 py-1.5 rounded-full text-xs font-bold shadow-sm transition" title="Hindi / English">EN | हिंदी</button>
-   <button onclick="toggleMute()" id="muteBtn" class="bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-2.5 py-1.5 rounded-full text-xs font-bold shadow-sm transition" title="Sound">🔊</button>
-   <button onclick="openAvatar()" class="bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-2.5 py-1.5 rounded-full text-xs font-bold shadow-sm transition" title="Avatar">🎭</button>
-   <a href="/certificate" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-full text-xs font-bold shadow-md transition">🏅 Cert</a>
+   <button onclick="askName()" id="playerChip" class="nav-btn-control bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm transition flex items-center gap-1">👤 Guest</button>
+   <button onclick="toggleLang()" id="langBtn" class="nav-btn-control bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm transition" title="Hindi / English">EN | हिंदी</button>
+   <button onclick="toggleMute()" id="muteBtn" class="nav-btn-control bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm transition" title="Sound">🔊</button>
+   <button onclick="openAvatar()" class="nav-btn-control bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm transition" title="Avatar">🎭</button>
+   <a href="/certificate" class="nav-btn-cert bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-md transition">🏅 Cert</a>
   </div>
  </div>
 </nav>
