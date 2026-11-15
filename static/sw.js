@@ -1,5 +1,5 @@
 // FairPlay Arena service worker — offline shell + stale-while-revalidate
-const VERSION = 'fairplay-v1';
+const VERSION = 'fairplay-v5-professional';
 const STATIC_CACHE = VERSION + '-static';
 const PAGES_CACHE = VERSION + '-pages';
 

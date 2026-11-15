@@ -1,34 +1,30 @@
 {% extends "base.html" %}
 {% block title %}Road to Gold{% endblock %}
 {% block content %}
-<h1 class="font-game font-black text-3xl" id="storyTitle">🔥 ROAD TO GOLD <span class="text-xs bg-pink-500 px-2 py-1 rounded-full align-middle">STORY MODE</span></h1>
-<p class="text-gray-400 text-sm" id="storySub"><span id="stHero">🏃</span> <span id="storySubT">5 chapters • Aarav (YOU) vs 😈 shady coach • 🛡️ DopeGuard guides • choices = Clean Score</span></p>
-<div class="max-w-2xl mx-auto glass rounded-3xl p-5 md:p-8 mt-4">
- <div class="flex justify-between text-sm font-bold"><span id="stCh">Chapter 1/5</span><span>Clean Score: <span id="stScore" class="text-emerald-300 count-up">50</span></span></div>
- <div class="h-3 bg-white/10 rounded-full mt-2 overflow-hidden"><div id="stBar" class="xp-fill h-full" style="width:50%"></div></div>
- <div class="flex justify-center gap-8 mt-3 text-4xl"><span id="stHeroBig" class="char-idle">🏃</span><span class="villain">🧪</span><span class="char-idle">🛡️</span></div>
- <div id="stBox" class="mt-4"><div class="text-center"><div class="text-6xl char-idle">🏃</div><button onclick="startStory()" class="btn-champ px-8 py-3 rounded-2xl font-game mt-3">🎬 BEGIN CAREER</button></div></div>
+<div class="max-w-xl mx-auto">
+ <h1 class="font-grotesk font-black text-xl text-slate-900 mb-1" id="storyTitle">🔥 Road to Gold <span class="text-xs bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">Story Mode</span></h1>
+ <p class="text-slate-500 text-sm mb-6" id="storySub">5 chapters • Aarav (YOU) vs 😈 shady coach • 🛡️ DopeGuard guides • choices = Clean Score</p>
+
+ <div class="glass rounded-3xl p-6 shadow-sm">
+  <div class="flex justify-between text-sm font-bold mb-4"><span id="stCh">Chapter 1/5</span><span>Clean Score: <span id="stScore" class="text-indigo-600 count-up">50</span></span></div>
+  <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden mb-4"><div id="stBar" class="xp-fill h-full" style="width:50%"></div></div>
+  <div class="flex justify-center gap-4 mb-4 text-3xl"><span id="stHeroBig" class="char-idle">🏃</span><span class="villain">🧪</span><span class="char-idle">🛡️</span></div>
+  <div id="stBox" class="mt-3"><div class="text-center py-6"><div class="text-4xl char-idle mb-3">🏃</div><button onclick="startStory()" class="btn-champ w-full py-3">🎬 Begin Career</button></div></div>
+ </div>
 </div>
-{% endblock %}
 {% block scripts %}
 <script>
 let ST=[],si=0,cs=50,typeTimer=null;
-document.getElementById('stHero').textContent=getAvatar();
 document.getElementById('stHeroBig').textContent=getAvatar();
-const GUIDE={0:"🛡️ DopeGuard: 'Beta, anjaan powder kabhi mat lena!'",1:"🛡️ DopeGuard: 'Dawai chahiye? Pehle TUE!'",
- 2:"🛡️ DopeGuard: 'Bina certificate wala powder = career khatam!'",3:"🛡️ DopeGuard: 'Officer se cooperate karo, daro mat!'",
- 4:"🛡️ DopeGuard: 'Clean gold hi asli gold hai! 🏆'"};
-const HGUIDE={0:"🛡️ डोपगार्ड: 'बेटा, अनजान पाउडर कभी मत लेना!'",1:"🛡️ डोपगार्ड: 'दवाई चाहिए? पहले TUE!'",
- 2:"🛡️ डोपगार्ड: 'बिना सर्टिफिकेट पाउडर = करियर खत्म!'",3:"🛡️ डोपगार्ड: 'अधिकारी से सहयोग करो, डरो मत!'",
- 4:"🛡️ डोपगार्ड: 'साफ सोना ही असली सोना है! 🏆'"};
+const GUIDE={0:"🛡️ DopeGuard: 'Beta, anjaan powder kabhi mat lena!'",1:"🛡️ DopeGuard: 'Dawai chahiye? Pehle TUE!'",2:"🛡️ DopeGuard: 'Bina certificate wala powder = career khatam!'",3:"🛡️ DopeGuard: 'Officer se cooperate karo, daro mat!'",4:"🛡️ DopeGuard: 'Clean gold hi asli gold hai! 🏏'"};
+const HGUIDE={0:"🛡️ डोपगार्ड: 'बेटा, अनजान पाउडर कभी मत लेना!'",1:"🛡️ डोपगार्ड: 'दवाई चाहिए? पहले TUE!'",2:"🛡️ डोपगार्ड: 'बिना सर्टिफिकेट पाउडर = करियर खत्म!'",3:"🛡️ डोपगार्ड: 'अधिकारी से सहयोग करो, डरो मत!'",4:"🛡️ डोपगार्ड: 'साफ सोना ही असली सोना है! 🏏'"};
 function storyStatic(){
  const hi=LANG()==='hi';
  document.getElementById('storyTitle').textContent=hi?'🔥 गोल्ड तक का सफर':'🔥 ROAD TO GOLD';
- document.getElementById('storySubT').textContent=hi?'5 अध्याय • आरव (तुम) बनाम 😈 संदिग्ध कोच • 🛡️ डोपगार्ड गाइड • फैसले = क्लीन स्कोर':'5 chapters • Aarav (YOU) vs 😈 shady coach • 🛡️ DopeGuard guides • choices = Clean Score';
+ document.getElementById('storySub').textContent=hi?'5 अध्याय • आरव (तुम) बनाम 😈 संदिग्ध कोच • 🛡️ डोपगार्ड गाइड • फैसले = क्लीन स्कोर':'5 chapters • Aarav (YOU) vs 😈 shady coach • 🛡️ DopeGuard guides • choices = Clean Score';
 }
 function afterLangChange(){storyStatic();if(ST.length&&si<ST.length&&!document.getElementById('stBox').innerHTML.includes('BEGIN CAREER')&&!document.getElementById('stBox').innerHTML.includes('करियर शुरू'))showSt()}
 storyStatic();
-async function startStory(){ST=await(await fetch('/api/story')).json();si=0;cs=50;showSt()}
 function typewrite(el,text){
  clearInterval(typeTimer);el.innerHTML='';el.classList.add('type-caret');
  let k=0;typeTimer=setInterval(()=>{el.innerHTML=text.slice(0,++k);if(k>=text.length){clearInterval(typeTimer);el.classList.remove('type-caret')}},14);
@@ -40,13 +36,11 @@ function showSt(){
  document.getElementById('stCh').textContent=(hi?`🎬 अध्याय ${si+1}/5: `:`🎬 Chapter ${si+1}/5: `)+ch;
  document.getElementById('stScore').textContent=cs;document.getElementById('stBar').style.width=Math.max(0,Math.min(100,cs))+'%';
  document.getElementById('stBox').innerHTML=`
-  <div class="flex gap-2 items-start bg-black/30 rounded-2xl p-4">
-   <span class="text-3xl char-idle">${getAvatar()}</span>
-   <div><div class="text-[11px] font-black text-amber-300">${hi?'आरव (तुम)':'AARAV (YOU)'} • ${ch}</div>
-   <div id="stText" class="font-semibold text-[15px]"></div></div>
+  <div class="flex gap-3 items-start mb-3"><span class="text-3xl char-idle">${getAvatar()}</span>
+   <div><div class="text-[10px] font-bold text-indigo-600 uppercase">${hi?'आरव (तुम)':'AARAV (YOU)'} • ${ch}</div><div id="stText" class="font-semibold text-sm"></div></div>
   </div>
-  <div class="text-xs mt-2 text-emerald-300 font-bold">${GD[si]}</div>
-  <div class="grid gap-2 mt-3">`+s.choices.map((c,k)=>{const t=hi?(c.ht||c.t):c.t;return `<button onclick="pickSt(${k})" class="opt-btn glass rounded-xl px-4 py-3 text-left font-semibold choice-in" style="animation-delay:${k*0.09}s">${['🅰️','🅱️','🅲️'][k]} ${t}</button>`}).join('')+`</div>`;
+  <div class="text-xs text-indigo-600 font-bold mb-3">${GD[si]}</div>
+  <div class="grid gap-2">`+s.choices.map((c,k)=>{const t=hi?(c.ht||c.t):c.t;return `<button onclick="pickSt(${k})" class="opt-btn choice-in" style="animation-delay:${k*0.09}s">${['🅰️','🅱️','🅲️'][k]} ${t}</button>`}).join('')+`</div>`;
  typewrite(document.getElementById('stText'),tx);
 }
 function pickSt(k){
@@ -56,9 +50,10 @@ function pickSt(k){
  if(good){confetti(50);sfx('good')}else{sfx('bad')}
  document.getElementById('stScore').textContent=cs;document.getElementById('stBar').style.width=cs+'%';
  document.getElementById('stBox').innerHTML=`
-  <div class="flex gap-2 items-start"><span class="text-4xl ${good?'char-idle':'villain'}">${good?getAvatar():'😈'}</span>
-  <div class="rounded-2xl p-4 font-bold flex-1 ${good?'bg-emerald-400/15 border border-emerald-400/50':'bg-pink-500/15 border border-pink-500/50'} pop">${fb}<div class="text-sm mt-1">${hi?'क्लीन स्कोर':'Clean Score'}: <b class="${good?'text-emerald-300':'text-pink-300'}">${cs}</b> ${good?'📈':'📉'}</div></div></div>
-  <button onclick="nextSt()" class="btn-champ w-full rounded-xl py-2.5 font-bold mt-3">${si+1>=ST.length?(hi?'🏁 परिणाम देखो':'🏁 SEE RESULT'):(hi?'अगला अध्याय →':'Next Chapter →')}</button>`;
+  <div class="flex gap-3 items-start mb-3"><span class="text-4xl ${good?'char-idle':'villain'}">${good?getAvatar():'😈'}</span>
+   <div class="fact-box border ${good?'border-emerald-200 bg-emerald-50':'border-rose-200 bg-rose-50'} flex-1">${fb}<div class="text-xs mt-1 text-slate-600">${hi?'क्लीन स्कोर':'Clean Score'}: <b class="${good?'text-emerald-700':'text-rose-700'}">${cs}</b> ${good?'📈':'📉'}</div></div>
+  </div>
+  <button onclick="nextSt()" class="btn-champ w-full py-2 mt-4">${si+1>=ST.length?(hi?'🏁 परिणाम देखो':'🏁 SEE RESULT'):(hi?'अगला अध्याय →':'Next Chapter →')}</button>`;
  say(fb);
 }
 function nextSt(){
@@ -70,8 +65,10 @@ function nextSt(){
   const gold=cs>=80;
   if(gold){confetti(160);sfx('level')}
   let msg=gold?(hi?'🏆 क्लीन गोल्ड! स्टेडियम गरज उठा! प्रमाणपत्र अनलॉक!':'🏆 CLEAN GOLD! Stadium roars! Certificate unlocked!'):cs>=50?(hi?'⚡ बच गए, पर फैसले खतरनाक थे! गोल्ड के लिए फिर खेलो।':'⚡ Survived, but risky! Replay for gold.'):(hi?'⛔ डोपिंग ने करियर बिगाड़ा! फिर खेलो और साफ चुनो।':'⛔ Career damaged! Replay & choose clean.');
-  document.getElementById('stBox').innerHTML=`<div class="text-center pop"><div class="text-6xl ${gold?'char-idle':'villain'}">${gold?'🏆':'😈'}</div><h2 class="font-game font-black text-2xl mt-2">${hi?'फाइनल क्लीन स्कोर':'Final Clean Score'}: ${cs}/100</h2><p class="mt-1">${msg}</p><p class="text-amber-300 font-bold">+${xp} XP</p><div class="flex flex-wrap justify-center gap-2 mt-3"><button onclick="startStory()" class="btn-champ px-5 py-2 rounded-xl font-bold">↻ ${hi?'फिर खेलो':'Replay'}</button><a href="/certificate" class="glass px-5 py-2 rounded-xl font-bold">🏅 ${hi?'प्रमाणपत्र':'Certificate'}</a><a href="/checker" class="glass px-5 py-2 rounded-xl font-bold">${hi?'चेकर':'Checker'} →</a></div></div>`;
+  document.getElementById('stBox').innerHTML=`<div class="text-center pop py-6"><div class="text-5xl char-idle mb-3">${gold?'🏆':'😈'}</div><h2 class="font-grotesk font-black text-lg mb-1 text-slate-900">${hi?'फाइनल क्लीन स्कोर':'Final Clean Score'}: ${cs}/100</h2><p class="text-slate-500 text-sm mb-4">${msg}</p><p class="text-amber-700 font-bold text-xs mb-4">+${xp} XP</p><div class="flex flex-wrap justify-center gap-2"><button onclick="startStory()" class="btn-champ px-4 py-2 text-xs">↻ ${hi?'फिर खेलो':'Replay'}</button><a href="/certificate" class="btn-ghost px-4 py-2 text-xs min-w-[140px] text-center">🏅 ${hi?'प्रमाणपत्र':'Certificate'}</a><a href="/checker" class="btn-ghost px-4 py-2 text-xs min-w-[140px] text-center">${hi?'चेकर':'Checker'} →</a></div></div>`;
  } else showSt();
 }
+async function startStory(){ST=await(await fetch('/api/story')).json();si=0;cs=50;showSt()}
 </script>
+{% endblock %}
 {% endblock %}

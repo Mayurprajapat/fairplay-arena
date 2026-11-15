@@ -15,6 +15,14 @@ function renderXP(){
  if(a)a.textContent=lvl; if(b)b.textContent=xp+' XP'; if(c)c.style.width=Math.max(5,Math.min(100,pct))+'%';
  const chip=document.getElementById('playerChip'); if(chip)chip.textContent=getAvatar()+' '+getName()+' • '+xp+' XP';
  const st=document.getElementById('streakChip'); if(st)st.textContent='🔥 '+getStreak()+'d';
+ renderBadges();
+}
+function renderBadges(){
+ const bc=document.getElementById('badgesChip');if(!bc)return;
+ const xp=getXP();let ub=JSON.parse(localStorage.getItem('fp_badges')||'[]');
+ bc.innerHTML='';
+ const all=[{id:'first',xp:20,t:'🎯'},{id:'half',xp:120,t:'⚡'},{id:'pro',xp:250,t:'🔥'},{id:'legend',xp:400,t:'🏆'},{id:'streak3',xp:0,t:'🔥3d'},{id:'streak7',xp:0,t:'⚡7d'},{id:'quiz100',xp:0,t:'🎯Q'}];
+ all.forEach(bd=>{if(xp>=bd.xp&&ub.includes(bd.id)){const s=document.createElement('span');s.className='text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100 text-[9px] font-bold';s.title=bd.t;s.textContent=bd.t;bc.appendChild(s)}});
 }
 function checkLevelUp(before,after){
  if(lvlIndex(after)>lvlIndex(before)){
@@ -39,7 +47,7 @@ function bumpStreak(){
 function confetti(n){
  n=n||80;const c=document.getElementById('fx');if(!c)return;const x=c.getContext('2d');
  c.width=innerWidth;c.height=innerHeight;
- const cols=['#ffd23f','#ff7a1a','#00e676','#38bdf8','#ff2e7e','#fff'];
+ const cols=['#f59e0b','#f97316','#10b981','#2563eb','#e11d48','#7c3aed'];
  const ps=[];for(let i=0;i<n;i++)ps.push({x:innerWidth/2+(Math.random()-.5)*220,y:innerHeight*0.35,vx:(Math.random()-.5)*11,vy:Math.random()*-9-3,g:.32,s:Math.random()*7+4,r:Math.random()*6.28,vr:(Math.random()-.5)*.3,col:cols[i%cols.length],l:90+Math.random()*50});
  let f=0;(function loop(){x.clearRect(0,0,c.width,c.height);f++;
   ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.r+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.col;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});
@@ -108,10 +116,17 @@ function askName(){
  if(n&&n.trim()){localStorage.setItem('fp_name',n.trim().slice(0,30));renderXP();say('Nice! I saved your name as '+n.trim());}
 }
 function say(t){const b=document.getElementById('mascotBox'),x=document.getElementById('mascotText');if(!b)return;b.classList.remove('hidden');x.textContent=t;clearTimeout(window._mt);window._mt=setTimeout(()=>b.classList.add('hidden'),4500)}
+let mascotTipIdx=0;
 function toggleMascot(){
  const hi=(typeof LANG==='function'&&LANG()==='hi');
  const tips=hi?HI_TIPS:['2026 List is IN FORCE since 1 Jan 2026 — check Live Centre!','NEW 2026: non-diagnostic carbon-monoxide use banned (M1.4)!','Strict liability: YOU are responsible for everything in your body!','Supplements? Only batch-tested (Informed-Sport) brands!','Need medicine? Check Global DRO + ask for TUE!','NADA helpline: report doping at speakup-nada@gov.in'];
- say(tips[Math.floor(Math.random()*tips.length)])}
+ mascotTipIdx=(mascotTipIdx+1)%tips.length;
+ const t=document.getElementById('mascotText');const n=document.getElementById('mascotTipNum');
+ if(t){t.textContent=tips[mascotTipIdx];say(tips[mascotTipIdx])}
+ if(n)n.textContent='Tip '+(mascotTipIdx+1)+'/'+tips.length;
+}
+// Auto-rotate mascot tips every 8 seconds
+setInterval(()=>{const b=document.getElementById('mascotBox');if(b&&!b.classList.contains('hidden'))toggleMascot()},8000);
 const BADGES=[{id:'first',xp:20,t:'🎯 First Steps'},{id:'half',xp:120,t:'⚡ Challenger'},{id:'pro',xp:250,t:'🔥 Pro Athlete'},{id:'legend',xp:400,t:'🏆 Clean Legend'}];
 function checkBadges(){
  const xp=getXP();let ub=JSON.parse(localStorage.getItem('fp_badges')||'[]');
@@ -136,7 +151,7 @@ function installPWA(){
  for(let i=0;i<N;i++)P.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+1,s:Math.random()*.6+.2,o:Math.random()*.6+.2});
  let last=0;
  function loop(t){if(!run)return;if(t-last<33){requestAnimationFrame(loop);return}last=t; // ~30fps cap, still silky
-  x.clearRect(0,0,W,H);P.forEach(p=>{p.y-=p.s;if(p.y<0)p.y=H;x.beginPath();x.arc(p.x,p.y,p.r,0,7);const gold=p.x%3<1;x.fillStyle=gold?`rgba(255,210,63,${p.o*.5})`:`rgba(0,230,118,${p.o*.45})`;x.fill()});requestAnimationFrame(loop)}
+  x.clearRect(0,0,W,H);P.forEach(p=>{p.y-=p.s;if(p.y<0)p.y=H;x.beginPath();x.arc(p.x,p.y,p.r,0,7);const gold=p.x%3<1;x.fillStyle=gold?`rgba(249,115,22,${p.o*.30})`:`rgba(5,150,105,${p.o*.26})`;x.fill()});requestAnimationFrame(loop)}
  requestAnimationFrame(loop);
 })();
 // ---- butter-smooth navigation: View Transitions + hover prefetch ----
@@ -173,8 +188,14 @@ function bindCounters(){
 }
 window.addEventListener('load',()=>{
  setTimeout(()=>{const l=document.getElementById('loader');if(l)l.classList.add('hide')},350);
- bindReveals();bindCounters();
+ bindReveals();bindCounters();setBottomNavActive();
 });
+function setBottomNavActive(){
+  const path=location.pathname;const map={'/':'Home','/live':'Live','/quiz':'Quiz','/dashboard':'Ranks'};
+  document.querySelectorAll('.nav-mobile a').forEach(a=>{
+    const t=a.querySelector('span:last-child');if(t&&map[path]===t.textContent)a.classList.add('active');
+  });
+}
 document.addEventListener('DOMContentLoaded',()=>{bindReveals();bindCounters()});
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/static/sw.js').catch(()=>{})}
 renderXP();updMuteBtn();

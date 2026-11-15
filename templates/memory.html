@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Memory Match{% endblock %}
 {% block content %}
-<h1 class="font-game font-black text-3xl" id="memTitle">🧠 MEMORY MATCH</h1>
-<p class="text-gray-400 text-sm" id="memSub">DopeGuard ne cards chhupaye! Jodi banao • max 60 XP</p>
-<div class="flex gap-2 mt-3 text-sm font-bold flex-wrap"><span class="glass px-3 py-1 rounded-full"><span id="memMovesL">Moves</span>: <span id="mMoves">0</span></span><span class="glass px-3 py-1 rounded-full"><span id="memPairsL">Pairs</span>: <span id="mPairs">0</span>/6</span><span class="glass px-3 py-1 rounded-full"><span id="memRankL">Rank</span>: <span id="mRank">⭐⭐⭐</span></span><button onclick="startMemo()" class="btn-champ px-4 py-1 rounded-full" id="memBtn">↻ Shuffle</button></div>
-<div id="memoGrid" class="grid grid-cols-3 md:grid-cols-4 gap-3 mt-4 max-w-3xl"></div>
-<div id="memoWin" class="hidden glass-gold rounded-2xl p-5 mt-4 max-w-3xl text-center font-bold"></div>
-{% endblock %}
+<div class="max-w-md mx-auto">
+ <h1 class="font-grotesk font-black text-xl text-slate-900 mb-1" id="memTitle">🧠 Memory Match</h1>
+ <p class="text-slate-500 text-sm mb-4" id="memSub">DopeGuard ne cards chhupaye! Jodi banao • max 60 XP</p>
+ <div class="flex gap-2 mb-4 text-xs font-bold flex-wrap">
+  <span class="glass px-2.5 py-1 rounded-full border border-slate-200"><span id="memMovesL">Moves</span>: <span id="mMoves">0</span></span>
+  <span class="glass px-2.5 py-1 rounded-full border border-slate-200"><span id="memPairsL">Pairs</span>: <span id="mPairs">0</span>/6</span>
+  <span class="glass px-2.5 py-1 rounded-full border border-slate-200"><span id="memRankL">Rank</span>: <span id="mRank">⭐⭐⭐</span></span>
+  <button onclick="startMemo()" class="btn-champ px-3 py-1 text-[10px]" id="memBtn">↻ Shuffle</button>
+ </div>
+ <div id="memoGrid" class="grid grid-cols-3 md:grid-cols-4 gap-2 mb-6"></div>
+ <div id="memoWin" class="hidden glass-gold rounded-xl p-4 text-center"></div>
+</div>
 {% block scripts %}
 <script>
 const PAIRS=[["Stanozolol","S1 Steroid"],["EPO","S2 Hormone"],["Furosemide","S5 Diuretic"],["THC","S8 Banned*"],["Tramadol","S7 Narcotic"],["Meldonium","S4 Banned"]];
@@ -16,7 +22,7 @@ function startMemo(){
  moves=0;pairs=0;first=null;document.getElementById('memoWin').classList.add('hidden');
  let cards=[];PAIRS.forEach((p,i)=>{cards.push({t:p[0],id:i});cards.push({t:p[1],id:i})});
  cards.sort(()=>Math.random()-.5);
- document.getElementById('memoGrid').innerHTML=cards.map((c,k)=>`<div class="memo-card card-enter" style="animation-delay:${k*0.04}s" data-id="${c.id}" onclick="flipM(this)"><div class="memo-inner"><div class="memo-face glass text-3xl wiggle">${FACES[c.id%FACES.length]}</div><div class="memo-face memo-back bg-gradient-to-br from-amber-300 to-orange-500 text-black text-sm">${c.t}</div></div></div>`).join('');
+ document.getElementById('memoGrid').innerHTML=cards.map((c,k)=>`<div class="memo-card card-enter" style="animation-delay:${k*0.04}s" data-id="${c.id}" onclick="flipM(this)"><div class="memo-inner"><div class="memo-face glass text-2xl wiggle">${FACES[c.id%FACES.length]}</div><div class="memo-face memo-back bg-amber-50 border border-amber-200 text-[10px] text-amber-800">${c.t}</div></div></div>`).join('');
  updM();
 }
 function updM(){document.getElementById('mMoves').textContent=moves;document.getElementById('mPairs').textContent=pairs;
@@ -39,10 +45,9 @@ function flipM(el){
  moves++;lockM=true;
  if(first.dataset.id===el.dataset.id){
   pairs++;el.classList.add('match-burst');first.classList.add('match-burst');
-  confetti(25);sfx('coin');first=null;lockM=false;updM();say('Jodi mil gayi! 🧠 +style!');
+  confetti(25);sfx('coin');first=null;lockM=false;updM();say('Jodi mil gayi! 🧠');
   if(pairs===6)winM();
- }
- else{let a=first;first=null;setTimeout(()=>{a.classList.remove('flip','match-burst');el.classList.remove('flip','match-burst');lockM=false},1200);updM()}
+ }else{let a=first;first=null;setTimeout(()=>{a.classList.remove('flip','match-burst');el.classList.remove('flip','match-burst');lockM=false},1200);updM()}
  updM();
 }
 function winM(){
@@ -50,9 +55,10 @@ function winM(){
  let xp=Math.max(20,60-moves*2);addXP(xp);pushScore('memory',xp);confetti(130);sfx('level');
  const stars=moves<=10?(hi?'⭐⭐⭐ शानदार!':'⭐⭐⭐ LEGENDARY!'):moves<=16?(hi?'⭐⭐ बढ़िया!':'⭐⭐ SUPER!'):(hi?'⭐ अच्छा!':'⭐ NICE!');
  const w=document.getElementById('memoWin');w.classList.remove('hidden');
- w.innerHTML=`<div class="text-4xl char-idle">🏆</div><div class="font-game font-black text-xl mt-1">${stars}</div><div>${hi?`6 जोड़ियाँ ${moves} चालों में! +${xp} XP`:`All 6 pairs in ${moves} moves! +${xp} XP`}</div><a href="/story" class="btn-champ inline-block px-5 py-2 rounded-xl mt-2 text-sm">${hi?'Next: गोल्ड तक का सफर →':'Next: Road to Gold →'}</a>`;
+ w.innerHTML=`<div class="text-3xl char-idle mb-1">🏆</div><div class="font-grotesk font-black text-sm mt-1">${stars}</div><div class="text-xs text-slate-600">${hi?`6 जोड़ियाँ ${moves} चालों में! +${xp} XP`:`All 6 pairs in ${moves} moves! +${xp} XP`}</div><a href="/story" class="btn-champ mt-2 w-full py-2 text-xs text-center">Next: Road to Gold →</a>`;
  say((hi?'मेमोरी मास्टर! ':'Memory master! ')+stars+' +'+xp+' XP');
 }
 startMemo();
 </script>
+{% endblock %}
 {% endblock %}

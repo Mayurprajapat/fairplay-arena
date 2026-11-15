@@ -261,6 +261,26 @@ def api_score():
 @app.route("/api/leaderboard")
 def api_lb(): return jsonify(top_players())
 
+# ---- BADGES & STREAK API (frontend reads localStorage, server can sync) ----
+BADGES = [
+ {"id":"first","xp":20,"t":"🎯 First Steps","d":"Earn your first 20 XP"},
+ {"id":"half","xp":120,"t":"⚡ Challenger","d":"Reach 120 XP — challenger status"},
+ {"id":"pro","xp":250,"t":"🔥 Pro Athlete","d":"250 XP — you're going pro"},
+ {"id":"legend","xp":400,"t":"🏆 Clean Legend","d":"400 XP — ultimate clean athlete"},
+ {"id":"streak3","xp":0,"t":"🔥 3-Day Streak","d":"Played 3 days in a row"},
+ {"id":"streak7","xp":0,"t":"⚡ 7-Day Streak","d":"Week-long dedication"},
+ {"id":"quiz100","xp":0,"t":"🎯 Quiz Master","d":"Scored 100+ XP in Quiz Quest"},
+]
+
+@app.route("/api/badges")
+def api_badges(): return jsonify(BADGES)
+
+@app.route("/api/streak", methods=["POST"])
+def api_streak():
+    d = request.json or {}
+    streak = int(d.get("streak", 0))
+    return jsonify({"ok": True, "streak": streak, "bonus": min(streak * 5, 50)})
+
 if __name__ == "__main__":
     print(" * FairPlay Arena running on http://127.0.0.1:5000")
     app.run(host="0.0.0.0", port=5000, debug=not ON_VERCEL)

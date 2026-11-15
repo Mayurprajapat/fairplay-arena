@@ -4,8 +4,8 @@
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#080e2a",
-  "theme_color": "#ff7a1a",
+  "background_color": "#f6f8fd",
+  "theme_color": "#f6f8fd",
   "description": "Play. Learn. Stay Clean. Gamified anti-doping education + live WADA/NADA updates.",
   "icons": [{"src": "/static/icon.svg","sizes": "512x512","type": "image/svg+xml"}],
   "shortcuts": [

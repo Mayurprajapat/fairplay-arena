@@ -1,31 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Dope or Nope{% endblock %}
 {% block content %}
-<h1 class="font-game font-black text-3xl">⚡ DOPE <span class="neon-text">OR NOPE</span></h1>
-<p class="text-gray-400 text-sm">✅ DOPE = TRUE • ❌ NOPE = FALSE • <span id="dnHero" class="char-idle text-lg">🏃</span> tum vs <span class="villain text-lg">😈</span> Dopu • 3 streak = COMBO!</p>
-<div class="glass rounded-3xl p-5 mt-4 max-w-2xl mx-auto text-center">
- <div id="dnStart">
-  <div class="flex justify-center gap-3 text-6xl"><span class="char-idle" id="dnHeroBig">🏃</span><span class="villain">😈</span></div>
-  <div class="font-game font-bold mt-2">DOPU KE JHOOTH PAKDO!</div>
-  <p class="text-xs text-gray-400">Dopu tumhe confuse karega. Sahi pakdo = +5 XP + confetti 🎉</p>
-  <button onclick="startDN()" class="btn-green px-8 py-3 rounded-2xl font-game mt-3">🥊 START FIGHT</button>
- </div>
- <div id="dnPlay" class="hidden">
-  <div class="text-sm font-bold text-gray-400">ROUND <span id="dnI">1</span>/15 • SCORE <span id="dnS">0</span> • <span id="dnCombo"></span></div>
-  <div class="flex justify-center gap-6 mt-1 text-3xl"><span id="dnH" class="char-idle">🏃</span><span class="text-lg self-center font-game">⚡</span><span class="villain">😈</span></div>
-  <div class="h-2 bg-white/10 rounded-full mt-2 overflow-hidden"><div id="dnBar" class="xp-fill h-full" style="width:0%"></div></div>
-  <div id="dnCard" class="swipe-card bg-black/40 border border-white/15 rounded-3xl p-8 mt-3 text-xl font-bold min-h-[140px] flex items-center justify-center"></div>
-  <div id="dnWhy" class="hidden mt-3 rounded-2xl p-4 text-left pop"></div>
-  <div id="dnBtns" class="grid grid-cols-2 gap-3 mt-4">
-   <button onclick="dnAns(false)" class="rounded-2xl py-4 font-game font-black text-lg bg-gradient-to-r from-pink-500 to-red-500 hover:scale-105 transition">❌ NOPE</button>
-   <button onclick="dnAns(true)" class="rounded-2xl py-4 font-game font-black text-lg bg-gradient-to-r from-emerald-400 to-cyan-400 text-black hover:scale-105 transition">✅ DOPE</button>
+<div class="max-w-2xl mx-auto">
+ <h1 class="font-grotesk font-black text-xl text-slate-900 mb-2">⚡ Dope <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-amber-500">OR NOPE</span></h1>
+ <p class="text-slate-500 text-sm mb-6"><span id="dnHero" class="char-idle text-lg">🏃</span> You vs <span class="villain text-lg">😈</span> Dopu • 3 streak = COMBO!</p>
+
+ <div class="glass rounded-3xl p-6 shadow-sm">
+  <div id="dnStart" class="text-center py-6">
+   <div class="flex justify-center gap-3 text-4xl mb-4"><span class="char-idle" id="dnHeroBig">🏃</span><span class="villain text-2xl">😈</span></div>
+   <div class="font-grotesk font-bold text-slate-900 mb-1" id="dnStartTitle">Dopu Ke Jhooth Pakdo!</div>
+   <p class="text-xs text-slate-500 mb-4" id="dnStartSub">Dopu will confuse you. Catch it right = +5 XP + confetti 🎉</p>
+   <button onclick="startDN()" class="btn-champ w-full py-3" id="dnStartBtn">🥊 Start Fight</button>
   </div>
-  <button id="dnNext" onclick="dnNext()" class="hidden btn-champ w-full rounded-2xl py-3 font-bold mt-3">📖 Samajh gaya, Next →</button>
+
+  <div id="dnPlay" class="hidden">
+   <div class="flex items-center justify-between gap-2 mb-4">
+    <span class="text-xs font-bold text-slate-500">Round <span id="dnI">1</span>/15</span>
+    <span class="text-xs font-bold text-slate-500">Score <span id="dnS">0</span></span>
+    <span id="dnCombo" class="text-xs font-bold text-amber-600"></span>
+   </div>
+   <div class="flex justify-center gap-3 mb-4 text-2xl"><span id="dnH" class="char-idle">🏃</span><span class="font-black self-center">⚡</span><span class="villain">😈</span></div>
+   <div id="dnCard" class="swipe-card glass rounded-xl p-6 mb-4 text-center text-lg font-bold min-h-[120px] flex items-center justify-center"></div>
+   <div id="dnWhy" class="hidden fact-box border border-emerald-200 bg-emerald-50 mb-4"></div>
+   <div id="dnBtns" class="grid grid-cols-2 gap-3 mb-4">
+    <button onclick="dnAns(false)" class="btn-ghost text-rose-600 font-bold border-rose-200 hover:bg-rose-5">❌ NOPE</button>
+    <button onclick="dnAns(true)" class="btn-ghost text-emerald-600 font-bold border-emerald-200 hover:bg-emerald-5">✅ DOPE</button>
+   </div>
+   <button id="dnNext" onclick="dnNext()" class="hidden btn-champ w-full py-2">📖 Understood, Next →</button>
+  </div>
+
+  <div id="dnEnd" class="hidden text-center py-6">
+   <div class="text-4xl char-idle mb-3" id="dnEndEmoji">⚡</div>
+   <h2 id="dnT" class="font-grotesk font-black text-lg text-slate-900 mb-1"></h2>
+   <p id="dnSub" class="text-slate-500 text-sm mb-4"></p>
+   <div class="flex flex-wrap justify-center gap-2">
+    <button onclick="startDN()" class="btn-champ px-4 py-2 text-xs">↻ Rematch</button>
+    <a href="/memory" class="btn-ghost px-4 py-2 text-xs min-w-[140px] text-center">Next: Memory →</a>
+   </div>
+  </div>
  </div>
- <div id="dnEnd" class="hidden"><div class="text-6xl char-idle" id="dnEndEmoji">⚡</div><h2 id="dnT" class="font-game font-black text-2xl mt-2"></h2><p id="dnSub" class="text-sm text-gray-400"></p>
- <div class="flex justify-center gap-2 mt-3 flex-wrap"><button onclick="startDN()" class="btn-green px-6 py-2 rounded-xl font-bold">↻ Rematch</button><a href="/memory" class="glass px-6 py-2 rounded-xl font-bold">Next: Memory →</a></div></div>
 </div>
-{% endblock %}
 {% block scripts %}
 <script>
 let DN=[],di=0,ds=0,lock=false,dstreak=0;
@@ -49,9 +63,9 @@ const HIDN=[
 function LDN(idx){const c=DN[idx];if(LANG()==='hi'&&HIDN[idx])return{t:HIDN[idx].t,a:c.a,why:HIDN[idx].w};return c}
 function dnStatic(){
  const hi=LANG()==='hi';
- document.querySelector('#dnStart .font-game').textContent=hi?'डोपू के झूठ पकड़ो!':'DOPU KE JHOOTH PAKDO!';
- document.querySelector('#dnStart p').textContent=hi?'डोपू तुम्हें confuse करेगा। सही पकड़ो = +5 XP + कंफ़ेटी 🎉':'Dopu tumhe confuse karega. Sahi pakdo = +5 XP + confetti 🎉';
- document.querySelector('#dnStart button').textContent=hi?'🥊 लड़ाई शुरू करो':'🥊 START FIGHT';
+ document.querySelector('#dnStartTitle').textContent=hi?'डोपू के झूठ पकड़ो!':'DOPU KE JHOOTH PAKDO!';
+ document.querySelector('#dnStartSub').textContent=hi?'डोपू तुम्हें confuse करेगा। सही पकड़ो = +5 XP + कंफ़ेटी 🎉':'Dopu tumhe confuse karega. Sahi pakdo = +5 XP + confetti 🎉';
+ document.querySelector('#dnStartBtn').textContent=hi?'🥊 लड़ाई शुरू करो':'🥊 START FIGHT';
  document.getElementById('dnNext').textContent=hi?'📖 समझ गया, Next →':'📖 Samajh gaya, Next →';
 }
 function afterLangChange(){dnStatic();if(!document.getElementById('dnPlay').classList.contains('hidden')&&DN.length){showDN()}}
@@ -62,9 +76,8 @@ document.getElementById('dnH').textContent=getAvatar();
 async function startDN(){DN=await(await fetch('/api/dope-nope')).json();di=0;ds=0;dstreak=0;lock=false;
  document.getElementById('dnStart').classList.add('hidden');document.getElementById('dnEnd').classList.add('hidden');document.getElementById('dnPlay').classList.remove('hidden');showDN()}
 function showDN(){lock=false;const c=LDN(di);document.getElementById('dnI').textContent=di+1;document.getElementById('dnS').textContent=ds;
- document.getElementById('dnBar').style.width=(di/DN.length*100)+'%';
- const el=document.getElementById('dnCard');el.className='swipe-card bg-black/40 border border-white/15 rounded-3xl p-8 mt-3 text-xl font-bold min-h-[140px] flex items-center justify-center card-enter';
- el.textContent='😈 "'+c.t+'"';el.style.borderColor='rgba(255,255,255,.15)';
+ const el=document.getElementById('dnCard');el.className='swipe-card glass rounded-xl p-6 mb-4 text-center text-lg font-bold min-h-[120px] flex items-center justify-center card-enter';
+ el.textContent='😈 "'+c.t+'"';el.style.borderColor='#e2e8f0';
  document.getElementById('dnWhy').classList.add('hidden');
  document.getElementById('dnBtns').classList.remove('hidden');
  document.getElementById('dnNext').classList.add('hidden')}
@@ -76,11 +89,11 @@ function dnAns(v){if(lock)return;lock=true;const hi=LANG()==='hi';const c=LDN(di
  const w=document.getElementById('dnWhy');w.classList.remove('hidden');
  if(ok){ds+=5;dstreak++;confetti(40);sfx('good')}else{dstreak=0;sfx('bad')}
  const cb=document.getElementById('dnCombo');
- cb.textContent=dstreak>=3?'🔥 COMBO x'+dstreak+'!':'';cb.className=dstreak>=3?'fire-streak text-amber-300':'';
+ cb.textContent=dstreak>=3?'🔥 COMBO x'+dstreak+'!':'';
  const head=ok?(hi?'✅ पकड़ा! डोपू का झूठ फेल! +5 XP':'✅ PAKDA! Dopu ka jhooth fail! +5 XP'):(hi?'❌ डोपू हँस रहा 😈 — सच पढ़ो 👇':'❌ Dopu hans raha 😈 — sach padho 👇');
  const truth=c.a?(hi?'✔ सही: <b>DOPE (सच)</b> — कथन सही है।':'✔ Correct: <b>DOPE (TRUE)</b> — statement sahi hai.'):(hi?'✔ सही: <b>NOPE (झूठ)</b> — कथन गलत है।':'✔ Correct: <b>NOPE (FALSE)</b> — statement galat hai.');
- w.className='mt-3 rounded-2xl p-4 text-left pop '+(ok?'bg-emerald-400/10 border border-emerald-400/50':'bg-pink-500/10 border border-pink-500/50');
- w.innerHTML=`<div class="font-black text-base">${head}</div><div class="text-sm mt-1">${truth}</div><div class="text-sm mt-2 text-gray-200">📚 <b>${hi?'सीखो':'Learn'}:</b> ${c.why}</div>`;
+ w.className='fact-box mb-4 border '+(ok?'border-emerald-200 bg-emerald-50':'border-rose-200 bg-rose-50');
+ w.innerHTML=`<div class="font-bold text-base">${head}</div><div class="text-xs mt-1">${truth}</div><div class="text-xs mt-2 text-slate-600">📚 <b>${hi?'सीखो':'Learn'}:</b> ${c.why}</div>`;
  document.getElementById('dnS').textContent=ds;
  document.getElementById('dnBtns').classList.add('hidden');
  document.getElementById('dnNext').classList.remove('hidden');
@@ -94,4 +107,5 @@ function finDN(){document.getElementById('dnPlay').classList.add('hidden');const
  if(win){confetti(120);sfx('level')}
  addXP(ds);pushScore('dope-nope',ds)}
 </script>
+{% endblock %}
 {% endblock %}
