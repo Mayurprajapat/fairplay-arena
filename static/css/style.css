@@ -1,6 +1,6 @@
 /* ============================================================
-   FairPlay Arena — PROFESSIONAL MAJOR PROJECT DESIGN
-   High contrast, clean dark theme, mobile + desktop ready
+   FairPlay Arena — CLEAN PROFESSIONAL DESIGN
+   High contrast, organized layout, mobile + desktop ready
    ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -30,7 +30,7 @@ body{
   overflow-x:hidden;
 }
 
-/* ===== SUBTLE BACKGROUND GLOW (no heavy blur) ===== */
+/* ===== SUBTLE BACKGROUND GLOW ===== */
 #particles,#fx{position:fixed;inset:0;z-index:0;pointer-events:none}
 .bg-glow{
   position:fixed;inset:0;z-index:-1;opacity:0.35;
@@ -52,6 +52,11 @@ body{
   border-top:3px solid var(--indigo);border-radius:50%;animation:spin 0.8s linear infinite
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes loadBar{
+  0%{width:0%;transform:translateX(-100%)}
+  50%{width:100%;transform:translateX(0%)}
+  100%{width:0%;transform:translateX(100%)}
+}
 .loader-title{
   font-family:'Space Grotesk';font-weight:800;text-transform:uppercase;letter-spacing:.15em;
   background:linear-gradient(90deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.25rem
@@ -72,7 +77,7 @@ body{
 
 /* ===== NAVBAR ===== */
 .nav-desktop a{
-  font-size:12px;font-weight:700;color:#cbd5e1;padding:8px 14px;border-radius:8px;
+  font-size:11px;font-weight:700;color:#cbd5e1;padding:7px 12px;border-radius:8px;
   transition:all .2s;white-space:nowrap;border:1px solid transparent
 }
 .nav-desktop a:hover{color:#fff;background:rgba(99,102,241,0.15);border-color:rgba(99,102,241,0.3)}
@@ -80,31 +85,31 @@ body{
 
 .xp-card{
   background:rgba(255,255,255,0.05);border:1px solid var(--border);
-  border-radius:10px;padding:8px 12px;text-align:right;min-width:64px
+  border-radius:10px;padding:7px 11px;text-align:right;min-width:64px
 }
 .xp-label{font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-.xp-value{font-family:'Space Grotesk';font-weight:800;color:#fff;font-size:14px;line-height:1}
-.xp-mini{width:56px;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin-top:5px}
+.xp-value{font-family:'Space Grotesk';font-weight:800;color:#fff;font-size:13px;line-height:1}
+.xp-mini{width:56px;height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin-top:4px}
 .xp-mini-fill{height:100%;background:linear-gradient(90deg,#6366f1,#10b981);width:0%;transition:width .6s ease}
 .control-btn{
   background:rgba(255,255,255,0.07);border:1px solid var(--border);color:#cbd5e1;
-  width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;font-size:16px;transition:all .2s
+  width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:15px;transition:all .2s
 }
 .control-btn:hover{background:rgba(99,102,241,0.2);border-color:rgba(99,102,241,0.4);color:#fff;transform:translateY(-1px)}
 
 /* ===== MOBILE NAV ===== */
 .nav-mobile a{
-  display:flex;flex-direction:column;align-items:center;gap:3px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
   color:#64748b;font-size:9px;font-weight:700;text-decoration:none;transition:all .2s
 }
 .nav-mobile a span:first-child{font-size:20px}
 .nav-mobile a.active{color:#6366f1;text-shadow:0 0 12px rgba(99,102,241,0.6)}
 
 /* ===== MAIN ===== */
-main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:26px 16px 90px}
+main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:24px 16px 100px}
 
-/* ===== GLASS CARDS (clean, high contrast) ===== */
+/* ===== GLASS CARDS ===== */
 .glass-card{
   background:var(--card);border:1px solid var(--border);
   border-radius:16px;padding:22px;transition:all .25s
@@ -161,34 +166,34 @@ main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:26px 16
 /* ===== MASCOT ===== */
 .mascot-card{
   background:var(--card);border:1px solid var(--border);border-radius:16px;
-  padding:16px;position:relative;animation:mascotPop .4s ease
+  padding:12px;position:relative;animation:mascotPop .4s ease
 }
 @keyframes mascotPop{0%{transform:translateY(20px);opacity:0}100%{transform:translateY(0);opacity:1}}
 .mascot-header{
-  display:flex;align-items:center;gap:10px;margin-bottom:8px
+  display:flex;align-items:center;gap:8px;margin-bottom:6px
 }
-.mascot-header .icon{font-size:20px}
-.mascot-header .title{font-family:'Space Grotesk';font-weight:800;color:#fff;font-size:12px;letter-spacing:.05em}
+.mascot-header .icon{font-size:18px}
+.mascot-header .title{font-family:'Space Grotesk';font-weight:800;color:#fff;font-size:11px;letter-spacing:.05em}
 .mascot-header .close{
   margin-left:auto;background:rgba(255,255,255,0.08);border:none;color:#94a3b8;
-  width:24px;height:24px;border-radius:8px;cursor:pointer;font-size:13px;
+  width:22px;height:22px;border-radius:8px;cursor:pointer;font-size:12px;
   display:flex;align-items:center;justify-content:center
 }
 .mascot-header .close:hover{color:#fff;background:rgba(255,255,255,0.15)}
-.mascot-body{font-size:13px;color:#e2e8f0;line-height:1.5;margin-bottom:10px}
+.mascot-body{font-size:12px;color:#e2e8f0;line-height:1.4;margin-bottom:8px}
 .mascot-footer{
-  display:flex;justify-content:space-between;align-items:center;font-size:10px;
-  color:#64748b;padding-top:8px;border-top:1px solid var(--border)
+  display:flex;justify-content:space-between;align-items:center;font-size:9px;
+  color:#64748b;padding-top:6px;border-top:1px solid var(--border)
 }
 .mascot-tip{font-weight:700;color:#818cf8}
 .mascot-toggle{
-  position:fixed;bottom:20px;right:20px;z-index:55;width:52px;height:52px;
+  position:fixed;bottom-10:right-4;z-index:50;width:48px;height:48px;
   border-radius:50%;background:linear-gradient(135deg,#6366f1,#10b981);
-  color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;
-  box-shadow:0 10px 24px -8px rgba(99,102,241,0.45);cursor:pointer;border:2px solid rgba(255,255,255,0.2);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 8px 20px -6px rgba(99,102,241,0.45);cursor:pointer;border:2px solid rgba(255,255,255,0.2);
   transition:all .25s
 }
-.mascot-toggle:hover{transform:scale(1.1);box-shadow:0 14px 30px -10px rgba(99,102,241,0.55)}
+.mascot-toggle:hover{transform:scale(1.08);box-shadow:0 12px 28px -8px rgba(99,102,241,0.55)}
 .mascot-toggle:active{transform:scale(0.92)}
 
 /* ===== GAME ARENA ===== */
@@ -198,11 +203,11 @@ main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:26px 16
   display:flex;align-items:center;justify-content:space-between;gap:14px
 }
 .arena-side{display:flex;flex-direction:column;align-items:center;gap:6px}
-.arena-char{font-size:32px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3))}
+.arena-char{font-size:30px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3))}
 .arena-label{font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em}
-.arena-bar-wrap{width:92px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
+.arena-bar-wrap{width:92px;height:4px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
 .arena-bar-fill{height:100%;background:linear-gradient(90deg,#6366f1,#10b981);width:0%;transition:width .5s ease}
-.arena-score{font-family:'Space Grotesk';font-weight:800;font-size:13px;color:#fff;margin-top:3px}
+.arena-score{font-family:'Space Grotesk';font-weight:800;font-size:12px;color:#fff;margin-top:3px}
 
 /* ===== QUIZ OPTIONS ===== */
 .opt-btn{
@@ -227,19 +232,19 @@ main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:26px 16
 
 /* ===== LEADERBOARD ===== */
 .leaderboard-row{
-  display:flex;align-items:center;gap:14px;padding:14px;
-  border:1px solid var(--border);border-radius:14px;margin-bottom:10px;
+  display:flex;align-items:center;gap:12px;padding:12px;
+  border:1px solid var(--border);border-radius:14px;margin-bottom:8px;
   background:rgba(255,255,255,0.02)
 }
-.leaderboard-row.rank-1{border-color:rgba(245,158,11,0.4);background:linear-gradient(90deg,rgba(245,158,11,0.08),transparent)}
-.leaderboard-row.rank-2{border-color:rgba(99,102,241,0.3);background:linear-gradient(90deg,rgba(99,102,241,0.06),transparent)}
-.leaderboard-row.rank-3{border-color:rgba(16,185,129,0.3);background:linear-gradient(90deg,rgba(16,185,129,0.06),transparent)}
-.leaderboard-rank{font-family:'Space Grotesk';font-weight:800;font-size:14px;width:30px}
-.leaderboard-avatar{font-size:22px}
+.leaderboard-row.rank-1{border-color:rgba(245,158,11,0.4);background:linear-gradient(90deg,rgba(245,158,11,0.06),transparent)}
+.leaderboard-row.rank-2{border-color:rgba(99,102,241,0.3);background:linear-gradient(90deg,rgba(99,102,241,0.04),transparent)}
+.leaderboard-row.rank-3{border-color:rgba(16,185,129,0.3);background:linear-gradient(90deg,rgba(16,185,129,0.04),transparent)}
+.leaderboard-rank{font-family:'Space Grotesk';font-weight:800;font-size:13px;width:28px}
+.leaderboard-avatar{font-size:20px}
 .leaderboard-info{flex:1}
 .leaderboard-name{font-weight:700;color:#fff}
-.leaderboard-score{color:#94a3b8;font-size:12px}
-.leaderboard-xp{font-weight:800;color:#fbbf24;font-size:13px}
+.leaderboard-score{color:#94a3b8;font-size:11px}
+.leaderboard-xp{font-weight:800;color:#fbbf24;font-size:12px}
 
 /* ===== ANIMATIONS ===== */
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
@@ -281,16 +286,16 @@ main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:26px 16
 
 /* ===== CHATBOT ===== */
 .chat-container{
-  height:400px;border:1px solid var(--border);border-radius:16px;
+  height:380px;border:1px solid var(--border);border-radius:16px;
   background:var(--card);display:flex;flex-direction:col
 }
-.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:col;gap:10px}
-.chat-msg{max-width:80%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.4}
-.chat-msg.user{background:var(--indigo);color:#white;align-self:flex-end;border-bottom-right-radius:2px}
+.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:col;gap:8px}
+.chat-msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.4}
+.chat-msg.user{background:var(--indigo);color:#fff;align-self:flex-end;border-bottom-right-radius:2px}
 .chat-msg.bot{background:rgba(255,255,255,0.05);color:#e2e8f0;align-self:flex-start;border-bottom-left-radius:2px}
-.chat-input{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px}
-.chat-input input{flex:1;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:#fff}
-.chat-input button{background:var(--indigo);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer}
+.chat-input{padding:10px;border-top:1px solid var(--border);display:flex;gap:6px}
+.chat-input input{flex:1;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:#fff}
+.chat-input button{background:var(--indigo);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:700;cursor:pointer}
 .chat-input button:hover{background:#4f46e5}
 
 /* ===== FORM ELEMENTS ===== */
@@ -300,28 +305,29 @@ main{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:26px 16
   transition:border .2s
 }
 .form-input:focus{outline:none;border-color:#6366f1}
-.form-label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
-.form-group{margin-bottom:16px}
+.form-label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.form-group{margin-bottom:14px}
 .form-select{appearance:none;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:#fff;font-size:13px;width:100%}
 
 /* ===== STATUS BADGES ===== */
-.status-pending{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
-.status-approved{background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3)}
-.status-submitted{background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.3)}
 .status-badge{
   display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;
   padding:4px 8px;border-radius:6px;text-transform:uppercase
 }
+.status-pending{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.3)}
+.status-approved{background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3)}
+.status-submitted{background:rgba(99,102,241,0.15);color:#818cf8;border:1px solid rgba(99,102,241,0.3)}
 
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){
   .nav-desktop{display:none !important}
-  main{padding:20px 16px 80px}
-  .nav-inner{padding:10px 16px}
+  main{padding:20px 16px 90px}
+  .nav-inner{padding:8px 16px}
   .arena{padding:14px}
   .opt-btn{font-size:13px;padding:12px}
   .cert-paper{padding:28px;margin:0 12px}
-  .chat-container{height:350px}
+  .chat-container{height:340px}
+  .mascot-toggle{bottom-8:right-3;width:44px;height:44px;font-size:18px}
 }
 @media(min-width:769px){
   .nav-mobile{display:none !important}
