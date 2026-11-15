@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Report Doping{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+ <div class="glass-card mb-6">
+  <div class="flex items-center gap-3 mb-4">
+   <span class="text-3xl">🚨</span>
+   <div>
+    <h1 class="font-grotesk font-bold text-lg text-white mb-0.5">Report Doping</h1>
+    <p class="text-xs text-slate-400">Anonymous reporting for athletes, coaches & parents</p>
+   </div>
+  </div>
+
+  <div class="text-sm text-slate-400 mb-4">
+   <strong>Your identity stays private.</strong> Reports go to NADA India for review. For emergencies, contact: speakup-nada@gov.in
+  </div>
+
+  <form id="reportForm" class="space-y-4">
+   <div class="form-group">
+    <label class="form-label">Sport</label>
+    <input type="text" id="reportSport" class="form-input" placeholder="e.g., Athletics, Weightlifting" required>
+   </div>
+   <div class="form-group">
+    <label class="form-label">Level</label>
+    <select id="reportLevel" class="form-select">
+     <option value="">Select level</option>
+     <option>School / College</option>
+     <option>State / District</option>
+     <option>National</option>
+     <option>International</option>
+    </select>
+   </div>
+   <div class="form-group">
+    <label class="form-label">What did you observe?</label>
+    <textarea id="reportDesc" class="form-input" rows="4" placeholder="Describe the incident (substance, person, event, date)..." required></textarea>
+   </div>
+   <div class="form-group">
+    <label class="form-label">Evidence (optional)</label>
+    <input type="text" id="reportEvidence" class="form-input" placeholder="Photos, messages, documents, links">
+   </div>
+   <div class="form-group">
+    <label class="flex items-center gap-2 cursor-pointer">
+     <input type="checkbox" id="reportAnon" checked>
+     <span class="text-sm text-slate-300">Keep me anonymous</span>
+    </label>
+   </div>
+   <button type="submit" class="btn-neon w-full">Submit Report</button>
+  </form>
+
+  <div id="reportSuccess" class="hidden mt-4 p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
+   <div class="text-2xl mb-2">✅ Report Submitted</div>
+   <div class="text-sm text-emerald-400 font-bold" id="reportId"></div>
+   <div class="text-xs text-emerald-200 mt-1">NADA will review your report. Save your Report ID for reference.</div>
+  </div>
+ </div>
+</div>
+{% block scripts %}
+<script>
+document.getElementById('reportForm').onsubmit=function(e){
+ e.preventDefault();
+ const d={
+  sport:document.getElementById('reportSport').value,
+  level:document.getElementById('reportLevel').value,
+  description:document.getElementById('reportDesc').value,
+  evidence:document.getElementById('reportEvidence').value,
+  anonymous:document.getElementById('reportAnon').checked?1:0
+ };
+ fetch('/api/report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)})
+ .then(r=>r.json()).then(data=>{
+  document.getElementById('reportForm').classList.add('hidden');
+  document.getElementById('reportSuccess').classList.remove('hidden');
+  document.getElementById('reportId').textContent='Report ID: '+data.report_id;
+  addXP(20);
+  say('Report submitted! +20 XP for clean sport.');
+ });
+};
+</script>
+{% endblock %}
+{% endblock %}

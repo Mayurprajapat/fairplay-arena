@@ -4,98 +4,98 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}FairPlay Arena{% endblock %} | Play. Learn. Stay Clean.</title>
 <link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#4f46e5">
+<meta name="theme-color" content="#0f172a">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/style.css?v=5">
+<link rel="stylesheet" href="/static/css/style.css?v=7">
 <style>
-  /* Tailwind config inline for custom colors */
   @layer utilities {
     .text-balance { text-wrap: balance; }
   }
 </style>
 </head>
-<body class="bg-slate-950 text-slate-200 min-h-screen font-sans overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+<body class="bg-[#0b0f19] text-[#e2e8f0] min-h-screen font-sans overflow-x-hidden selection:bg-indigo-500 selection:text-white">
 <canvas id="particles"></canvas>
 <canvas id="fx"></canvas>
 <div class="bg-glow"></div>
 
 <!-- LOADER -->
-<div id="loader" class="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center gap-3 transition-opacity duration-300">
-  <div class="w-16 h-16 rounded-full border-4 border-slate-100 border-t-indigo-600 border-r-amber-500 animate-spin"></div>
-  <div class="font-grotesk font-black text-indigo-600 tracking-widest text-lg">FAIRPLAY ARENA</div>
-  <div class="w-48 h-1 bg-slate-200 rounded-full overflow-hidden"><div class="h-full w-1/3 bg-gradient-to-r from-indigo-500 via-amber-500 to-emerald-500 animate-[load_1.1s_ease-in-out_infinite]"></div></div>
+<div id="loader" class="fixed inset-0 z-50 bg-[#0b0f19] flex flex-col items-center justify-center gap-4 transition-opacity duration-400">
+  <div class="w-14 h-14 rounded-full border-4 border-[#1e293b] border-t-indigo-400 border-r-amber-500 animate-spin"></div>
+  <div class="font-grotesk font-black text-xl tracking-widest text-white">FAIRPLAY ARENA</div>
+  <div class="w-48 h-1 bg-[#1e293b] rounded-full overflow-hidden"><div class="h-full w-1/3 bg-gradient-to-r from-indigo-500 via-amber-500 to-emerald-500 animate-[load_1.1s_ease-in-out_infinite]"></div></div>
 </div>
 
 <!-- AVATAR MODAL -->
-<div id="avatarModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
- <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center border border-slate-200 shadow-xl pop">
+<div id="avatarModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+ <div class="bg-[#1e293b] rounded-2xl p-6 max-w-sm w-full text-center border border-white/10 shadow-2xl pop">
   <div class="text-4xl char-idle mb-3">🏃</div>
-  <h2 class="font-grotesk font-black text-lg text-slate-900 mb-1" data-i18n="av.title">CHOOSE ATHLETE</h2>
-  <p class="text-xs text-slate-500 mb-4" data-i18n="av.sub">Character plays every game with you 💪</p>
+  <h2 class="font-grotesk font-bold text-lg text-white mb-1">CHOOSE ATHLETE</h2>
+  <p class="text-xs text-slate-400 mb-4">Character plays every game with you 💪</p>
   <div id="avatarGrid" class="grid grid-cols-4 gap-2"></div>
  </div>
 </div>
 
 <!-- LEVEL UP MODAL -->
-<div id="lvlModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onclick="this.classList.add('hidden')">
- <div class="bg-gradient-to-br from-amber-400 to-rose-500 rounded-3xl p-8 max-w-sm w-full text-center pop shadow-lg text-white">
+<div id="lvlModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onclick="this.classList.add('hidden')">
+ <div class="bg-gradient-to-br from-indigo-500 via-amber-500 to-rose-500 rounded-2xl p-8 max-w-sm w-full text-center pop shadow-2xl text-white">
   <div class="text-5xl char-idle mb-3">🏆</div>
-  <h2 class="font-grotesk font-black text-lg mb-1" data-i18n="lvl.title">LEVEL UP!</h2>
+  <h2 class="font-grotesk font-bold text-lg mb-1">LEVEL UP!</h2>
   <div id="lvlText" class="font-bold mb-2"></div>
-  <div class="text-xs text-white/80" data-i18n="lvl.sub">Tap to continue 🔥</div>
+  <div class="text-xs text-white/80">Tap to continue 🔥</div>
  </div>
 </div>
 
 <!-- LIVE TICKER -->
-<div class="bg-slate-900 text-slate-200 text-xs font-medium py-2 px-4 overflow-hidden border-b border-slate-800">
-  <div class="inline-block px-4 animate-[tick_34s_linear_infinite]" data-i18n="tick">🔴 LIVE • WADA 2026 Prohibited List IN FORCE since 1 Jan 2026 &nbsp;•&nbsp; 2027 List published (in force 1 Jan 2027) &nbsp;•&nbsp; NEW: non-diagnostic carbon-monoxide banned (M1.4) &nbsp;•&nbsp; NADA India GAIIN conference, New Delhi &nbsp;•&nbsp; Play games • Earn XP • Unlock Certificate 🏅</div>
+<div class="bg-[#020617] text-slate-300 text-xs font-medium py-2 px-4 overflow-hidden border-b border-white/5">
+  <div class="inline-block px-4 animate-[tick_30s_linear_infinite]">🔴 LIVE • WADA 2026 Prohibited List IN FORCE since 1 Jan 2026 &nbsp;•&nbsp; 2027 List published (in force 1 Jan 2027) &nbsp;•&nbsp; NEW: non-diagnostic carbon-monoxide banned (M1.4) &nbsp;•&nbsp; NADA India GAIIN conference &nbsp;•&nbsp; Play games • Earn XP • Unlock Certificate 🏅</div>
 </div>
 
 <!-- NAVBAR -->
-<nav class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/10">
- <div class="nav-inner">
-  <a href="/" class="brand">
-   <img src="/static/icon.svg" alt="logo">
-   <div class="brand-text">
-    <div class="brand-name">FAIRPLAY</div>
-    <div class="brand-sub">Arena • Clean Sport India</div>
+<nav class="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-md border-b border-white/10">
+ <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+  <a href="/" class="flex items-center gap-3 shrink-0">
+   <img src="/static/icon.svg" class="w-10 h-10 rounded-lg shadow-[0_0_20px_rgba(99,102,241,0.4)]" alt="logo">
+   <div>
+    <div class="font-grotesk font-black text-lg text-white">FAIRPLAY</div>
+    <div class="text-[9px] text-slate-400 font-semibold tracking-wider uppercase">Arena • Clean Sport India</div>
    </div>
   </a>
-  <div class="nav-desktop">
-   <a href="/" class="nav-link active">Home</a>
-   <a href="/champion" class="nav-link">Champion Show</a>
-   <a href="/live" class="nav-link flex items-center gap-1.5"><span class="live-dot"></span>Live Centre</a>
-   <a href="/learn" class="nav-link">Learn</a>
-   <a href="/quiz" class="nav-link">Quiz Quest</a>
-   <a href="/story" class="nav-link">Road to Gold</a>
-   <a href="/checker" class="nav-link">Checker</a>
-   <a href="/scanner" class="nav-link">📷 Scanner</a>
-   <a href="/badges" class="nav-link">🏆 Badges</a>
-   <a href="/dashboard" class="nav-link">Ranks</a>
+  <div class="hidden md:flex items-center gap-2 text-xs font-bold text-slate-400">
+   <a href="/" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition active" data-i18n="nav.home">Home</a>
+   <a href="/champion" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.champion">Champion Show</a>
+   <a href="/live" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition flex items-center gap-1.5" data-i18n="nav.live"><span class="live-dot"></span>Live Centre</a>
+   <a href="/learn" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.learn">Learn Lab</a>
+   <a href="/quiz" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.quiz">Quiz Quest</a>
+   <a href="/story" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.story">Road to Gold</a>
+   <a href="/checker" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.checker">Checker</a>
+   <a href="/scanner" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.scanner">📷 Scanner</a>
+   <a href="/badges" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.badges">🏆 Badges</a>
+   <a href="/athlete-profile" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition">👤 Profile</a>
+   <a href="/dashboard" class="px-3 py-1.5 rounded-lg hover:bg-white/10 hover:text-white transition" data-i18n="nav.ranks">Ranks</a>
   </div>
-  <div class="nav-right">
-   <div class="xp-card">
-    <div class="xp-label" id="lvlLabel">LVL 1</div>
-    <div class="xp-value" id="xpLabel">0 XP</div>
-    <div class="xp-mini"><div id="xpFill" class="xp-mini-fill" style="width:0%"></div></div>
+  <div class="flex items-center gap-2">
+   <div class="hidden md:block text-right">
+    <div id="lvlLabel" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">LVL 1</div>
+    <div id="xpLabel" class="text-xs font-bold text-white">0 XP</div>
+    <div class="w-24 h-1 bg-white/10 rounded-full overflow-hidden mt-1"><div id="xpFill" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500" style="width:0%"></div></div>
    </div>
-   <button onclick="askName()" id="playerChip" class="control-btn" title="Player">👤</button>
-   <button onclick="toggleLang()" id="langBtn" class="control-btn" title="Hindi / English">EN | हिंदी</button>
-   <button onclick="toggleMute()" id="muteBtn" class="control-btn" title="Sound">🔊</button>
-   <button onclick="openAvatar()" class="control-btn" title="Avatar">🎭</button>
-   <a href="/certificate" class="btn-primary btn-outline" style="font-size:11px;padding:8px 14px">🏅 Certificate</a>
+   <button onclick="askName()" id="playerChip" class="bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm transition flex items-center gap-1.5">👤 Guest</button>
+   <button onclick="toggleLang()" id="langBtn" class="bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm transition" title="Hindi / English">EN | हिंदी</button>
+   <button onclick="toggleMute()" id="muteBtn" class="bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm transition" title="Sound">🔊</button>
+   <button onclick="openAvatar()" class="bg-white/10 border border-white/20 text-slate-200 hover:border-indigo-400 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-sm transition" title="Avatar">🎭</button>
+   <a href="/certificate" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-md transition">🏅 Certificate</a>
   </div>
  </div>
 </nav>
 
 <!-- MOBILE NAV -->
-<nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/90 backdrop-blur-md border-t border-white/10 px-4 py-2 flex justify-between">
- <a href="/" class="flex flex-col items-center gap-0.5 min-w-[52px]"><span class="text-xl">🏟️</span><span class="text-[10px] font-bold text-slate-400">Home</span></a>
- <a href="/scanner" class="flex flex-col items-center gap-0.5 min-w-[52px]"><span class="text-xl">📷</span><span class="text-[10px] font-bold text-slate-400">Scanner</span></a>
- <a href="/quiz" class="flex flex-col items-center gap-0.5 min-w-[52px]"><span class="text-xl">🎯</span><span class="text-[10px] font-bold text-slate-400">Quiz</span></a>
- <a href="/badges" class="flex flex-col items-center gap-0.5 min-w-[52px]"><span class="text-xl">🏆</span><span class="text-[10px] font-bold text-slate-400">Badges</span></a>
- <a href="/dashboard" class="flex flex-col items-center gap-0.5 min-w-[52px]"><span class="text-xl">📊</span><span class="text-[10px] font-bold text-slate-400">Ranks</span></a>
+<nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#0b0f19]/95 backdrop-blur-md border-t border-white/10 px-4 py-3 flex justify-between">
+ <a href="/" class="flex flex-col items-center gap-1 min-w-[56px]"><span class="text-xl">🏟️</span><span class="text-[10px] font-bold text-slate-400">Home</span></a>
+ <a href="/scanner" class="flex flex-col items-center gap-1 min-w-[56px]"><span class="text-xl">📷</span><span class="text-[10px] font-bold text-slate-400">Scanner</span></a>
+ <a href="/quiz" class="flex flex-col items-center gap-1 min-w-[56px]"><span class="text-xl">🎯</span><span class="text-[10px] font-bold text-slate-400">Quiz</span></a>
+ <a href="/badges" class="flex flex-col items-center gap-1 min-w-[56px]"><span class="text-xl">🏆</span><span class="text-[10px] font-bold text-slate-400">Badges</span></a>
+ <a href="/dashboard" class="flex flex-col items-center gap-1 min-w-[56px]"><span class="text-xl">📊</span><span class="text-[10px] font-bold text-slate-400">Ranks</span></a>
 </nav>
 
 <main class="relative z-10 max-w-5xl mx-auto px-4 py-6">
@@ -103,22 +103,24 @@
 </main>
 
 <!-- MASCOT -->
-<div id="mascotBox" class="mascot-card hidden">
- <div class="mascot-header">
-  <span class="icon">🛡️</span>
-  <span class="title">DopeGuard Coach</span>
-  <button onclick="toggleMascot()" class="close" title="Close">✕</button>
+<div id="mascotBox" class="hidden fixed bottom-24 md:bottom-6 right-4 z-40 w-80 bg-[#1e293b] border border-white/10 shadow-2xl rounded-2xl p-4 text-sm text-slate-300 pop">
+ <div class="flex items-center gap-3 mb-3">
+  <span class="text-2xl">🛡️</span>
+  <div>
+   <span class="font-grotesk font-bold text-xs text-indigo-400 uppercase tracking-wider">DopeGuard Coach</span>
+   <button onclick="toggleMascot()" class="ml-auto text-slate-500 hover:text-indigo-400" title="Close">✕</button>
+  </div>
  </div>
- <span id="mascotText" class="mascot-body">Welcome! Check Live Centre for 2026 rules.</span>
- <div class="mascot-footer">
-  <span class="mascot-tip" id="mascotTipNum">Tip 1/6</span>
-  <button onclick="toggleMascot()" class="btn-ghost" style="font-size:10px">Ask Tip</button>
+ <span id="mascotText" class="text-slate-300 leading-relaxed">Welcome! Check Live Centre for 2026 rules.</span>
+ <div class="mt-3 pt-2 border-t border-white/5 flex justify-between text-[10px]">
+  <span class="mascot-tip text-indigo-300 font-bold" id="mascotTipNum">Tip 1/6</span>
+  <button onclick="toggleMascot()" class="bg-indigo-600 text-white px-2 py-0.5 rounded text-[9px] font-bold hover:bg-indigo-500">Ask Tip</button>
  </div>
 </div>
-<button class="mascot-toggle" onclick="toggleMascot()" title="Coach tip">🛡️</button>
+<button class="mascot-toggle fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 via-amber-500 to-rose-500 text-white shadow-xl flex items-center justify-center text-2xl transition active:scale-95 border-2 border-white/20" onclick="toggleMascot()" title="Coach tip">🛡️</button>
 
-<footer class="mt-12 text-center text-slate-500 text-[10px] pb-10 px-6 border-t border-white/5"><span data-i18n="foot">FairPlay Arena • Major Project • Gamification of Anti-Doping Education • Sources: WADA + NADA India (linked) • Made for athletes 🏅</span><br>
-<button onclick="installPWA()" class="mt-3 inline-block btn-ghost" style="font-size:11px">📲 Install App</button></footer>
+<footer class="mt-12 text-center text-slate-500 text-[10px] pb-10 px-6 border-t border-white/5"><span data-i18n="foot">FairPlay Arena • Major Project • Gamification of Anti-Doping Education • Sources: WADA + NADA India • Made for athletes 🏅</span><br>
+<button onclick="installPWA()" class="mt-3 inline-block bg-white/10 border border-white/20 hover:border-indigo-400 px-3 py-1 rounded-full text-slate-200 font-medium text-xs transition">📲 Install App</button></footer>
 
 <script src="/static/js/i18n.js"></script>
 <script src="/static/js/main.js"></script>

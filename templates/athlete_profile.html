@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Athlete Profile{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+ <!-- Profile Header -->
+ <div class="glass-card mb-6">
+  <div class="flex flex-col md:flex-row md:items-center gap-6 mb-6">
+   <div class="text-5xl">🏃</div>
+   <div class="flex-1">
+    <h1 class="font-grotesk font-black text-xl text-white mb-1" id="profileName">{{ name }}</h1>
+    <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Clean Sport Athlete • India</p>
+   </div>
+   <div class="text-right">
+    <div class="text-2xl font-grotesk font-bold text-indigo-400">{{ total_xp }} XP</div>
+    <div class="text-xs text-slate-400">Total XP Earned</div>
+   </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+   <div class="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
+    <div class="text-xs text-slate-400 uppercase font-bold">Games Played</div>
+    <div class="text-lg font-grotesk font-bold text-white">{{ total_games }}</div>
+   </div>
+   <div class="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
+    <div class="text-xs text-slate-400 uppercase font-bold">Last Played</div>
+    <div class="text-sm font-bold text-slate-200">{{ last_played }}</div>
+   </div>
+   <div class="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
+    <div class="text-xs text-slate-400 uppercase font-bold">Level</div>
+    <div class="text-lg font-grotesk font-bold text-emerald-400">
+     {% if total_xp >= 400 %}LVL 5 • LEGEND
+     {% elif total_xp >= 250 %}LVL 4 • PRO
+     {% elif total_xp >= 120 %}LVL 3 • CHALLENGER
+     {% elif total_xp >= 50 %}LVL 2 • TRAINEE
+     {% else %}LVL 1 • ROOKIE
+     {% endif %}
+    </div>
+   </div>
+  </div>
+
+  <!-- XP Progress -->
+  <div class="mb-6">
+   <div class="flex justify-between text-xs text-slate-400 uppercase font-bold mb-2">
+    <span>Level Progress</span>
+    <span id="profileXpText">{{ total_xp }} XP</span>
+   </div>
+   <div class="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
+    <div id="profileXpBar" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-400" style="width:0%"></div>
+   </div>
+  </div>
+
+  <!-- Game Stats -->
+  {% if game_stats %}
+  <h3 class="font-grotesk font-bold text-sm text-white mb-3">Game Performance</h3>
+  <div class="space-y-3">
+   {% for gs in game_stats %}
+   <div class="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
+    <span class="text-sm text-slate-300">{{ gs.game }}</span>
+    <div class="flex items-center gap-2">
+     <div class="w-24 bg-white/10 rounded-full h-2 overflow-hidden"><div class="h-full bg-emerald-400" style="width:100%"></div></div>
+     <span class="text-xs font-bold text-white min-w-[40px] text-right">{{ gs.xp }} XP</span>
+    </div>
+   </div>
+   {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-8 text-slate-400 text-sm">
+   No games played yet. Start with Quiz Quest or Dope or Nope to earn XP!
+  </div>
+  {% endif %}
+ </div>
+
+ <!-- Quick Actions -->
+ <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  <a href="/quiz" class="glass-card p-5 text-center hover:border-indigo-400/50 transition">
+   <div class="text-3xl mb-2">🎯</div>
+   <div class="font-grotesk font-bold text-sm text-white">Quiz Quest</div>
+   <div class="text-xs text-slate-400 mt-1">15 WADA questions • +100 XP</div>
+  </a>
+  <a href="/story" class="glass-card p-5 text-center hover:border-emerald-400/50 transition">
+   <div class="text-3xl mb-2">🔥</div>
+   <div class="font-grotesk font-bold text-sm text-white">Road to Gold</div>
+   <div class="text-xs text-slate-400 mt-1">5-chapter story • +100 XP</div>
+  </a>
+  <a href="/certification-exam" class="glass-card p-5 text-center hover:border-rose-400/50 transition">
+   <div class="text-3xl mb-2">📜</div>
+   <div class="font-grotesk font-bold text-sm text-white">Certification Exam</div>
+   <div class="text-xs text-slate-400 mt-1">10 questions • Get Certified</div>
+  </a>
+ </div>
+</div>
+{% endblock %}

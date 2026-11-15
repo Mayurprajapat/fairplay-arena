@@ -3,48 +3,56 @@
 {% block content %}
 
 <!-- HERO -->
-<section class="relative overflow-hidden bg-white border border-slate-200 rounded-3xl shadow-sm p-6 md:p-10 mb-8">
-  <div class="absolute inset-0 bg-[linear-gradient(135deg,#eef2ff_0%,#f8fafc_100%)] opacity-80 pointer-events-none"></div>
+<section class="relative overflow-hidden bg-[#1e293b] border border-white/10 rounded-3xl p-6 md:p-10 mb-8">
   <div class="relative z-10 grid md:grid-cols-2 gap-8 items-center">
     <div>
       <div class="h-1 w-24 rounded-full bg-gradient-to-r from-indigo-500 via-amber-500 to-emerald-500 mb-4"></div>
-      <div class="inline-block bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-xs font-bold text-amber-700 mb-4" data-i18n="h.badge">🇮🇳 MAJOR PROJECT</div>
-      <h1 class="font-grotesk font-black text-4xl md:text-5xl leading-[1.05] text-slate-900 mb-3" data-i18n="h.title">PLAY.<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-amber-500 to-emerald-500">LEARN.</span><br>STAY CLEAN.</h1>
-      <p class="text-slate-600 text-base md:text-lg leading-relaxed mb-6" data-i18n="h.desc">Gamified anti-doping academy for Indian athletes — real WADA 2026 rules, live updates, XP, badges & printable certificate.</p>
+      <div class="inline-block bg-amber-900/30 border border-amber-500/30 px-3 py-1 rounded-full text-xs font-bold text-amber-400 mb-4">🇮🇳 MAJOR PROJECT</div>
+      <h1 class="font-grotesk font-black text-4xl md:text-5xl leading-[1.05] text-white mb-3">PLAY.<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-amber-400 to-emerald-400">LEARN.</span><br>STAY CLEAN.</h1>
+      <p class="text-slate-300 text-base md:text-lg leading-relaxed mb-6">Gamified anti-doping academy for athletes — real WADA 2026 rules, live updates, XP, badges & printable certificate.</p>
       <div class="flex flex-wrap gap-3">
-        <a href="/champion" class="btn-champ px-6 py-3 rounded-2xl font-bold" data-i18n="h.champion">🏆 Champion Show</a>
-        <a href="/quiz" class="bg-white border border-slate-200 hover:border-indigo-300 px-6 py-3 rounded-2xl font-bold text-slate-700 card-hover shadow-sm" data-i18n="h.start">▶ Start Quest</a>
-        <a href="/live" class="btn-green px-6 py-3 rounded-2xl font-bold"><span class="live-dot mr-2"></span><span data-i18n="h.live">Live Centre</span></a>
-        <a href="/checker" class="bg-white border border-slate-200 hover:border-indigo-300 px-6 py-3 rounded-2xl font-bold text-slate-700 card-hover shadow-sm" data-i18n="h.check">🔍 Check Substance</a>
+        <a href="/quiz" class="btn-primary px-6 py-3 rounded-xl font-bold">▶ Start Quiz Quest</a>
+        <a href="/story" class="btn-outline px-6 py-3 rounded-xl font-bold">🔥 Road to Gold</a>
+        <a href="/scanner" class="btn-neon px-6 py-3 rounded-xl font-bold">📷 Scanner</a>
+        <a href="/certification-exam" class="btn-outline px-6 py-3 rounded-xl font-bold">📜 Get Certified</a>
       </div>
       <div class="mt-8 grid grid-cols-3 gap-3 max-w-md">
-        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-3 text-center reveal"><div class="font-grotesk font-black text-xl text-indigo-600"><span data-count="6">0</span></div><div class="text-xs text-slate-500 font-medium mt-1" data-i18n="h.games">Games</div></div>
-        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-3 text-center reveal" style="transition-delay:.08s"><div class="font-grotesk font-black text-xl text-indigo-600"><span data-count="2026">0</span></div><div class="text-xs text-slate-500 font-medium mt-1" data-i18n="h.wada">WADA List Live</div></div>
-        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-3 text-center reveal" style="transition-delay:.16s"><div class="font-grotesk font-black text-xl text-indigo-600"><span data-count="500">0</span></div><div class="text-xs text-slate-500 font-medium mt-1" data-i18n="h.maxxp">Max XP</div></div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/5 text-center reveal">
+          <div class="font-grotesk font-black text-xl text-indigo-400"><span data-count="13">0</span></div>
+          <div class="text-xs text-slate-400 font-medium mt-1">Pages & Features</div>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/5 text-center reveal" style="transition-delay:.08s">
+          <div class="font-grotesk font-black text-xl text-indigo-400"><span data-count="2026">0</span></div>
+          <div class="text-xs text-slate-400 font-medium mt-1">WADA List Live</div>
+        </div>
+        <div class="p-3 rounded-xl bg-white/5 border border-white/5 text-center reveal" style="transition-delay:.16s">
+          <div class="font-grotesk font-black text-xl text-indigo-400"><span data-count="500">0</span></div>
+          <div class="text-xs text-slate-400 font-medium mt-1">Max XP</div>
+        </div>
       </div>
     </div>
     <div class="relative">
-      <div class="glass rounded-3xl p-6 shadow-[0_24px_60px_-30px_rgba(15,23,42,.12)]">
+      <div class="glass rounded-2xl p-5 shadow-2xl border border-white/10">
         <div class="flex items-center justify-between gap-3 mb-4">
-          <div class="flex items-center gap-2"><span class="live-dot"></span><span class="font-bold text-slate-800 text-sm" data-i18n="h.list">WADA List Status</span></div>
+          <div class="flex items-center gap-2"><span class="live-dot"></span><span class="font-bold text-slate-300 text-sm">WADA List Status</span></div>
           <span id="homeUpdated" class="text-[10px] text-slate-500 font-medium"></span>
         </div>
         <div class="grid md:grid-cols-3 gap-3 text-sm">
-          <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
-            <div class="text-emerald-700 font-bold text-xs uppercase mb-1">2026 List — In Force</div>
-            <div class="text-slate-500 text-xs">Since 1 Jan 2026</div>
+          <div class="p-3 rounded-xl bg-emerald-900/20 border border-emerald-500/30">
+            <div class="text-emerald-400 font-bold text-xs uppercase mb-1">2026 List — In Force</div>
+            <div class="text-slate-400 text-xs">Since 1 Jan 2026</div>
           </div>
-          <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3">
-            <div class="text-indigo-700 font-bold text-xs uppercase mb-1">2027 List — Published</div>
-            <div class="text-slate-500 text-xs">In force 1 Jan 2027</div>
+          <div class="p-3 rounded-xl bg-indigo-900/20 border border-indigo-500/30">
+            <div class="text-indigo-400 font-bold text-xs uppercase mb-1">2027 List — Published</div>
+            <div class="text-slate-400 text-xs">In force 1 Jan 2027</div>
           </div>
-          <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
-            <div class="text-amber-700 font-bold text-xs uppercase mb-1">New 2026 Rule</div>
-            <div class="text-slate-500 text-xs">CO misuse banned (M1.4)</div>
+          <div class="p-3 rounded-xl bg-amber-900/20 border border-amber-500/30">
+            <div class="text-amber-400 font-bold text-xs uppercase mb-1">New 2026 Rule</div>
+            <div class="text-slate-400 text-xs">CO misuse banned (M1.4)</div>
           </div>
         </div>
         <div class="mt-4 text-left">
-          <a href="/live" class="text-indigo-600 font-semibold text-sm hover:underline">Open Live Centre →</a>
+          <a href="/live" class="text-indigo-400 font-semibold text-sm hover:text-indigo-300 hover:underline">Open Live Centre →</a>
         </div>
       </div>
     </div>
@@ -52,112 +60,145 @@
 </section>
 
 <!-- GAMES -->
-<h2 class="font-grotesk font-black text-xl md:text-2xl text-slate-900 mb-4" data-i18n="h.mtitle">🎮 Choose Your Mission</h2>
-<p class="text-slate-500 mb-8 text-sm" data-i18n="h.msub">Every game teaches real WADA rules. Earn XP in all 6 to become Clean Legend.</p>
+<h2 class="font-grotesk font-black text-xl md:text-2xl text-white mb-4">🎮 Choose Your Mission</h2>
+<p class="text-slate-400 mb-8 text-sm">Every game teaches real WADA rules. Earn XP in all features to become Clean Legend.</p>
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-  <a href="/champion" class="block bg-amber-50 border border-amber-200 rounded-2xl p-5 card-hover reveal">
-    <div class="text-3xl mb-2">🏆</div>
-    <div class="font-grotesk font-black text-slate-900 text-base mb-1">Anti-Doping Champion <span class="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-full align-middle font-bold">FLAGSHIP</span></div>
-    <p class="text-xs text-slate-500 mb-2 leading-relaxed" data-i18n="c.champ.d">TV-style quiz show with lifelines, FPP ladder & reward store.</p>
-    <div class="text-indigo-600 font-semibold text-[11px]" data-i18n="c.champ.go">Enter studio →</div>
-  </a>
-  <a href="/quiz" class="block bg-white border border-slate-200 rounded-2xl p-5 card-hover shadow-sm" style="transition-delay:.04s">
+  <a href="/quiz" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover shadow-lg" style="transition-delay:.04s">
     <div class="text-3xl mb-2">🎯</div>
-    <div class="font-grotesk font-black text-slate-900 text-base mb-1">Quiz Quest</div>
-    <p class="text-xs text-slate-500 mb-2 leading-relaxed" data-i18n="c.quiz.d">15 timed questions • streak bonus • lifeline.</p>
-    <div class="text-indigo-600 font-semibold text-[11px]">+100 <span data-i18n="c.xp">XP possible →</span></div>
+    <div class="font-grotesk font-bold text-white text-base mb-1">Quiz Quest</div>
+    <p class="text-xs text-slate-400 mb-2 leading-relaxed">15 timed WADA questions • streak bonus • lifeline.</p>
+    <div class="text-indigo-400 font-semibold text-[11px]">+100 XP possible →</div>
   </a>
-  <a href="/live" class="block bg-white border border-slate-200 rounded-2xl p-5 card-hover shadow-sm" style="transition-delay:.07s">
-    <div class="text-3xl mb-2">🔴</div>
-    <div class="font-grotesk font-black text-slate-900 text-base mb-1">Live Centre <span class="text-[10px] bg-rose-500 text-white px-2 py-0.5 rounded-full align-middle font-bold">NEW</span></div>
-    <p class="text-xs text-slate-500 mb-2 leading-relaxed" data-i18n="c.live.d">Real WADA/NADA headlines + 2026 rule changes.</p>
-    <div class="text-indigo-600 font-semibold text-[11px]" data-i18n="c.go">Stay updated →</div>
-  </a>
-  <a href="/dope-nope" class="block bg-white border border-slate-200 rounded-2xl p-5 card-hover shadow-sm" style="transition-delay:.10s">
-    <div class="text-3xl mb-2">⚡</div>
-    <div class="font-grotesk font-black text-slate-900 text-base mb-1">Dope or Nope</div>
-    <p class="text-xs text-slate-500 mb-2 leading-relaxed" data-i18n="c.dn.d">Myth-busting true/false. 15 rounds!</p>
-    <div class="text-indigo-600 font-semibold text-[11px]">+75 <span data-i18n="c.xp">XP possible →</span></div>
-  </a>
-  <a href="/memory" class="block bg-white border border-slate-200 rounded-2xl p-5 card-hover shadow-sm" style="transition-delay:.13s">
-    <div class="text-3xl mb-2">🧠</div>
-    <div class="font-grotesk font-black text-slate-900 text-base mb-1">Memory Match</div>
-    <p class="text-xs text-slate-500 mb-2 leading-relaxed" data-i18n="c.mem.d">Match banned substances with category.</p>
-    <div class="text-indigo-600 font-semibold text-[11px]">+60 <span data-i18n="c.xp">XP possible →</span></div>
-  </a>
-  <a href="/story" class="block bg-white border border-rose-100 rounded-2xl p-5 card-hover shadow-sm" style="transition-delay:.17s">
+  <a href="/story" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover shadow-lg rose-hover" style="transition-delay:.07s">
     <div class="text-3xl mb-2">🔥</div>
-    <div class="font-grotesk font-black text-slate-900 text-base mb-1">Road to Gold <span class="text-[10px] bg-rose-500 text-white px-2 py-0.5 rounded-full align-middle font-bold">UNIQUE</span></div>
-    <p class="text-xs text-slate-500 mb-2 leading-relaxed" data-i18n="c.story.d">5-chapter career story. Your choice = ban or gold.</p>
-    <div class="text-rose-600 font-semibold text-[11px]">+100 <span data-i18n="c.xp">XP possible →</span></div>
+    <div class="font-grotesk font-bold text-white text-base mb-1">Road to Gold</div>
+    <p class="text-xs text-slate-400 mb-2 leading-relaxed">5-chapter career story. Your choice = ban or gold.</p>
+    <div class="text-rose-400 font-semibold text-[11px]">+100 XP possible →</div>
   </a>
-  <a href="/checker" class="block bg-white border border-slate-200 rounded-2xl p-5 card-hover shadow-sm" style="transition-delay:.20s">
+  <a href="/dope-nope" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover shadow-lg" style="transition-delay:.10s">
+    <div class="text-3xl mb-2">⚡</div>
+    <div class="font-grotesk font-bold text-white text-base mb-1">Dope or Nope</div>
+    <p class="text-xs text-slate-400 mb-2 leading-relaxed">Myth-busting true/false. 15 rounds!</p>
+    <div class="text-amber-400 font-semibold text-[11px]">+75 XP possible →</div>
+  </a>
+  <a href="/memory" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover shadow-lg" style="transition-delay:.13s">
+    <div class="text-3xl mb-2">🧠</div>
+    <div class="font-grotesk font-bold text-white text-base mb-1">Memory Match</div>
+    <p class="text-xs text-slate-400 mb-2 leading-relaxed">Match banned substances with category.</p>
+    <div class="text-emerald-400 font-semibold text-[11px]">+60 XP possible →</div>
+  </a>
+  <a href="/checker" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover shadow-lg" style="transition-delay:.17s">
     <div class="text-3xl mb-2">🔍</div>
-    <div class="font-grotesk font-black text-slate-900 text-base mb-1">Substance Checker</div>
-    <p class="text-xs text-slate-500 mb-2 leading-relaxed" data-i18n="c.check.d">Search medicines & supplements + Global DRO.</p>
-    <div class="text-indigo-600 font-semibold text-[11px]" data-i18n="c.check.go">Instant result →</div>
+    <div class="font-grotesk font-bold text-white text-base mb-1">Substance Checker</div>
+    <p class="text-xs text-slate-400 mb-2 leading-relaxed">Search medicines + Global DRO lookup.</p>
+    <div class="text-indigo-400 font-semibold text-[11px]">Instant result →</div>
+  </a>
+  <a href="/scanner" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover shadow-lg" style="transition-delay:.20s">
+    <div class="text-3xl mb-2">📷</div>
+    <div class="font-grotesk font-bold text-white text-base mb-1">Camera Scanner</div>
+    <p class="text-xs text-slate-400 mb-2 leading-relaxed">Scan supplement bottles (simulated).</p>
+    <div class="text-indigo-400 font-semibold text-[11px]">Check banned/allowed →</div>
   </a>
 </div>
 
 <!-- LEARNING JOURNEY -->
-<section class="glass rounded-3xl p-6 md:p-8 shadow-sm mb-8 reveal">
-  <h2 class="font-grotesk font-black text-lg md:text-xl text-slate-900 mb-4" data-i18n="j.title">🗺️ Your Learning Journey</h2>
-  <p class="text-slate-500 text-sm mb-6" data-i18n="j.sub">Follow in order — each step teaches the next. Finish = ~400 XP + Certificate!</p>
+<section class="bg-[#1e293b] border border-white/10 rounded-3xl p-6 md:p-8 shadow-xl mb-8 reveal">
+  <h2 class="font-grotesk font-bold text-lg md:text-xl text-white mb-4">🗺️ Your Learning Journey</h2>
+  <p class="text-slate-400 text-sm mb-6">Follow in order — each step teaches the next. Finish = ~400 XP + Certificate!</p>
   <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-    <a href="/live" class="block bg-slate-50 border border-slate-200 rounded-xl p-3 card-hover">
-      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-600 text-[10px]">01</span><span class="text-xl">🔴</span></div>
-      <div class="font-bold text-slate-800 text-[12px]" data-i18n="j1t">Live Centre</div>
-      <div class="text-slate-400 text-[11px] mt-1" data-i18n="j1d">See real 2026 banned rules first.</div>
+    <a href="/live" class="block bg-[#1e293b]/50 border border-white/10 rounded-xl p-3 card-hover">
+      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-400 text-[10px]">01</span><span class="text-xl">🔴</span></div>
+      <div class="font-bold text-slate-200 text-[12px]">Live Centre</div>
+      <div class="text-slate-400 text-[11px] mt-1">See real 2026 banned rules first.</div>
     </a>
-    <a href="/learn" class="block bg-slate-50 border border-slate-200 rounded-xl p-3 card-hover">
-      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-600 text-[10px]">02</span><span class="text-xl">📚</span></div>
-      <div class="font-bold text-slate-800 text-[12px]" data-i18n="j2t">Learn Lab</div>
-      <div class="text-slate-400 text-[11px] mt-1" data-i18n="j2d">6 modules, 5 min each. +60 XP</div>
+    <a href="/learn" class="block bg-[#1e293b]/50 border border-white/10 rounded-xl p-3 card-hover">
+      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-400 text-[10px]">02</span><span class="text-xl">📚</span></div>
+      <div class="font-bold text-slate-200 text-[12px]">Learn Lab</div>
+      <div class="text-slate-400 text-[11px] mt-1">6 modules, 5 min each. +60 XP</div>
     </a>
-    <a href="/quiz" class="block bg-slate-50 border border-slate-200 rounded-xl p-3 card-hover">
-      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-600 text-[10px]">03</span><span class="text-xl">🎯</span></div>
-      <div class="font-bold text-slate-800 text-[12px]" data-i18n="j3t">Quiz Quest</div>
-      <div class="text-slate-400 text-[11px] mt-1" data-i18n="j3d">15 questions vs Dopu. +100 XP</div>
+    <a href="/quiz" class="block bg-[#1e293b]/50 border border-white/10 rounded-xl p-3 card-hover">
+      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-400 text-[10px]">03</span><span class="text-xl">🎯</span></div>
+      <div class="font-bold text-slate-200 text-[12px]">Quiz Quest</div>
+      <div class="text-slate-400 text-[11px] mt-1">15 questions vs Dopu. +100 XP</div>
     </a>
-    <a href="/dope-nope" class="block bg-slate-50 border border-slate-200 rounded-xl p-3 card-hover">
-      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-600 text-[10px]">04</span><span class="text-xl">⚡</span></div>
-      <div class="font-bold text-slate-800 text-[12px]" data-i18n="j4t">Dope or Nope</div>
-      <div class="text-slate-400 text-[11px] mt-1" data-i18n="j4d">Myth-busting round. +75 XP</div>
+    <a href="/dope-nope" class="block bg-[#1e293b]/50 border border-white/10 rounded-xl p-3 card-hover">
+      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-400 text-[10px]">04</span><span class="text-xl">⚡</span></div>
+      <div class="font-bold text-slate-200 text-[12px]">Dope or Nope</div>
+      <div class="text-slate-400 text-[11px] mt-1">Myth-busting round. +75 XP</div>
     </a>
-    <a href="/memory" class="block bg-slate-50 border border-slate-200 rounded-xl p-3 card-hover">
-      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-600 text-[10px]">05</span><span class="text-xl">🧠</span></div>
-      <div class="font-bold text-slate-800 text-[12px]" data-i18n="j5t">Memory Match</div>
-      <div class="text-slate-400 text-[11px] mt-1" data-i18n="j5d">Lock categories into memory. +60 XP</div>
+    <a href="/memory" class="block bg-[#1e293b]/50 border border-white/10 rounded-xl p-3 card-hover">
+      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-400 text-[10px]">05</span><span class="text-xl">🧠</span></div>
+      <div class="font-bold text-slate-200 text-[12px]">Memory Match</div>
+      <div class="text-slate-400 text-[11px] mt-1">Lock categories into memory. +60 XP</div>
     </a>
-    <a href="/story" class="block bg-slate-50 border border-slate-200 rounded-xl p-3 card-hover">
-      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-600 text-[10px]">06</span><span class="text-xl">🔥</span></div>
-      <div class="font-bold text-slate-800 text-[12px]" data-i18n="j6t">Road to Gold</div>
-      <div class="text-slate-400 text-[11px] mt-1" data-i18n="j6d">Live an athlete's career. +100 XP</div>
+    <a href="/story" class="block bg-[#1e293b]/50 border border-white/10 rounded-xl p-3 card-hover">
+      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-400 text-[10px]">06</span><span class="text-xl">🔥</span></div>
+      <div class="font-bold text-slate-200 text-[12px]">Road to Gold</div>
+      <div class="text-slate-400 text-[11px] mt-1">Live an athlete's career. +100 XP</div>
     </a>
-    <a href="/champion" class="block bg-amber-50 border border-amber-200 rounded-xl p-3 card-hover">
-      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-600 text-[10px]">07</span><span class="text-xl">🏆</span></div>
-      <div class="font-bold text-slate-800 text-[12px]" data-i18n="j7t">Champion Show</div>
-      <div class="text-slate-400 text-[11px] mt-1" data-i18n="j7d">Grand finale show. +20,000 FPP!</div>
+    <a href="/certification-exam" class="block bg-indigo-900/30 border border-indigo-500/30 rounded-xl p-3 card-hover">
+      <div class="flex items-center gap-1.5 mb-1"><span class="font-grotesk font-black text-indigo-400 text-[10px]">07</span><span class="text-xl">📜</span></div>
+      <div class="font-bold text-slate-200 text-[12px]">Certification Exam</div>
+      <div class="text-slate-400 text-[11px] mt-1">Get certified + Certificate</div>
     </a>
   </div>
-  <div class="mt-4 text-center text-sm font-bold text-amber-700" data-i18n="j.end">🏅 100+ XP = Certificate unlocked — show it to the jury!</div>
+  <div class="mt-4 text-center text-sm font-bold text-amber-400">🏅 100+ XP = Certificate unlocked — show it to the jury!</div>
+</section>
+
+<!-- PROFESSIONAL FEATURES -->
+<section class="mb-8">
+  <h2 class="font-grotesk font-bold text-lg md:text-xl text-white mb-4">🏆 Professional Anti-Doping Tools</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <a href="/chatbot" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover">
+      <div class="text-3xl mb-2">💬</div>
+      <div class="font-grotesk font-bold text-white text-sm mb-1">DopeGuard AI Coach</div>
+      <div class="text-xs text-slate-400">Ask anti-doping questions</div>
+    </a>
+    <a href="/report-doping" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover">
+      <div class="text-3xl mb-2">🚨</div>
+      <div class="font-grotesk font-bold text-white text-sm mb-1">Report Doping</div>
+      <div class="text-xs text-slate-400">Anonymous whistleblowing</div>
+    </a>
+    <a href="/tue-application" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover">
+      <div class="text-3xl mb-2">💊</div>
+      <div class="font-grotesk font-bold text-white text-sm mb-1">TUE Application</div>
+      <div class="text-xs text-slate-400">Therapeutic Use Exemption</div>
+    </a>
+    <a href="/whereabouts" class="block bg-[#1e293b] border border-white/10 rounded-2xl p-5 card-hover">
+      <div class="text-3xl mb-2">📍</div>
+      <div class="font-grotesk font-bold text-white text-sm mb-1">Whereabouts</div>
+      <div class="text-xs text-slate-400">RTP testing slot tracker</div>
+    </a>
+  </div>
 </section>
 
 <!-- WHY DIFFERENT -->
-<section class="glass rounded-3xl p-6 md:p-8 shadow-sm mb-8">
-  <h2 class="font-grotesk font-black text-lg md:text-xl text-slate-900 mb-4" data-i18n="h.why">✨ Why This Project Is Different</h2>
+<section class="bg-[#1e293b] border border-white/10 rounded-3xl p-6 md:p-8 shadow-xl">
+  <h2 class="font-grotesk font-bold text-lg md:text-xl text-white mb-4">✨ Why This Project Is Different</h2>
   <div class="grid md:grid-cols-3 gap-3 text-sm">
-    <div class="bg-indigo-50 rounded-xl p-3">
-      <div class="text-indigo-700 font-bold text-xs mb-1">🔴 <span data-i18n="w.live.t">Live Updates Centre</span></div>
-      <div class="text-slate-500 text-xs" data-i18n="w.live.d">Real WADA/NADA headlines auto-refresh — no static PDFs.</div>
+    <div class="p-3 rounded-xl bg-indigo-900/20 border border-indigo-500/30">
+      <div class="text-indigo-400 font-bold text-xs mb-1">🔴 Live Updates Centre</div>
+      <div class="text-slate-400 text-xs">Real WADA/NADA headlines auto-refresh — no static PDFs.</div>
     </div>
-    <div class="bg-emerald-50 rounded-xl p-3">
-      <div class="text-emerald-700 font-bold text-xs mb-1">🎭 <span data-i18n="w.story.t">Story Mode career</span></div>
-      <div class="text-slate-500 text-xs" data-i18n="w.story.d">Choice-based Road to Gold with Clean Score.</div>
+    <div class="p-3 rounded-xl bg-emerald-900/20 border border-emerald-500/30">
+      <div class="text-emerald-400 font-bold text-xs mb-1">🎭 Story Mode Career</div>
+      <div class="text-slate-400 text-xs">Choice-based Road to Gold with Clean Score.</div>
     </div>
-    <div class="bg-amber-50 rounded-xl p-3">
-      <div class="text-amber-700 font-bold text-xs mb-1">🏅 <span data-i18n="w.cert.t">Printable certificate</span></div>
-      <div class="text-slate-500 text-xs" data-i18n="w.cert.d">100+ XP → Fair Play Oath certificate.</div>
+    <div class="p-3 rounded-xl bg-amber-900/20 border border-amber-500/30">
+      <div class="text-amber-400 font-bold text-xs mb-1">🏅 Printable Certificate</div>
+      <div class="text-slate-400 text-xs">100+ XP → Fair Play Oath certificate.</div>
+    </div>
+    <div class="p-3 rounded-xl bg-rose-900/20 border border-rose-500/30">
+      <div class="text-rose-400 font-bold text-xs mb-1">📊 Athlete Profile</div>
+      <div class="text-slate-400 text-xs">Track XP, levels, games & progress.</div>
+    </div>
+    <div class="p-3 rounded-xl bg-indigo-900/20 border border-indigo-500/30">
+      <div class="text-indigo-400 font-bold text-xs mb-1">📜 Certification Exam</div>
+      <div class="text-slate-400 text-xs">Pass the exam → get certified.</div>
+    </div>
+    <div class="p-3 rounded-xl bg-emerald-900/20 border border-emerald-500/30">
+      <div class="text-emerald-400 font-bold text-xs mb-1">🚨 Whistleblower Portal</div>
+      <div class="text-slate-400 text-xs">Anonymous doping reports to NADA.</div>
     </div>
   </div>
 </section>

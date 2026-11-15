@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}DopeGuard AI Coach{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+ <div class="glass-card mb-6">
+  <div class="flex items-center gap-3 mb-4">
+   <span class="text-3xl">🛡️</span>
+   <div>
+    <h1 class="font-grotesk font-bold text-lg text-white mb-0.5">DopeGuard AI Coach</h1>
+    <p class="text-xs text-slate-400">Ask me anything about WADA rules, TUE, testing, supplements & bans</p>
+   </div>
+  </div>
+
+  <!-- CHAT WINDOW -->
+  <div class="chat-container">
+   <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">
+     <strong>DopeGuard:</strong> Hello! I'm your anti-doping coach. Ask me about:<br>
+     • WADA Code & Prohibited List<br>
+     • TUE (Therapeutic Use Exemption)<br>
+     • Doping control process<br>
+     • Supplement safety & contamination<br>
+     • Ban durations & whereabouts rules
+    </div>
+   </div>
+   <div class="chat-input">
+    <input type="text" id="chatInput" placeholder="Ask DopeGuard..." onkeypress="if(event.key==='Enter')sendMessage()">
+    <button onclick="sendMessage()">Send</button>
+   </div>
+  </div>
+
+  <!-- QUICK QUESTIONS -->
+  <div class="flex flex-wrap gap-2 mt-4">
+   <button onclick="askQuick('WADA rules')" class="btn-ghost text-xs">WADA Rules</button>
+   <button onclick="askQuick('TUE')" class="btn-ghost text-xs">TUE Process</button>
+   <button onclick="askQuick('supplement')" class="btn-ghost text-xs">Supplements</button>
+   <button onclick="askQuick('ban')" class="btn-ghost text-xs">Ban Duration</button>
+   <button onclick="askQuick('whereabouts')" class="btn-ghost text-xs">Whereabouts</button>
+   <button onclick="askQuick('testing')" class="btn-ghost text-xs">Testing Process</button>
+  </div>
+ </div>
+</div>
+{% block scripts %}
+<script>
+function sendMessage(){
+ const input=document.getElementById('chatInput');const msg=input.value.trim();if(!msg)return;
+ addMsg('user',msg);input.value='';
+ fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
+ .then(r=>r.json()).then(data=>{addMsg('bot',data.reply)});
+}
+function addMsg(type,text){
+ const m=document.createElement('div');m.className='chat-msg '+type;
+ m.innerHTML=(type==='user'?'<strong>You:</strong> ':'<strong>DopeGuard:</strong> ')+text;
+ document.getElementById('chatMessages').appendChild(m);m.scrollIntoView();
+}
+function askQuick(q){document.getElementById('chatInput').value=q;sendMessage()}
+// Auto-focus
+document.getElementById('chatInput').focus();
+</script>
+{% endblock %}
+{% endblock %}

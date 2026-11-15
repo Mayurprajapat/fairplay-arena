@@ -1,18 +1,24 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 import sqlite3, os, json, time, urllib.request, urllib.parse, xml.etree.ElementTree as ET
+import uuid, datetime
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "fairplay-arena-secret-key-2026")
+
 # Vercel serverless has read-only disk except /tmp -> use /tmp there, local file otherwise
 ON_VERCEL = bool(os.environ.get("VERCEL"))
 _BASE = "/tmp" if ON_VERCEL else os.path.dirname(__file__)
 DB = os.path.join(_BASE, "fairplay.db")
 LIVE_CACHE = os.path.join(_BASE, "live_cache.json")
 _MEM_SCORES = []  # in-memory fallback if disk writes fail (serverless)
+_MEM_REPORTS = []
+_MEM_TUE = []
+_MEM_WHEREABOUTS = []
 
 # ---------------- LIVE NEWS (real-time with cache) ----------------
 CURATED_NEWS = [
  {"title":"WADA's 2026 Prohibited List now in force (from 1 Jan 2026)","src":"WADA Official","date":"2026-01-01","url":"https://www.wada-ama.org/en/news/wadas-2026-prohibited-list-now-force","tag":"WADA LIST"},
- {"title":"WADA publishes 2027 Prohibited List (in force 1 Jan 2027)","src":"WADA Official","date":"2026-09-21","url":"https://www.wada-ama.org/en/news/wada-publishes-2027-prohibited-list","tag":"WADA LIST"},
+ {"title":"WADA publishes 2027 Prohibited List (in force 1 Jan 2027)","src":"WADA Official","date":"2026-09-21","url":"https://www.wada-ama.org/en/news/wadas-2027-prohibited-list","tag":"WADA LIST"},
  {"title":"2026 key change: non-diagnostic carbon-monoxide use banned (M1.4)","src":"WADA 2026 Summary","date":"2026-01-01","url":"https://www.wada-ama.org/en/news/wadas-2026-prohibited-list-now-force","tag":"RULE CHANGE"},
  {"title":"GAIIN anti-doping intelligence conference hosted by NADA, New Delhi","src":"NADA India","date":"2026-04-16","url":"https://nadaindia.yas.gov.in/news-2","tag":"NADA INDIA"},
  {"title":"NADA launches Fair Play Guide in ten regional languages","src":"NADA India","date":"2025-04-16","url":"https://nadaindia.yas.gov.in/news-2","tag":"NADA INDIA"},
@@ -20,7 +26,7 @@ CURATED_NEWS = [
 ]
 
 def fetch_live_rss():
-    """Try Google News RSS (free, no key) for fresh anti-doping headlines. Returns list or []."""
+    """Try Google News RSS (free, no key) for fresh anti-doping headlines."""
     try:
         q = urllib.parse.quote("anti-doping WADA NADA")
         url = f"https://news.google.com/rss/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en"
@@ -64,7 +70,7 @@ LIST_STATUS = {
  "links":{"wada_list":"https://www.wada-ama.org/en/prohibited-list","nada":"https://nadaindia.yas.gov.in/","global_dro":"https://www.globaldro.com/Home","adel":"https://adel.wada-ama.org/"}
 }
 
-# ---------------- DATABASE (Vercel-safe: sqlite file, else memory) ----------------
+# ---------------- DATABASE ----------------
 def init_db():
     try:
         con = sqlite3.connect(DB)
@@ -72,6 +78,22 @@ def init_db():
         cur.execute("""CREATE TABLE IF NOT EXISTS scores(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             player TEXT, game TEXT, xp INTEGER, created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
+        cur.execute("""CREATE TABLE IF NOT EXISTS reports(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            report_id TEXT, sport TEXT, level TEXT, description TEXT, evidence TEXT,
+            anonymous INTEGER, status TEXT DEFAULT 'submitted', created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
+        cur.execute("""CREATE TABLE IF NOT EXISTS tue_apps(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            app_id TEXT, athlete_name TEXT, sport TEXT, medicine TEXT, condition TEXT,
+            doctor TEXT, status TEXT DEFAULT 'pending', created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
+        cur.execute("""CREATE TABLE IF NOT EXISTS whereabouts(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            athlete_name TEXT, date TEXT, slot TEXT, location TEXT, sport TEXT,
+            submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
+        cur.execute("""CREATE TABLE IF NOT EXISTS certifications(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            athlete_name TEXT, score INTEGER, passed INTEGER, cert_id TEXT,
+            created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
         con.commit(); con.close()
     except Exception:
         pass  # read-only FS -> memory fallback
@@ -168,25 +190,39 @@ DOPE_NOPE = [
 
 STORY = [
  {"chapter":"District Trials","hchapter":"जिला ट्रायल्स","text":"You are 17-year-old sprinter Aarav. Coach says 'beta, ye injection le lo, selection pakka'. Teammate offers an unknown powder for instant energy. What do you do?","htext":"तुम 17 साल के धावक आरव हो। कोच कहता है 'बेटा, ये इंजेक्शन ले लो, सिलेक्शन पक्का'। साथी तुरंत एनर्जी के लिए अनजान पाउडर देता है। क्या करोगे?","choices":[
-   {"t":"Refuse & ask what's inside + report to NADA","ht":"इनकार करो, पूछो अंदर क्या है + NADA को बताओ","score":20,"fb":"Brave! You protected your career. +20 Clean Score","hfb":"बहादुर! तुमने करियर बचाया। +20 क्लीन स्कोर"},
-   {"t":"Take it once, 'ek baar se kya hoga'","ht":"एक बार ले लो, 'एक बार से क्या होगा'","score":-20,"fb":"Risky! One dose can fail a test for months. -20","hfb":"खतरनाक! एक खुराक महीनों तक टेस्ट फेल करा सकती है। -20"},
-   {"t":"Ask parents + doctor first","ht":"पहले माता-पिता + डॉक्टर से पूछो","score":10,"fb":"Smart pause. Trusted advice matters. +10","hfb":"समझदारी भरा ठहराव। भरोसेमंद सलाह जरूरी। +10"}]},
+    {"t":"Refuse & ask what's inside + report to NADA","ht":"इनकार करो, पूछो अंदर क्या है + NADA को बताओ","score":20,"fb":"Brave! You protected your career. +20 Clean Score","hfb":"बहादुर! तुमने करियर बचाया। +20 क्लीन स्कोर"},
+    {"t":"Take it once, 'ek baar se kya hoga'","ht":"एक बार ले लो, 'एक बार से क्या होगा'","score":-20,"fb":"Risky! One dose can fail a test for months. -20","hfb":"खतरनाक! एक खुराक महीनों तक टेस्ट फेल करा सकती है। -20"},
+    {"t":"Ask parents + doctor first","ht":"पहले माता-पिता + डॉक्टर से पूछो","score":10,"fb":"Smart pause. Trusted advice matters. +10","hfb":"समझदारी भरा ठहराव। भरोसेमंद सलाह जरूरी। +10"}]},
  {"chapter":"National Camp","hchapter":"राष्ट्रीय शिविर","text":"You have asthma. Big final in 3 days. Doctor prescribes an inhaler that is on the banned list above certain dose. What now?","htext":"तुम्हें दमा है। 3 दिन में बड़ा फाइनल। डॉक्टर ने इनहेलर लिखा जो एक खुराक से ऊपर प्रतिबंधित सूची में है। अब क्या?","choices":[
-   {"t":"Apply for TUE + check Global DRO with doctor","ht":"TUE आवेदन करो + डॉक्टर से Global DRO चेक कराओ","score":20,"fb":"Perfect process! TUE protects you. +20","hfb":"एकदम सही प्रक्रिया! TUE तुम्हें बचाएगा। +20"},
-   {"t":"Use secretly, nobody will know","ht":"चुपके से ले लो, किसी को पता नहीं चलेगा","score":-20,"fb":"Secret use = violation if tested. -20","hfb":"छिपा उपयोग = टेस्ट में उल्लंघन। -20"},
-   {"t":"Skip medicine & suffer in silence","ht":"दवा छोड़ दो और चुपचाप सहो","score":-10,"fb":"Health first! Never skip care — ask for TUE. -10","hfb":"सेहत पहले! इलाज मत छोड़ो — TUE माँगो। -10"}]},
+    {"t":"Apply for TUE + check Global DRO with doctor","ht":"TUE आवेदन करो + डॉक्टर से Global DRO चेक कराओ","score":20,"fb":"Perfect process! TUE protects you. +20","hfb":"एकदम सही प्रक्रिया! TUE तुम्हें बचाएगा। +20"},
+    {"t":"Use secretly, nobody will know","ht":"चुपके से ले लो, किसी को पता नहीं चलेगा","score":-20,"fb":"Secret use = violation if tested. -20","hfb":"छिपा उपयोग = टेस्ट में उल्लंघन। -20"},
+    {"t":"Skip medicine & suffer in silence","ht":"दवा छोड़ दो और चुपचाप सहो","score":-10,"fb":"Health first! Never skip care — ask for TUE. -10","hfb":"सेहत पहले! इलाज मत छोड़ो — TUE माँगो। -10"}]},
  {"chapter":"Sponsor Offer","hchapter":"स्पॉन्सर ऑफर","text":"A supplement brand offers ₹50,000 to promote 'SuperBulk Powder' with no lab certificate. Teammates use it. Your move?","htext":"एक सप्लीमेंट ब्रांड बिना लैब सर्टिफिकेट वाले 'सुपरबल्क पाउडर' के प्रचार के लिए ₹50,000 देता है। साथी इसे लेते हैं। तुम्हारी चाल?","choices":[
-   {"t":"Demand batch-test certificate, refuse till then","ht":"बैच-टेस्ट सर्टिफिकेट माँगो, तब तक इनकार","score":20,"fb":"Pro move! No certificate = no deal. +20","hfb":"प्रो चाल! सर्टिफिकेट नहीं = डील नहीं। +20"},
-   {"t":"Promote it, money + fame!","ht":"प्रचार करो, पैसा + शोहरत!","score":-20,"fb":"Contaminated product could end your career. -20","hfb":"मिलावटी उत्पाद करियर खत्म कर सकता है। -20"},
-   {"t":"Take free supply but don't promote","ht":"मुफ्त सप्लाई लो पर प्रचार मत करो","score":-10,"fb":"Still risky — contamination doesn't care about money. -10","hfb":"फिर भी खतरनाक — मिलावट पैसे नहीं देखती। -10"}]},
+    {"t":"Demand batch-test certificate, refuse till then","ht":"बैच-टेस्ट सर्टिफिकेट माँगो, तब तक इनकार","score":20,"fb":"Pro move! No certificate = no deal. +20","hfb":"प्रो चाल! सर्टिफिकेट नहीं = डील नहीं। +20"},
+    {"t":"Promote it, money + fame!","ht":"प्रचार करो, पैसा + शोहरत!","score":-20,"fb":"Contaminated product could end your career. -20","hfb":"मिलावटी उत्पाद करियर खत्म कर सकता है। -20"},
+    {"t":"Take free supply but don't promote","ht":"मुफ्त सप्लाई लो पर प्रचार मत करो","score":-10,"fb":"Still risky — contamination doesn't care about money. -10","hfb":"फिर भी खतरनाक — मिलावट पैसे नहीं देखती। -10"}]},
  {"chapter":"Surprise Test","hchapter":"अचानक टेस्ट","text":"6 AM knock — Doping Control Officer at your hostel. You drank 2L water, feeling nervous. Officer asks for sample. You…","htext":"सुबह 6 बजे दस्तक — हॉस्टल में डोपिंग नियंत्रण अधिकारी। तुम 2 लीटर पानी पी चुके, घबराहट है। अधिकारी नमूना माँगता है। तुम…","choices":[
-   {"t":"Cooperate, show ID, give sample, note medicines","ht":"सहयोग करो, ID दिखाओ, नमूना दो, दवाएँ लिखो","score":20,"fb":"Champion behaviour! Rights + duties both done. +20","hfb":"चैंपियन जैसा व्यवहार! अधिकार + कर्तव्य दोनों। +20"},
-   {"t":"Say 'I'm sleeping, come tomorrow'","ht":"कहो 'सो रहा हूँ, कल आना'","score":-20,"fb":"Refusal/evasion = violation. -20","hfb":"इनकार/बचना = उल्लंघन। -20"},
-   {"t":"Add water to sample to dilute","ht":"नमूने में पानी मिलाकर पतला करो","score":-20,"fb":"Tampering = 4-year ban. Never! -20","hfb":"छेड़छाड़ = 4 साल बैन। कभी नहीं! -20"}]},
+    {"t":"Cooperate, show ID, give sample, note medicines","ht":"सहयोग करो, ID दिखाओ, नमूना दो, दवाएँ लिखो","score":20,"fb":"Champion behaviour! Rights + duties both done. +20","hfb":"चैंपियन जैसा व्यवहार! अधिकार + कर्तव्य दोनों। +20"},
+    {"t":"Say 'I'm sleeping, come tomorrow'","ht":"कहो 'सो रहा हूँ, कल आना'","score":-20,"fb":"Refusal/evasion = violation. -20","hfb":"इनकार/बचना = उल्लंघन। -20"},
+    {"t":"Add water to sample to dilute","ht":"नमूने में पानी मिलाकर पतला करो","score":-20,"fb":"Tampering = 4-year ban. Never! -20","hfb":"छेड़छाड़ = 4 साल बैन। कभी नहीं! -20"}]},
  {"chapter":"The Final","hchapter":"फाइनल","text":"Gold-medal race! Rival whispers 'everyone dopes, you can't win clean'. Crowd roars. Last decision…","htext":"गोल्ड मेडल रेस! प्रतिद्वंद्वी फुसफुसाता है 'सब डोप करते हैं, साफ खेलकर नहीं जीत सकते'। भीड़ गरजती है। आखिरी फैसला…","choices":[
-   {"t":"Run clean, trust training + chant Fair Play Oath","ht":"साफ दौड़ो, मेहनत पर भरोसा + फेयर प्ले शपथ","score":20,"fb":"LEGEND! Clean gold shines forever. +20 — Certificate unlocked!","hfb":"लीजेंड! साफ सोना हमेशा चमकता है। +20 — प्रमाणपत्र अनलॉक!"},
-   {"t":"Take rival's 'energy pill' in washroom","ht":"वॉशरूम में प्रतिद्वंद्वी की 'एनर्जी गोली' लो","score":-30,"fb":"One pill destroyed years of training. Career over. -30","hfb":"एक गोली ने सालों की मेहनत मिटाई। करियर खत्म। -30"},
-   {"t":"Report rival's tip to officials after race","ht":"रेस के बाद प्रतिद्वंद्वी की बात अधिकारियों को बताओ","score":15,"fb":"Clean + courageous citizen of sport. +15","hfb":"खेल के साफ व साहसी नागरिक। +15"}]},
+    {"t":"Run clean, trust training + chant Fair Play Oath","ht":"साफ दौड़ो, मेहनत पर भरोसा + फेयर प्ले शपथ","score":20,"fb":"LEGEND! Clean gold shines forever. +20 — Certificate unlocked!","hfb":"लीजेंड! साफ सोना हमेशा चमकता है। +20 — प्रमाणपत्र अनलॉक!"},
+    {"t":"Take rival's 'energy pill' in washroom","ht":"वॉशरूम में प्रतिद्वंद्वी की 'एनर्जी गोली' लो","score":-30,"fb":"One pill destroyed years of training. Career over. -30","hfb":"एक गोली ने सालों की मेहनत मिटाई। करियर खत्म। -30"},
+    {"t":"Report rival's tip to officials after race","ht":"रेस के बाद प्रतिद्वंद्वी की बात अधिकारियों को बताओ","score":15,"fb":"Clean + courageous citizen of sport. +15","hfb":"खेल के साफ व साहसी नागरिक। +15"}]},
+]
+
+# Certification Exam Questions (professional exam)
+CERT_EXAM = [
+ {"q":"Which article of WADA Code covers refusal to submit to sample collection?","options":["Article 2.3","Article 2.1","Article 2.5","Article 3.1"],"answer":0},
+ {"q":"What is the standard sanction for an intentional Anti-Doping Rule Violation?","options":["2 years","4 years","1 year","6 months"],"answer":1},
+ {"q":"What does 'Strict Liability' mean in anti-doping?","options":["Athlete is responsible for whatever is in their body","Only coaches are responsible","Doctors are responsible","No one is responsible"],"answer":0},
+ {"q":"How long must a Registered Testing Pool athlete provide whereabouts information?","options":["1 hour daily","24 hours daily","Only on competition days","Once per month"],"answer":0},
+ {"q":"Which substance class includes EPO and hGH?","options":["S1","S2","S5","S8"],"answer":1},
+ {"q":"Can an athlete request B-sample analysis if A-sample is adverse?","options":["Yes","No","Only for blood samples","Only with coach permission"],"answer":0},
+ {"q":"What is the maximum ban for a second intentional ADRV?","options":["4 years","8 years","Lifetime","10 years"],"answer":2},
+ {"q":"Which of these is NOT a Prohibited Method?","options":["Blood doping","Gene doping","Tampering","Caffeine use"],"answer":3},
+ {"q":"TUE applications must be submitted to whom?","options":["NADA or International Federation","WADA directly","Local gym","Friends"],"answer":0},
+ {"q":"Which class includes Beta-blockers banned in precision sports?","options":["S6","P1","M1","S9"],"answer":1},
 ]
 
 # ---------------- ROUTES ----------------
@@ -211,11 +247,41 @@ def story(): return render_template("story.html")
 @app.route("/checker")
 def checker(): return render_template("checker.html")
 
+@app.route("/scanner")
+def scanner(): return render_template("scanner.html")
+
+@app.route("/badges")
+def badges(): return render_template("badges.html")
+
 @app.route("/dashboard")
 def dashboard(): return render_template("dashboard.html", leaders=top_players())
 
+@app.route("/athlete-profile")
+def athlete_profile():
+    name = request.args.get("name", session.get("athlete_name", "Guest"))
+    session["athlete_name"] = name
+    # Get user stats
+    try:
+        con = sqlite3.connect(DB)
+        cur = con.cursor()
+        cur.execute("SELECT COUNT(*), SUM(xp), MAX(created) FROM scores WHERE player=?", (name,))
+        row = cur.fetchone()
+        total_games = row[0] or 0
+        total_xp = row[1] or 0
+        last_played = row[2] or "Never"
+        cur.execute("SELECT game, SUM(xp) FROM scores WHERE player=? GROUP BY game ORDER BY SUM(xp) DESC LIMIT 5", (name,))
+        game_stats = [{"game": r[0], "xp": r[1]} for r in cur.fetchall()]
+        con.close()
+    except Exception:
+        total_games, total_xp, last_played = 0, 0, "Never"
+        game_stats = []
+    return render_template("athlete_profile.html", name=name, total_games=total_games, total_xp=total_xp, last_played=last_played, game_stats=game_stats)
+
 @app.route("/certificate")
 def certificate(): return render_template("certificate.html")
+
+@app.route("/certification-exam")
+def certification_exam(): return render_template("certification_exam.html")
 
 @app.route("/live")
 def live(): return render_template("live.html")
@@ -223,7 +289,21 @@ def live(): return render_template("live.html")
 @app.route("/champion")
 def champion(): return render_template("champion.html")
 
-# ---------------- LIVE APIs ----------------
+# ---- NEW PROFESSIONAL FEATURES ----
+
+@app.route("/chatbot")
+def chatbot(): return render_template("chatbot.html")
+
+@app.route("/report-doping")
+def report_doping(): return render_template("report_doping.html")
+
+@app.route("/tue-application")
+def tue_application(): return render_template("tue_application.html")
+
+@app.route("/whereabouts")
+def whereabouts(): return render_template("whereabouts.html")
+
+# ---- API ENDPOINTS ----
 @app.route("/api/live-news")
 def api_live():
     items, is_live, updated = get_live_news()
@@ -232,7 +312,6 @@ def api_live():
 @app.route("/api/list-status")
 def api_list(): return jsonify(LIST_STATUS)
 
-# ---------------- APIs ----------------
 @app.route("/api/questions")
 def api_q(): return jsonify(QUIZ)
 
@@ -241,6 +320,9 @@ def api_dn(): return jsonify(DOPE_NOPE)
 
 @app.route("/api/story")
 def api_story(): return jsonify(STORY)
+
+@app.route("/api/cert-exam")
+def api_cert_exam(): return jsonify(CERT_EXAM)
 
 @app.route("/api/substances")
 def api_sub():
@@ -261,7 +343,7 @@ def api_score():
 @app.route("/api/leaderboard")
 def api_lb(): return jsonify(top_players())
 
-# ---- BADGES & STREAK API (frontend reads localStorage, server can sync) ----
+# ---- BADGES & STREAK ----
 BADGES = [
  {"id":"first","xp":20,"t":"🎯 First Steps","d":"Earn your first 20 XP"},
  {"id":"half","xp":120,"t":"⚡ Challenger","d":"Reach 120 XP — challenger status"},
@@ -270,6 +352,9 @@ BADGES = [
  {"id":"streak3","xp":0,"t":"🔥 3-Day Streak","d":"Played 3 days in a row"},
  {"id":"streak7","xp":0,"t":"⚡ 7-Day Streak","d":"Week-long dedication"},
  {"id":"quiz100","xp":0,"t":"🎯 Quiz Master","d":"Scored 100+ XP in Quiz Quest"},
+ {"id":"certified","xp":0,"t":"📜 Certified","d":"Passed Anti-Doping Certification Exam"},
+ {"id":"reporter","xp":0,"t":"🚨 Whistleblower","d":"Submitted a doping report"},
+ {"id":"tue","xp":0,"t":"💊 TUE Aware","d":"Completed TUE application simulation"},
 ]
 
 @app.route("/api/badges")
@@ -281,13 +366,9 @@ def api_streak():
     streak = int(d.get("streak", 0))
     return jsonify({"ok": True, "streak": streak, "bonus": min(streak * 5, 50)})
 
-# ---- SUPPLEMENT SCANNER (camera-based check) ----
-@app.route("/scanner")
-def scanner(): return render_template("scanner.html")
-
+# ---- SUPPLEMENT SCANNER ----
 @app.route("/api/scan-simulate", methods=["POST"])
 def api_scan_simulate():
-    """Simulate camera scan result — returns a random substance from our DB."""
     import random, time
     sub = random.choice(SUBSTANCES)
     return jsonify({
@@ -296,9 +377,118 @@ def api_scan_simulate():
         "note": "Camera capture simulated analysis. Verify with Global DRO for real products."
     })
 
-# ---- ACHIEVEMENT BADGES PAGE ----
-@app.route("/badges")
-def badges(): return render_template("badges.html")
+# ---- CHATBOT ----
+CHAT_RESPONSES = {
+ "wada": "WADA (World Anti-Doping Agency) is the international body that creates the World Anti-Doping Code and Prohibited List.",
+ "tue": "TUE = Therapeutic Use Exemption. It allows athletes to use a banned medicine for genuine medical reasons with NADA/WADA approval.",
+ "test": "During doping control, you must show ID, give sample under observation, and can request B-sample analysis. Never refuse.",
+ "supplement": "Strict liability applies — you are responsible for everything in your body. Only use batch-tested (Informed-Sport) supplements.",
+ "ban": "First intentional ADRV = up to 4 years ban. Second offence can be lifetime ban.",
+ "whereabouts": "RTP athletes must provide 1-hour daily testing slot. Missing 3 tests = violation.",
+ "hello": "Hello! I'm DopeGuard, your anti-doping coach. Ask me about WADA rules, TUE, testing, supplements, or bans.",
+ "hi": "Hello! I'm DopeGuard, your anti-doping coach. Ask me about WADA rules, TUE, testing, supplements, or bans.",
+ "help": "I can help with: WADA rules, TUE applications, doping control process, supplement safety, ban durations, whereabouts rules.",
+}
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    d = request.json or {}
+    msg = (d.get("message") or "").lower().strip()
+    reply = "I'm not sure about that. Try asking about WADA, TUE, testing, supplements, bans, or whereabouts."
+    for key, val in CHAT_RESPONSES.items():
+        if key in msg:
+            reply = val
+            break
+    return jsonify({"reply": reply, "timestamp": time.strftime("%H:%M")})
+
+# ---- REPORT DOPING ----
+@app.route("/api/report", methods=["POST"])
+def api_report():
+    d = request.json or {}
+    report_id = "FP-" + str(uuid.uuid4())[:8].upper()
+    report = {
+        "report_id": report_id,
+        "sport": d.get("sport",""),
+        "level": d.get("level",""),
+        "description": d.get("description",""),
+        "evidence": d.get("evidence",""),
+        "anonymous": int(d.get("anonymous",1)),
+        "status": "submitted"
+    }
+    try:
+        con = sqlite3.connect(DB)
+        cur = con.cursor()
+        cur.execute("INSERT INTO reports(report_id,sport,level,description,evidence,anonymous,status) VALUES(?,?,?,?,?,?,?)",
+            (report["report_id"], report["sport"], report["level"], report["description"], report["evidence"], report["anonymous"], report["status"]))
+        con.commit(); con.close()
+    except Exception:
+        _MEM_REPORTS.append(report)
+    return jsonify({"ok": True, "report_id": report_id, "message": "Report submitted anonymously. NADA will review it."})
+
+# ---- TUE APPLICATION ----
+@app.route("/api/tue-apply", methods=["POST"])
+def api_tue_apply():
+    d = request.json or {}
+    app_id = "TUE-" + str(uuid.uuid4())[:8].upper()
+    app_data = {
+        "app_id": app_id,
+        "athlete_name": d.get("athlete_name",""),
+        "sport": d.get("sport",""),
+        "medicine": d.get("medicine",""),
+        "condition": d.get("condition",""),
+        "doctor": d.get("doctor",""),
+        "status": "pending"
+    }
+    try:
+        con = sqlite3.connect(DB)
+        cur = con.cursor()
+        cur.execute("INSERT INTO tue_apps(app_id,athlete_name,sport,medicine,condition,doctor,status) VALUES(?,?,?,?,?,?,?)",
+            (app_data["app_id"], app_data["athlete_name"], app_data["sport"], app_data["medicine"], app_data["condition"], app_data["doctor"], app_data["status"]))
+        con.commit(); con.close()
+    except Exception:
+        _MEM_TUE.append(app_data)
+    return jsonify({"ok": True, "app_id": app_id, "message": "TUE application submitted. NADA will review within 21 days."})
+
+# ---- WHEREABOUTS ----
+@app.route("/api/whereabouts", methods=["POST"])
+def api_whereabouts():
+    d = request.json or {}
+    today = datetime.date.today().isoformat()
+    wh = {
+        "athlete_name": d.get("athlete_name",""),
+        "date": d.get("date", today),
+        "slot": d.get("slot",""),
+        "location": d.get("location",""),
+        "sport": d.get("sport","")
+    }
+    try:
+        con = sqlite3.connect(DB)
+        cur = con.cursor()
+        cur.execute("INSERT INTO whereabouts(athlete_name,date,slot,location,sport) VALUES(?,?,?,?,?)",
+            (wh["athlete_name"], wh["date"], wh["slot"], wh["location"], wh["sport"]))
+        con.commit(); con.close()
+    except Exception:
+        _MEM_WHEREABOUTS.append(wh)
+    return jsonify({"ok": True, "message": "Whereabouts submitted for " + wh["date"] + " — " + wh["slot"]})
+
+# ---- CERTIFICATION ----
+@app.route("/api/certify", methods=["POST"])
+def api_certify():
+    d = request.json or {}
+    name = d.get("athlete_name","Guest")
+    score = int(d.get("score",0))
+    passed = 1 if score >= 70 else 0
+    cert_id = "FP-CERT-" + str(uuid.uuid4())[:8].upper()
+    try:
+        con = sqlite3.connect(DB)
+        cur = con.cursor()
+        cur.execute("INSERT INTO certifications(athlete_name,score,passed,cert_id) VALUES(?,?,?,?)",
+            (name, score, passed, cert_id))
+        con.commit(); con.close()
+    except Exception:
+        pass
+    add_score(name, "certification", 100 if passed else 0)
+    return jsonify({"ok": True, "passed": passed, "cert_id": cert_id, "score": score})
 
 if __name__ == "__main__":
     print(" * FairPlay Arena running on http://127.0.0.1:5000")
