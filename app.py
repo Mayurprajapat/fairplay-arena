@@ -281,6 +281,25 @@ def api_streak():
     streak = int(d.get("streak", 0))
     return jsonify({"ok": True, "streak": streak, "bonus": min(streak * 5, 50)})
 
+# ---- SUPPLEMENT SCANNER (camera-based check) ----
+@app.route("/scanner")
+def scanner(): return render_template("scanner.html")
+
+@app.route("/api/scan-simulate", methods=["POST"])
+def api_scan_simulate():
+    """Simulate camera scan result — returns a random substance from our DB."""
+    import random, time
+    sub = random.choice(SUBSTANCES)
+    return jsonify({
+        "substance": sub,
+        "scan_time": time.strftime("%H:%M:%S"),
+        "note": "Camera capture simulated analysis. Verify with Global DRO for real products."
+    })
+
+# ---- ACHIEVEMENT BADGES PAGE ----
+@app.route("/badges")
+def badges(): return render_template("badges.html")
+
 if __name__ == "__main__":
     print(" * FairPlay Arena running on http://127.0.0.1:5000")
     app.run(host="0.0.0.0", port=5000, debug=not ON_VERCEL)

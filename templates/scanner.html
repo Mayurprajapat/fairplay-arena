@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}Supplement Scanner{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+ <div class="glass-card mb-6">
+  <div class="flex items-center gap-3 mb-4">
+   <span class="text-3xl">📷</span>
+   <div>
+    <h1 class="font-grotesk font-black text-lg text-slate-100 mb-0.5">Supplement Scanner</h1>
+    <p class="text-xs text-slate-400">Camera se supplement bottle scan karo — check karo banned hai ya allowed</p>
+   </div>
+  </div>
+
+  <!-- CAMERA VIEWFINDER -->
+  <div class="relative group mb-4">
+   <div id="cameraContainer" class="relative w-full aspect-video bg-black rounded-xl overflow-hidden border-2 border-white/10 shadow-2xl">
+    <video id="camera" autoplay playsinline muted class="w-full h-full object-cover"></video>
+    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+     <div class="text-center">
+      <div class="w-16 h-16 rounded-full border-4 border-white/20 border-t-indigo-400 animate-spin mb-3"></div>
+      <p class="text-white text-sm font-medium">Starting camera...</p>
+     </div>
+    </div>
+    <div id="cameraOverlay" class="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-4">
+     <div class="flex items-center gap-2 text-white font-bold text-sm bg-black/50 px-3 py-1 rounded">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      LIVE
+     </div>
+     <div class="text-white font-black text-4xl tracking-tighter drop-shadow-lg" id="scanFrame">SCAN</div>
+    </div>
+   </div>
+
+   <!-- CAMERA CONTROLS -->
+   <div class="mt-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
+    <button id="startCam" class="btn-primary flex-1 sm:flex-auto">📹 Start Camera</button>
+    <button id="captureBtn" class="btn-neon flex-1 sm:flex-auto hidden" disabled>📸 Capture & Scan</button>
+    <button id="stopCam" class="btn-outline flex-1 sm:flex-auto hidden">⏹ Stop</button>
+   </div>
+  </div>
+
+  <!-- SCAN RESULT -->
+  <div id="scanResult" class="hidden mt-6 glass-card p-6 border-l-4 border-emerald-500">
+   <div class="flex items-center gap-3 mb-3">
+    <div class="text-2xl">🔍</div>
+    <h3 class="font-grotesk font-bold text-lg">Scan Result</h3>
+   </div>
+   <div class="grid grid-cols-2 gap-4 mb-4">
+    <div>
+     <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Substance</p>
+     <p id="resultName" class="font-bold text-lg text-slate-100"></p>
+    </div>
+    <div>
+     <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Category</p>
+     <p id="resultCat" class="text-sm font-semibold"></p>
+    </div>
+   </div>
+   <div class="mb-4">
+    <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Status</p>
+    <div id="resultStatus" class="flex items-center gap-2 py-2 px-4 rounded-lg font-bold text-sm"></div>
+   </div>
+   <p id="resultInfo" class="text-sm text-slate-300 mb-4"></p>
+   <div class="flex gap-2">
+    <button onclick="searchAgain()" class="btn-ghost flex-1">🔄 Scan Again</button>
+    <a href="/checker" class="btn-outline flex-1">🔍 Manual Search</a>
+   </div>
+  </div>
+
+  <!-- MANUAL SEARCH FALLBACK -->
+  <div class="glass-card mt-6 p-5">
+   <h3 class="font-grotesk font-bold text-sm mb-3 text-slate-100">⌨️ Manual Search (Camera nahi chalti toh)</h3>
+   <div class="relative mb-3">
+    <input type="text" id="manualSearch" placeholder="Dawa ya supplement ka naam likho..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400">
+    <button onclick="searchManual()" class="absolute right-2 top-2 bg-indigo-500 hover:bg-indigo-400 text-white px-3 py-1.5 rounded text-xs font-bold transition">Search</button>
+   </div>
+   <div id="manualResult" class="hidden glass-card p-4 mt-3 border-l-4 border-amber-500"></div>
+  </div>
+ </div>
+
+ <!-- INFO BOX -->
+ <div class="glass-card p-4 mt-2">
+  <h4 class="font-bold text-sm text-slate-100 mb-2">⚠️ Important</h4>
+  <ul class="text-sm text-slate-300 space-y-1 list-disc list-inside">
+   <li>Camera scan sirf simulation hai — real product ke liye <a href="https://www.globaldro.com/Home" target="_blank" class="text-indigo-400 hover:underline">Global DRO</a> check karo</li>
+   <li>Strict liability: jo bhi tumhare body mein hai, uski zimmedari tumhari hai</li>
+   <li>Kisi bhi supplement se pehle NADA/doctor se TUE lo agar banned hai</li>
+  </ul>
+ </div>
+</div>
+{% block scripts %}
+<script>
+let stream = null;
+const startBtn = document.getElementById('startCam');
+const captureBtn = document.getElementById('captureBtn');
+const stopBtn = document.getElementById('stopCam');
+const video = document.getElementById('camera');
+const resultBox = document.getElementById('scanResult');
+const cameraContainer = document.getElementById('cameraContainer');
+
+// Start camera
+startBtn.onclick = async () => {
+ try {
+  stream = await navigator.mediaDevices.getUserMedia({
+   video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+  });
+  video.srcObject = stream;
+  await video.play();
+  startBtn.classList.add('hidden');
+  captureBtn.classList.remove('hidden');
+  stopBtn.classList.remove('hidden');
+  resultBox.classList.add('hidden');
+ } catch (e) {
+  alert('Camera access nahi mila. Mobile par browser permission dein ya Manual Search use karo.');
+  console.error(e);
+ }
+};
+
+// Stop camera
+stopBtn.onclick = () => {
+ if (stream) {
+  stream.getTracks().forEach(track => track.stop());
+  video.srcObject = null;
+ }
+ startBtn.classList.remove('hidden');
+ captureBtn.classList.add('hidden');
+ stopBtn.classList.add('hidden');
+ resultBox.classList.add('hidden');
+};
+
+// Capture & simulate scan
+captureBtn.onclick = () => {
+ const canvas = document.createElement('canvas');
+ canvas.width = video.videoWidth;
+ canvas.height = video.videoHeight;
+ canvas.getContext('2d').drawImage(video, 0, 0);
+
+ // Show scanning UI
+ captureBtn.disabled = true;
+ captureBtn.textContent = 'Scanning...';
+ document.getElementById('scanFrame').textContent = 'ANALYZING...';
+
+ setTimeout(async () => {
+  try {
+   const res = await fetch('/api/scan-simulate', { method: 'POST' });
+   const data = await res.json();
+   showResult(data.substance);
+  } catch (e) {
+   alert('Scan failed. Manual search use karo.');
+  }
+  captureBtn.disabled = false;
+  captureBtn.textContent = '📸 Capture & Scan';
+  document.getElementById('scanFrame').textContent = 'SCAN';
+ }, 2000);
+};
+
+// Show scan result
+function showResult(sub) {
+ resultBox.classList.remove('hidden');
+ resultBox.classList.remove('border-rose-500', 'border-emerald-500');
+
+ const nameEl = document.getElementById('resultName');
+ const catEl = document.getElementById('resultCat');
+ const statusEl = document.getElementById('resultStatus');
+ const infoEl = document.getElementById('resultInfo');
+
+ nameEl.textContent = sub.name;
+ catEl.textContent = sub.cat;
+ infoEl.textContent = sub.info;
+
+ const isBanned = sub.status === 'BANNED' || sub.status.includes('BANNED');
+ const isAllowed = sub.status === 'ALLOWED';
+
+ if (isBanned) {
+  resultBox.classList.add('border-rose-500');
+  statusEl.innerHTML = '<span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 px-3 py-1 rounded font-bold">⛔ BANNED</span>';
+  statusEl.className = 'flex items-center gap-2 py-2 px-4 rounded-lg font-bold text-sm bg-rose-500/10 border border-rose-500/30';
+ } else if (isAllowed) {
+  resultBox.classList.add('border-emerald-500');
+  statusEl.innerHTML = '<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded font-bold">✅ ALLOWED</span>';
+  statusEl.className = 'flex items-center gap-2 py-2 px-4 rounded-lg font-bold text-sm bg-emerald-500/10 border border-emerald-500/30';
+ } else {
+  resultBox.classList.add('border-amber-500');
+  statusEl.innerHTML = '<span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded font-bold">⚠️ CONDITIONAL</span>';
+  statusEl.className = 'flex items-center gap-2 py-2 px-4 rounded-lg font-bold text-sm bg-amber-500/10 border border-amber-500/30';
+ }
+}
+
+function searchAgain() {
+ resultBox.classList.add('hidden');
+}
+
+// Manual search
+function searchManual() {
+ const q = document.getElementById('manualSearch').value.toLowerCase();
+ const resDiv = document.getElementById('manualResult');
+ // Fetch from API
+ fetch('/api/substances?q=' + encodeURIComponent(q))
+  .then(r => r.json())
+  .then(list => {
+   resDiv.classList.remove('hidden');
+   if (list.length === 0) {
+    resDiv.innerHTML = '<p class="text-rose-400 text-sm">Koi result nahi mila.</p>';
+    return;
+   }
+   const s = list[0];
+   let statusClass = s.status === 'ALLOWED' ? 'text-emerald-400' : (s.status.includes('BANNED') ? 'text-rose-400' : 'text-amber-400');
+   resDiv.innerHTML = `
+    <div class="flex justify-between items-start">
+     <div>
+      <div class="font-bold text-slate-100">${s.name}</div>
+      <div class="text-xs text-slate-400 mt-1">${s.cat}</div>
+     </div>
+     <div class="${statusClass} font-bold text-xs uppercase tracking-wider px-2 py-1 rounded border border-current/20">${s.status}</div>
+    </div>
+    <p class="text-sm text-slate-300 mt-2">${s.info}</p>
+   `;
+  });
+}
+
+// Enter key for manual search
+document.getElementById('manualSearch').addEventListener('keypress', e => {
+ if (e.key === 'Enter') searchManual();
+});
+</script>
+{% endblock %}
+{% endblock %}

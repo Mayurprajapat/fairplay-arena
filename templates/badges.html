@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Achievement Badges{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+ <div class="glass-card mb-6">
+  <div class="flex items-center gap-3 mb-4">
+   <span class="text-3xl">🏆</span>
+   <div>
+    <h1 class="font-grotesk font-black text-lg text-slate-100 mb-0.5">Achievement Badges</h1>
+    <p class="text-xs text-slate-400">XP kamao aur badges unlock karo — apni clean athlete journey dikhao</p>
+   </div>
+  </div>
+
+  <div id="badgesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   <!-- Badges will be rendered here by JS -->
+  </div>
+ </div>
+
+ <!-- XP Progress -->
+ <div class="glass-card p-5">
+  <div class="flex justify-between items-center mb-3">
+   <span class="font-grotesk font-bold text-sm text-slate-100">Current Level</span>
+   <span id="badgeLvl" class="font-bold text-indigo-400">LVL 1</span>
+  </div>
+  <div class="w-full bg-white/10 rounded-full h-3 overflow-hidden mb-4">
+   <div id="badgeXpBar" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-400" style="width:0%"></div>
+  </div>
+  <div class="flex justify-between text-xs text-slate-400">
+   <span id="badgeXpText">0 XP</span>
+   <span id="badgeNextLvl">Next: 50 XP</span>
+  </div>
+ </div>
+
+ <!-- How to unlock -->
+ <div class="glass-card p-5">
+  <h3 class="font-grotesk font-bold text-sm text-slate-100 mb-3">🔓 Badges Kaise Unlock Karein</h3>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   <div class="p-3 rounded bg-white/5 border border-white/5">
+    <div class="text-2xl mb-2">🎯</div>
+    <div class="font-bold text-sm text-slate-100">First Steps</div>
+    <div class="text-xs text-slate-400">Pehla 20 XP kamao</div>
+   </div>
+   <div class="p-3 rounded bg-white/5 border border-white/5">
+    <div class="text-2xl mb-2">⚡</div>
+    <div class="font-bold text-sm text-slate-100">Challenger</div>
+    <div class="text-xs text-slate-400">120 XP reach karo</div>
+   </div>
+   <div class="p-3 rounded bg-white/5 border border-white/5">
+    <div class="text-2xl mb-2">🔥</div>
+    <div class="font-bold text-sm text-slate-100">Pro Athlete</div>
+    <div class="text-xs text-slate-400">250 XP reach karo</div>
+   </div>
+   <div class="p-3 rounded bg-white/5 border border-white/5">
+    <div class="text-2xl mb-2">🏆</div>
+    <div class="font-bold text-sm text-slate-100">Clean Legend</div>
+    <div class="text-xs text-slate-400">400 XP reach karo</div>
+   </div>
+   <div class="p-3 rounded bg-white/5 border border-white/5">
+    <div class="text-2xl mb-2">🔥3d</div>
+    <div class="font-bold text-sm text-slate-100">3-Day Streak</div>
+    <div class="text-xs text-slate-400">3 din tak game khelo</div>
+   </div>
+   <div class="p-3 rounded bg-white/5 border border-white/5">
+    <div class="text-2xl mb-2">⚡7d</div>
+    <div class="font-bold text-sm text-slate-100">7-Day Streak</div>
+    <div class="text-xs text-slate-400">7 din tak game khelo</div>
+   </div>
+  </div>
+ </div>
+</div>
+{% block scripts %}
+<script>
+const BADGES = [
+ {id:'first',xp:20,t:'🎯 First Steps',d:'Pehla 20 XP kamao'},
+ {id:'half',xp:120,t:'⚡ Challenger',d:'120 XP reach karo'},
+ {id:'pro',xp:250,t:'🔥 Pro Athlete',d:'250 XP reach karo'},
+ {id:'legend',xp:400,t:'🏆 Clean Legend',d:'400 XP reach karo'},
+ {id:'streak3',xp:0,t:'🔥 3-Day Streak',d:'3 din tak game khelo'},
+ {id:'streak7',xp:0,t:'⚡ 7-Day Streak',d:'7 din tak game khelo'},
+ {id:'quiz100',xp:0,t:'🎯 Quiz Master',d:'Quiz mein 100+ XP score karo'}
+];
+
+function renderBadges() {
+ const xp = parseInt(localStorage.getItem('fp_xp')||'0');
+ const done = JSON.parse(localStorage.getItem('fp_badges')||'[]');
+ const grid = document.getElementById('badgesGrid');
+ const lvlEl = document.getElementById('badgeLvl');
+ const xpBar = document.getElementById('badgeXpBar');
+ const xpText = document.getElementById('badgeXpText');
+ const nextLvl = document.getElementById('badgeNextLvl');
+
+ // Level calc
+ const LVLS=[['LVL 1 • ROOKIE',0],['LVL 2 • TRAINEE',50],['LVL 3 • CHALLENGER',120],['LVL 4 • PRO',250],['LVL 5 • LEGEND',400]];
+ let lvl = LVLS[0];
+ let pct = 0;
+ LVLS.forEach((L,i)=>{
+  if(xp>=L[1]){lvl=L; if(LVLS[i+1]) pct = ((xp-L[1])/(LVLS[i+1][1]-L[1]))*100;}
+ });
+ if(xp>=400) pct=100;
+ lvlEl.textContent = lvl[0];
+ xpBar.style.width = Math.min(100, Math.max(0,pct)) + '%';
+ xpText.textContent = xp + ' XP';
+ nextLvl.textContent = xp>=400 ? 'MAX LEVEL!' : 'Next: ' + (LVLS.find(L=>L[1]>xp)||['',400])[1] + ' XP';
+
+ grid.innerHTML = BADGES.map(b=>{
+  const unlocked = done.includes(b.id) || xp >= b.xp;
+  return `
+   <div class="glass-card p-4 rounded-xl ${unlocked?'border-emerald-500/30 bg-emerald-500/5':'border-white/5'}">
+    <div class="text-3xl mb-3">${b.id==='streak3'||b.id==='streak7'?'🔥':b.t.charAt(0)}</div>
+    <div class="font-grotesk font-bold text-sm ${unlocked?'text-slate-100':'text-slate-500'} mb-1">${b.t}</div>
+    <div class="text-xs ${unlocked?'text-emerald-400':'text-slate-400'} mb-3">${b.d}</div>
+    <div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+     <div class="h-full ${unlocked?'bg-emerald-400':'bg-white/5'}" style="width:${unlocked?100:Math.min(100,(xp/b.xp)*100)}%"></div>
+    </div>
+    <div class="text-[10px] mt-2 text-slate-500 font-bold uppercase tracking-wider">${unlocked?'✅ UNLOCKED':'🔒 LOCKED'}</div>
+   </div>
+  `).join('');
+ }
+renderBadges();
+</script>
+{% endblock %}
+{% endblock %}
