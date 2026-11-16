@@ -1,49 +1,81 @@
-# 🏟️ FairPlay Arena — Gamification of Anti-Doping Information
-### Major Project | Play. Learn. Stay Clean.
+# 🏟️ FairPlay Arena
+**Major Project — Gamification of Anti-Doping Information**
+**Play. Learn. Stay Clean.**
 
-**🌍 LIVE SITE: https://fairplay-arena-theta.vercel.app**
-**📦 SOURCE: https://github.com/Mayurprajapat/fairplay-arena**
+A responsive, mobile-friendly learning website that teaches clean-sport and anti-doping concepts through mini-games, story choices, learning modules and a sample substance checker.
 
-Attractive gamified website + mobile-app-like (PWA) for athletes to learn anti-doping through games.
+## Features
+- Quiz Quest: 15 anti-doping knowledge questions
+- Dope or Nope: rapid true/false challenge
+- Memory Match: pair terminology with meanings
+- Road to Gold: five-chapter clean-sport decision story
+- Substance Checker: limited educational sample lookup (not a live drug database)
+- Learn Lab: six learning modules
+- XP, levels, badges and a per-browser leaderboard (saved in browser storage)
+- Printable Fair Play certificate after 100 XP
+- PWA manifest and service worker for installable mobile experience
+- Responsive navigation and DopeGuard helper mascot
 
-## 🔄 Auto-update workflow (changes live kaise honge)
-- **✅ CONNECTED (Option A):** GitHub repo `Mayurprajapat/fairplay-arena` Vercel se connected hai → har `git push` pe Vercel khud live site redeploy karega.
-  ```bash
-  git add . && git commit -m "update" && git push   # 30 sec me live!
-  ```
-- **Option B (quick manual):** Is folder me `vercel --prod` chalao → 20 sec me live site update.
+## Run in VS Code
+1. Install Python 3.10+.
+2. Open this folder in VS Code.
+3. Open Terminal and run:
 
-## ✨ Features (jury ko impress karne wale — har game sikhata hai!)
-- 🎯 **Quiz Quest** — 15 timed WADA questions, streak bonus, 50/50 lifeline, +100 XP
-- ⚡ **Dope or Nope** — speed True/False battle, +75 XP
-- 🧠 **Memory Match** — banned substance ↔ category pairs, +60 XP
-- 🔥 **Road to Gold (STORY MODE — most unique!)** — 5-chapter career choices, Clean Score
-- 🔍 **Substance Checker** — Banned / Allowed / TUE-needed instant result
-- 📚 **Learn Lab** — 6 visual modules (Code, List, TUE, Testing, Supplements, Bans)
-- 🛡️ **DopeGuard mascot** — floating AI coach on every page
-- 🏆 **XP + Levels + Badges + Server Leaderboard** (SQLite)
-- 🏅 **Printable Fair Play Certificate** (100+ XP unlock)
-- 📲 **PWA — installs like mobile APK** + mobile bottom nav
-
-## 🚀 How to Run (viva demo — 2 min)
 ```bash
-python -m pip install flask
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+
+python -m pip install -r requirements.txt
 python app.py
 ```
-Then open: **http://127.0.0.1:5000**
 
-## 📲 How to make Mobile APK (free, 5 min)
-1. Deploy link free on Render / PythonAnywhere, OR run on college WiFi IP
-2. Go to **PWABuilder.com** → paste your link → **Android APK download**
-3. Install APK on phone → bottom-nav app opens fullscreen!
-4. Shortcut: Chrome → ⋮ → *Add to Home Screen / Install* (same feel, no APK needed)
+4. Open **http://127.0.0.1:5000**.
 
-## 🎤 Viva Q&A cheat-sheet
-- **Topic?** Gamification increases retention — athletes learn WADA rules by playing, not reading PDFs.
-- **Tech?** Python Flask backend + SQLite leaderboard + REST APIs + Tailwind + JS games + PWA.
-- **WADA concepts covered?** Code, 11 ADRVs, Prohibited List S1-S9/M1-M3/P1, TUE, strict liability, A/B sample, bans up to 4 yrs.
-- **Different from old projects?** Story-mode career + mascot + certificate + APK-ready PWA — sab ek me.
-- **Future scope?** Hindi version, multiplayer quiz, real NADA API, AI chatbot coach.
+Progress is saved in this browser's local storage. It is not shared across browsers or devices and does not require a database.
 
-## 📁 Structure
-app.py (routes+APIs+data) | fairplay.db (auto) | templates/*.html | static/css, js, manifest, sw.js, icon.svg
+## Project structure
+```text
+fairplay-arena/
+├── app.py
+├── requirements.txt
+├── README.md
+├── templates/
+│   ├── base.html
+│   ├── index.html
+│   ├── learn.html
+│   └── certificate.html
+└── static/
+    ├── css/style.css
+    ├── js/app.js
+    ├── js/games.js
+    ├── manifest.json
+    ├── sw.js
+    └── icon.svg
+```
+
+## Deploy to Vercel
+Vercel detects `app.py` and runs Flask as a Python Function. No database or environment variables are required. From the project folder:
+
+```bash
+vercel login
+vercel
+vercel --prod
+```
+
+XP and leaderboard data are saved in each visitor's browser, so they persist on that browser but are not shared across devices or visitors.
+
+## PWA / Android
+Deploy the app to an HTTPS host first. Open it in Chrome on Android and choose **⋮ → Install app / Add to Home Screen**. PWABuilder may package a compatible PWA, but APK generation depends on manifest, icons, HTTPS and platform requirements.
+
+## Viva explanation
+- **Problem:** Traditional anti-doping material can be difficult to engage with.
+- **Approach:** Gamification turns important concepts into interactive learning activities.
+- **Technology:** Python Flask, HTML, CSS and JavaScript; browser local storage, PWA manifest and service worker.
+- **Learning areas:** Code, Prohibited List, TUE, testing, supplements, ADRVs and strict liability.
+- **Future scope:** Hindi content, multiplayer mode, verified live NADA/WADA data integration and an AI learning assistant.
+
+## Important academic and safety note
+This is an educational prototype. The substance checker uses a small set of hard-coded examples and is **not** a medical tool or official anti-doping database. Rules and the WADA Prohibited List change. For real medication or competition decisions, consult the latest official WADA/NADA material, your anti-doping organization and a qualified healthcare professional. No game result or certificate represents official WADA/NADA accreditation.

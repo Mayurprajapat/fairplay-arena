@@ -1,16 +1,10 @@
 {
-  "name": "FairPlay Arena - Anti-Doping Academy 🇮🇳",
+  "name": "FairPlay Arena",
   "short_name": "FairPlay",
+  "description": "Play. Learn. Stay Clean.",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#f6f8fd",
-  "theme_color": "#f6f8fd",
-  "description": "Play. Learn. Stay Clean. Gamified anti-doping education + live WADA/NADA updates.",
-  "icons": [{"src": "/static/icon.svg","sizes": "512x512","type": "image/svg+xml"}],
-  "shortcuts": [
-    {"name": "Live Centre", "url": "/live"},
-    {"name": "Quiz Quest", "url": "/quiz"},
-    {"name": "Substance Checker", "url": "/checker"}
-  ]
+  "background_color": "#081321",
+  "theme_color": "#081321",
+  "icons": [{"src":"/static/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }

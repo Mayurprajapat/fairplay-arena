@@ -1,7 +1,8 @@
+.venv/
+.vercel/
 __pycache__/
 *.pyc
-airplay.db
-live_cache.json
+fairplay.db
+.env
+
 .vercel
-antidoping-champion/node_modules/
-antidoping-champion/dist/

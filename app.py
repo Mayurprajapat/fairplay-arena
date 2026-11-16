@@ -1,495 +1,84 @@
-from flask import Flask, render_template, request, jsonify, session
-import sqlite3, os, json, time, urllib.request, urllib.parse, xml.etree.ElementTree as ET
-import uuid, datetime
+from flask import Flask, render_template, request, jsonify
+import os, random
+from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "fairplay-arena-secret-key-2026")
 
-# Vercel serverless has read-only disk except /tmp -> use /tmp there, local file otherwise
-ON_VERCEL = bool(os.environ.get("VERCEL"))
-_BASE = "/tmp" if ON_VERCEL else os.path.dirname(__file__)
-DB = os.path.join(_BASE, "fairplay.db")
-LIVE_CACHE = os.path.join(_BASE, "live_cache.json")
-_MEM_SCORES = []  # in-memory fallback if disk writes fail (serverless)
-_MEM_REPORTS = []
-_MEM_TUE = []
-_MEM_WHEREABOUTS = []
-
-# ---------------- LIVE NEWS (real-time with cache) ----------------
-CURATED_NEWS = [
- {"title":"WADA's 2026 Prohibited List now in force (from 1 Jan 2026)","src":"WADA Official","date":"2026-01-01","url":"https://www.wada-ama.org/en/news/wadas-2026-prohibited-list-now-force","tag":"WADA LIST"},
- {"title":"WADA publishes 2027 Prohibited List (in force 1 Jan 2027)","src":"WADA Official","date":"2026-09-21","url":"https://www.wada-ama.org/en/news/wadas-2027-prohibited-list","tag":"WADA LIST"},
- {"title":"2026 key change: non-diagnostic carbon-monoxide use banned (M1.4)","src":"WADA 2026 Summary","date":"2026-01-01","url":"https://www.wada-ama.org/en/news/wadas-2026-prohibited-list-now-force","tag":"RULE CHANGE"},
- {"title":"GAIIN anti-doping intelligence conference hosted by NADA, New Delhi","src":"NADA India","date":"2026-04-16","url":"https://nadaindia.yas.gov.in/news-2","tag":"NADA INDIA"},
- {"title":"NADA launches Fair Play Guide in ten regional languages","src":"NADA India","date":"2025-04-16","url":"https://nadaindia.yas.gov.in/news-2","tag":"NADA INDIA"},
- {"title":"NADA bans athletics coach for life; new sanctions across sports","src":"India Today via NADA","date":"2026-09-16","url":"https://www.indiatoday.in/sports/athletics/story/nada-rakesh-kumar-life-ban-gaurav-vats-doping-crackdown-2995860-2026-09-16","tag":"SANCTION"},
-]
-
-def fetch_live_rss():
-    """Try Google News RSS (free, no key) for fresh anti-doping headlines."""
-    try:
-        q = urllib.parse.quote("anti-doping WADA NADA")
-        url = f"https://news.google.com/rss/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en"
-        req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=8) as r:
-            root = ET.fromstring(r.read())
-        items = []
-        for it in root.findall(".//item")[:12]:
-            t = it.findtext("title","").strip()
-            link = it.findtext("link","").strip()
-            pub = it.findtext("pubDate","").strip()[:16]
-            src = (it.find("source").text if it.find("source") is not None else "Google News").strip()
-            if t: items.append({"title":t,"url":link,"src":src,"date":pub,"tag":"LIVE"})
-        return items
-    except Exception:
-        return []
-
-def get_live_news():
-    now = time.time()
-    try:
-        if os.path.exists(LIVE_CACHE):
-            with open(LIVE_CACHE) as f: cache = json.load(f)
-            if now - cache.get("ts",0) < 1800 and cache.get("items"):
-                return cache["items"], cache.get("live", False), cache.get("updated","")
-    except Exception: pass
-    items = fetch_live_rss()
-    live = bool(items)
-    if not items:
-        items = CURATED_NEWS
-    try:
-        with open(LIVE_CACHE,"w") as f:
-            json.dump({"ts":now,"items":items,"live":live,
-                       "updated":time.strftime("%d %b %Y, %H:%M IST")}, f)
-    except Exception: pass
-    return items, live, time.strftime("%d %b %Y, %H:%M IST")
-
-LIST_STATUS = {
- "current":"2026 List — IN FORCE since 1 Jan 2026",
- "upcoming":"2027 List — published Sep 2026, in force 1 Jan 2027",
- "changes2026":["Salmeterol dosing intervals changed","Non-diagnostic carbon-monoxide (CO) use banned — new M1.4","Blood withdrawal rules clarified","Cell components (mitochondria etc.) added to cell-doping ban","Glucocorticoid washout table clarified"],
- "links":{"wada_list":"https://www.wada-ama.org/en/prohibited-list","nada":"https://nadaindia.yas.gov.in/","global_dro":"https://www.globaldro.com/Home","adel":"https://adel.wada-ama.org/"}
-}
-
-# ---------------- DATABASE ----------------
-def init_db():
-    try:
-        con = sqlite3.connect(DB)
-        cur = con.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS scores(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            player TEXT, game TEXT, xp INTEGER, created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
-        cur.execute("""CREATE TABLE IF NOT EXISTS reports(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            report_id TEXT, sport TEXT, level TEXT, description TEXT, evidence TEXT,
-            anonymous INTEGER, status TEXT DEFAULT 'submitted', created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
-        cur.execute("""CREATE TABLE IF NOT EXISTS tue_apps(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            app_id TEXT, athlete_name TEXT, sport TEXT, medicine TEXT, condition TEXT,
-            doctor TEXT, status TEXT DEFAULT 'pending', created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
-        cur.execute("""CREATE TABLE IF NOT EXISTS whereabouts(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            athlete_name TEXT, date TEXT, slot TEXT, location TEXT, sport TEXT,
-            submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
-        cur.execute("""CREATE TABLE IF NOT EXISTS certifications(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            athlete_name TEXT, score INTEGER, passed INTEGER, cert_id TEXT,
-            created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)""")
-        con.commit(); con.close()
-    except Exception:
-        pass  # read-only FS -> memory fallback
-init_db()
-
-def add_score(player, game, xp):
-    try:
-        con = sqlite3.connect(DB)
-        cur = con.cursor()
-        cur.execute("INSERT INTO scores(player,game,xp) VALUES(?,?,?)", (player, game, xp))
-        con.commit(); con.close()
-    except Exception:
-        _MEM_SCORES.append({"player": player, "game": game, "xp": xp})
-
-def top_players():
-    try:
-        con = sqlite3.connect(DB)
-        cur = con.cursor()
-        cur.execute("SELECT player, SUM(xp) as total, COUNT(*) as games FROM scores GROUP BY player ORDER BY total DESC LIMIT 10")
-        rows = [{"player": r[0], "xp": r[1], "games": r[2]} for r in cur.fetchall()]
-        con.close()
-    except Exception:
-        rows = []
-    if _MEM_SCORES:
-        agg = {}
-        for s in _MEM_SCORES:
-            a = agg.setdefault(s["player"], {"player": s["player"], "xp": 0, "games": 0})
-            a["xp"] += s["xp"]; a["games"] += 1
-        rows = sorted(agg.values(), key=lambda r: r["xp"], reverse=True)[:10] + rows
-    return rows[:10]
-
-# ---------------- DATA ----------------
 QUIZ = [
- {"q":"Which organization publishes the World Anti-Doping Code?","options":["WADA","FIFA","IOC","NADA only"],"answer":0,"fact":"WADA (World Anti-Doping Agency) maintains the Code & Prohibited List."},
- {"q":"What does TUE stand for?","options":["Therapeutic Use Exemption","Total Urine Exam","Test Until Exhausted","Therapy Under Evaluation"],"answer":0,"fact":"TUE lets athletes use a banned medicine for genuine medical need with approval."},
- {"q":"Anabolic steroids are banned because they…","options":["Artificially build muscle & strength","Improve eyesight","Reduce weight safely","Cure injuries instantly"],"answer":0,"fact":"Steroids = S1 Anabolic Agents, banned at all times."},
- {"q":"Blood doping mainly improves…","options":["Oxygen delivery/endurance","Flexibility","Reaction time only","Bone density"],"answer":0,"fact":"EPO & blood transfusions boost red blood cells — banned under M1."},
- {"q":"During testing, an athlete refuses to give a sample. This is…","options":["An anti-doping rule violation","Allowed if tired","Allowed once per year","Only a warning"],"answer":0,"fact":"Refusing/evading sample collection = violation (Article 2.3)."},
- {"q":"Which is a common risk of contaminated supplements?","options":["Hidden banned substances","Extra vitamins only","Better sleep always","No risk at all"],"answer":0,"fact":"~15% supplements may be contaminated. Strict liability applies — athlete is responsible!"},
- {"q":"Whereabouts rule applies to…","options":["Registered Testing Pool athletes","All school students","Only coaches","Only retired players"],"answer":0,"fact":"RTP athletes must give 1-hour daily slot for testing."},
- {"q":"Cannabis (THC) in-competition is…","options":["Prohibited","Always allowed","Allowed for all sports","Only banned for swimming"],"answer":0,"fact":"S8 Cannabinoids prohibited in-competition above threshold."},
- {"q":"Diuretics are banned mainly because they…","options":["Mask other drugs & cut weight fast","Build muscle","Increase height","Improve memory"],"answer":0,"fact":"S5 Diuretics hide evidence & cause dangerous dehydration."},
- {"q":"Growth Hormone (hGH) belongs to…","options":["Peptide hormones (S2)","Stimulants","Narcotics","Beta-blockers"],"answer":0,"fact":"S2 Peptide Hormones, Growth Factors — banned always."},
- {"q":"An athlete needs an inhaler with a banned dose. Correct step?","options":["Apply for TUE before use","Hide it from officials","Borrow friend's inhaler","Stop treatment silently"],"answer":0,"fact":"Check Global DRO + apply TUE via NADA/WADA."},
- {"q":"Sample bottles A & B are used for…","options":["B confirms if A is positive","Two different athletes","Practice tests","Water storage"],"answer":0,"fact":"Athlete can request B-sample analysis if A is adverse."},
- {"q":"Stimulants like amphetamine are…","options":["Banned in-competition","Allowed freely","Banned only for chess","Never tested"],"answer":0,"fact":"S6 Stimulants banned in-competition (some also out-of-competition)."},
- {"q":"Beta-blockers are banned in which sports?","options":["Shooting, Archery, Golf, Darts","100m sprint only","Football","Marathon"],"answer":0,"fact":"P1 Beta-blockers banned in precision sports (calm tremor = advantage)."},
- {"q":"Maximum ban for first serious intentional doping?","options":["4 years","1 week","1 month","Lifetime for all cases"],"answer":0,"fact":"Intentional violation = up to 4 years. Second offence can be lifetime."},
+("What does WADA stand for?", ["World Anti-Doping Agency","World Athlete Development Association","World Anti-Drug Alliance","Worldwide Athletics Data Agency"], 0, "WADA is the World Anti-Doping Agency."),
+("What is a TUE?", ["Permission to skip testing","Authorization for a prohibited treatment for a legitimate medical need","A supplement brand","A sports licence"], 1, "A Therapeutic Use Exemption may permit medically necessary use when criteria are met."),
+("Under strict liability, who is responsible for a prohibited substance found in an athlete's sample?", ["Coach only","Team doctor only","The athlete","Laboratory"], 2, "Athletes are responsible for substances found in their bodies, subject to applicable rules."),
+("What is the purpose of the B sample?", ["Test another athlete","Allow confirmation analysis of the A sample","Replace blood testing","Check fitness"], 1, "The B sample may be analysed to confirm the A-sample result."),
+("Which document lists prohibited substances and methods?", ["Olympic Charter","WADA Prohibited List","World Health List","Athlete handbook"], 1, "The WADA Prohibited List is updated regularly."),
+("What should you do before taking a supplement?", ["Trust the label","Ask teammates","Assess ingredients and seek qualified advice","Take a higher dose"], 2, "Supplements may be contaminated or mislabelled; no supplement is risk-free."),
+("What does ADRV mean?", ["Athlete Development Review Value","Anti-Doping Rule Violation","Annual Drug Regulation Visit","Approved Drug Research Version"], 1, "ADRV means Anti-Doping Rule Violation."),
+("Can a substance be prohibited only in-competition?", ["Yes","No","Only for professionals","Only in team sports"], 0, "Some substances are prohibited in-competition only."),
+("What is the safest first step if unsure about a medication?", ["Stop it immediately","Ask your doctor and anti-doping organization","Ask social media","Take half a dose"], 1, "Never stop prescribed treatment without medical advice."),
+("What is doping control?", ["Fitness test","Sample collection and related anti-doping procedures","Nutrition plan","Coaching assessment"], 1, "Doping control includes notification, collection, documentation and secure handling."),
+("Can contaminated supplements create anti-doping risks?", ["Never","Yes","Only powders","Only for professionals"], 1, "Contamination is a known risk; athletes should make informed decisions."),
+("What does the Prohibited List include?", ["Only medicines","Substances and methods","Only recreational drugs","Only injections"], 1, "The List covers categories of substances and methods."),
+("When can a substance be prohibited?", ["At all times, in-competition, or in particular sports","Only during training","Only at the Olympics","After a warning"], 0, "The List specifies the scope of each prohibition."),
+("What should you do when notified for a test?", ["Ignore it","Follow the process and understand your rights","Leave the venue","Send a friend"], 1, "Athletes should comply and understand their rights and responsibilities."),
+("What is the core goal of clean sport?", ["Win at any cost","Fairness, health and integrity","Avoid all medicines","Get sponsorship"], 1, "Clean sport protects athlete health and fair competition.")
 ]
 
-SUBSTANCES = [
- {"name":"Stanozolol","status":"BANNED","cat":"S1 Anabolic Steroid","info":"Muscle-building steroid. Banned always. 4-yr ban risk."},
- {"name":"Nandrolone","status":"BANNED","cat":"S1 Anabolic Steroid","info":"Classic steroid, long detection window (months)."},
- {"name":"Testosterone (exogenous)","status":"BANNED","cat":"S1 Anabolic Steroid","info":"Extra testosterone = unfair muscle + aggression + heart risk."},
- {"name":"Clenbuterol","status":"BANNED","cat":"S1 / S3","info":"Fat-burner in meat contamination cases too. Strict liability!"},
- {"name":"EPO (Erythropoietin)","status":"BANNED","cat":"S2 Peptide Hormone","info":"Boosts RBC/endurance. Biological passport catches it."},
- {"name":"hGH (Growth Hormone)","status":"BANNED","cat":"S2 Peptide Hormone","info":"Banned always. Needs specialized blood test."},
- {"name":"Insulin (misuse)","status":"BANNED","cat":"S4 Hormone modulator","info":"Misused for anabolism. Diabetics need TUE."},
- {"name":"Furosemide","status":"BANNED","cat":"S5 Diuretic","info":"Masks drugs + rapid weight cut. Dangerous dehydration."},
- {"name":"Hydrochlorothiazide","status":"BANNED","cat":"S5 Diuretic","info":"Common BP drug — athletes need TUE."},
- {"name":"Amphetamine","status":"BANNED","cat":"S6 Stimulant (in-competition)","info":"Focus/energy stimulant. Banned on match day."},
- {"name":"Cocaine","status":"BANNED","cat":"S6 Stimulant (in-competition)","info":"Banned in-competition. Substance of Abuse rule may reduce ban with rehab."},
- {"name":"Methylphenidate","status":"BANNED*","cat":"S6 *needs TUE","info":"ADHD medicine — allowed ONLY with valid TUE."},
- {"name":"Salbutamol (high dose)","status":"CONDITIONAL","cat":"S3 Beta-2 Agonist","info":"Inhaler allowed within limits (1600mcg/24h). Over = violation."},
- {"name":"Tramadol","status":"BANNED","cat":"S7 Narcotic (in-competition)","info":"Painkiller banned in-competition since 2024."},
- {"name":"Morphine","status":"BANNED","cat":"S7 Narcotic","info":"Strong painkiller, banned in-competition."},
- {"name":"THC / Cannabis","status":"BANNED","cat":"S8 Cannabinoid (in-competition)","info":"Banned in-competition above 150 ng/mL."},
- {"name":"Propranolol","status":"BANNED*","cat":"P1 Beta-blocker (precision sports)","info":"Banned in shooting/archery/golf. Needs TUE there."},
- {"name":"Meldonium","status":"BANNED","cat":"S4 Hormone/Metabolic","info":"Famous Sharapova case. Banned since 2016."},
- {"name":"Caffeine","status":"ALLOWED","cat":"Not prohibited","info":"Allowed. Was monitored, now free (but don't overdose!)."},
- {"name":"Paracetamol","status":"ALLOWED","cat":"Not prohibited","info":"Normal pain/fever medicine — allowed."},
- {"name":"Vitamin C","status":"ALLOWED","cat":"Supplement","info":"Allowed, but buy batch-tested (Informed-Sport) products."},
- {"name":"Creatine","status":"ALLOWED","cat":"Supplement","info":"Allowed, but contamination risk — buy certified brands only."},
- {"name":"Protein powder (certified)","status":"ALLOWED","cat":"Supplement","info":"Allowed IF batch-tested. Uncertified = risky."},
+MODULES = [
+("📜","The Anti-Doping Code","Foundation","The World Anti-Doping Code harmonizes anti-doping policies, rules and regulations across sports and countries.",["Know your rights and responsibilities","Understand WADA and your national anti-doping organization","Rules apply to athletes and athlete support personnel"]),
+("🚫","The Prohibited List","Know the rules","The WADA Prohibited List is updated regularly. It includes S, M and P categories and specifies when a substance or method is prohibited.",["S categories cover groups of substances","M categories cover prohibited methods","P1 applies to particular sports","Always consult the current official List"]),
+("🩺","Therapeutic Use Exemption","Health first","A TUE may permit use of a prohibited substance or method for a legitimate medical condition when applicable criteria are met.",["Apply through the appropriate anti-doping organization","Keep medical documentation","Do not stop prescribed treatment without medical advice"]),
+("🧪","Testing & Samples","Doping control","Doping control can include urine or blood collection, notification, documentation, sealing and secure transport.",["Understand the sample collection process","Check seals and documentation","A B sample may confirm an A-sample result"]),
+("🥤","Supplements & Risk","Stay informed","Supplements can be contaminated, mislabelled or contain undeclared ingredients. Athletes cannot eliminate every risk.",["Assess whether you need the supplement","Check ingredients and batch details","Keep receipts and packaging","No supplement can be guaranteed risk-free"]),
+("⚖️","Violations & Consequences","Accountability","The Code describes 11 categories of Anti-Doping Rule Violations. Consequences depend on the violation and circumstances.",["Strict liability is a central principle","Intent and circumstances may affect consequences","Know the rules before competition"])
 ]
-
-DOPE_NOPE = [
- {"t":"Drinking normal water before a test is doping","a":False,"why":"Hydration is fine and encouraged."},
- {"t":"Taking your friend's inhaler before final is OK","a":False,"why":"Never share prescriptions. Need own TUE + prescription."},
- {"t":"Protein from a certified (Informed-Sport) brand is safer","a":True,"why":"Batch-tested = lower contamination risk."},
- {"t":"Refusing a dope test has no punishment","a":False,"why":"Refusal = violation, up to 4-year ban."},
- {"t":"EPO increases endurance illegally","a":True,"why":"EPO boosts red blood cells — banned S2."},
- {"t":"Caffeine in normal chai/coffee is banned","a":False,"why":"Caffeine is allowed."},
- {"t":"Diuretics can mask other drugs","a":True,"why":"Yes — S5 banned always."},
- {"t":"TUE lets you use a banned drug for real medical need","a":True,"why":"With NADA/WADA approval, yes."},
- {"t":"Beta-blockers give advantage in shooting","a":True,"why":"Reduce tremor — banned in precision sports."},
- {"t":"Supplements can never be contaminated","a":False,"why":"Studies show contamination is common. Strict liability!"},
- {"t":"B-sample can be requested if A-sample is positive","a":True,"why":"Athlete right to B-sample analysis."},
- {"t":"Cannabis is allowed on match day","a":False,"why":"Banned in-competition above threshold."},
- {"t":"Blood transfusion for performance is legal","a":False,"why":"M1 Prohibited Method — banned."},
- {"t":"Paracetamol for fever is generally allowed","a":True,"why":"Not on prohibited list."},
- {"t":"Coaches can be punished for helping doping","a":True,"why":"Trafficking/complicity = violation for support staff too."},
-]
-
 STORY = [
- {"chapter":"District Trials","hchapter":"जिला ट्रायल्स","text":"You are 17-year-old sprinter Aarav. Coach says 'beta, ye injection le lo, selection pakka'. Teammate offers an unknown powder for instant energy. What do you do?","htext":"तुम 17 साल के धावक आरव हो। कोच कहता है 'बेटा, ये इंजेक्शन ले लो, सिलेक्शन पक्का'। साथी तुरंत एनर्जी के लिए अनजान पाउडर देता है। क्या करोगे?","choices":[
-    {"t":"Refuse & ask what's inside + report to NADA","ht":"इनकार करो, पूछो अंदर क्या है + NADA को बताओ","score":20,"fb":"Brave! You protected your career. +20 Clean Score","hfb":"बहादुर! तुमने करियर बचाया। +20 क्लीन स्कोर"},
-    {"t":"Take it once, 'ek baar se kya hoga'","ht":"एक बार ले लो, 'एक बार से क्या होगा'","score":-20,"fb":"Risky! One dose can fail a test for months. -20","hfb":"खतरनाक! एक खुराक महीनों तक टेस्ट फेल करा सकती है। -20"},
-    {"t":"Ask parents + doctor first","ht":"पहले माता-पिता + डॉक्टर से पूछो","score":10,"fb":"Smart pause. Trusted advice matters. +10","hfb":"समझदारी भरा ठहराव। भरोसेमंद सलाह जरूरी। +10"}]},
- {"chapter":"National Camp","hchapter":"राष्ट्रीय शिविर","text":"You have asthma. Big final in 3 days. Doctor prescribes an inhaler that is on the banned list above certain dose. What now?","htext":"तुम्हें दमा है। 3 दिन में बड़ा फाइनल। डॉक्टर ने इनहेलर लिखा जो एक खुराक से ऊपर प्रतिबंधित सूची में है। अब क्या?","choices":[
-    {"t":"Apply for TUE + check Global DRO with doctor","ht":"TUE आवेदन करो + डॉक्टर से Global DRO चेक कराओ","score":20,"fb":"Perfect process! TUE protects you. +20","hfb":"एकदम सही प्रक्रिया! TUE तुम्हें बचाएगा। +20"},
-    {"t":"Use secretly, nobody will know","ht":"चुपके से ले लो, किसी को पता नहीं चलेगा","score":-20,"fb":"Secret use = violation if tested. -20","hfb":"छिपा उपयोग = टेस्ट में उल्लंघन। -20"},
-    {"t":"Skip medicine & suffer in silence","ht":"दवा छोड़ दो और चुपचाप सहो","score":-10,"fb":"Health first! Never skip care — ask for TUE. -10","hfb":"सेहत पहले! इलाज मत छोड़ो — TUE माँगो। -10"}]},
- {"chapter":"Sponsor Offer","hchapter":"स्पॉन्सर ऑफर","text":"A supplement brand offers ₹50,000 to promote 'SuperBulk Powder' with no lab certificate. Teammates use it. Your move?","htext":"एक सप्लीमेंट ब्रांड बिना लैब सर्टिफिकेट वाले 'सुपरबल्क पाउडर' के प्रचार के लिए ₹50,000 देता है। साथी इसे लेते हैं। तुम्हारी चाल?","choices":[
-    {"t":"Demand batch-test certificate, refuse till then","ht":"बैच-टेस्ट सर्टिफिकेट माँगो, तब तक इनकार","score":20,"fb":"Pro move! No certificate = no deal. +20","hfb":"प्रो चाल! सर्टिफिकेट नहीं = डील नहीं। +20"},
-    {"t":"Promote it, money + fame!","ht":"प्रचार करो, पैसा + शोहरत!","score":-20,"fb":"Contaminated product could end your career. -20","hfb":"मिलावटी उत्पाद करियर खत्म कर सकता है। -20"},
-    {"t":"Take free supply but don't promote","ht":"मुफ्त सप्लाई लो पर प्रचार मत करो","score":-10,"fb":"Still risky — contamination doesn't care about money. -10","hfb":"फिर भी खतरनाक — मिलावट पैसे नहीं देखती। -10"}]},
- {"chapter":"Surprise Test","hchapter":"अचानक टेस्ट","text":"6 AM knock — Doping Control Officer at your hostel. You drank 2L water, feeling nervous. Officer asks for sample. You…","htext":"सुबह 6 बजे दस्तक — हॉस्टल में डोपिंग नियंत्रण अधिकारी। तुम 2 लीटर पानी पी चुके, घबराहट है। अधिकारी नमूना माँगता है। तुम…","choices":[
-    {"t":"Cooperate, show ID, give sample, note medicines","ht":"सहयोग करो, ID दिखाओ, नमूना दो, दवाएँ लिखो","score":20,"fb":"Champion behaviour! Rights + duties both done. +20","hfb":"चैंपियन जैसा व्यवहार! अधिकार + कर्तव्य दोनों। +20"},
-    {"t":"Say 'I'm sleeping, come tomorrow'","ht":"कहो 'सो रहा हूँ, कल आना'","score":-20,"fb":"Refusal/evasion = violation. -20","hfb":"इनकार/बचना = उल्लंघन। -20"},
-    {"t":"Add water to sample to dilute","ht":"नमूने में पानी मिलाकर पतला करो","score":-20,"fb":"Tampering = 4-year ban. Never! -20","hfb":"छेड़छाड़ = 4 साल बैन। कभी नहीं! -20"}]},
- {"chapter":"The Final","hchapter":"फाइनल","text":"Gold-medal race! Rival whispers 'everyone dopes, you can't win clean'. Crowd roars. Last decision…","htext":"गोल्ड मेडल रेस! प्रतिद्वंद्वी फुसफुसाता है 'सब डोप करते हैं, साफ खेलकर नहीं जीत सकते'। भीड़ गरजती है। आखिरी फैसला…","choices":[
-    {"t":"Run clean, trust training + chant Fair Play Oath","ht":"साफ दौड़ो, मेहनत पर भरोसा + फेयर प्ले शपथ","score":20,"fb":"LEGEND! Clean gold shines forever. +20 — Certificate unlocked!","hfb":"लीजेंड! साफ सोना हमेशा चमकता है। +20 — प्रमाणपत्र अनलॉक!"},
-    {"t":"Take rival's 'energy pill' in washroom","ht":"वॉशरूम में प्रतिद्वंद्वी की 'एनर्जी गोली' लो","score":-30,"fb":"One pill destroyed years of training. Career over. -30","hfb":"एक गोली ने सालों की मेहनत मिटाई। करियर खत्म। -30"},
-    {"t":"Report rival's tip to officials after race","ht":"रेस के बाद प्रतिद्वंद्वी की बात अधिकारियों को बताओ","score":15,"fb":"Clean + courageous citizen of sport. +15","hfb":"खेल के साफ व साहसी नागरिक। +15"}]},
+("The Shortcut","A teammate offers an unlabelled performance booster before a major event.","What is your best move?",[("Take it. The event is close.",-20,"Unknown ingredients can put your health and eligibility at risk."),("Decline and check it with a qualified professional.",20,"Good decision: pause, verify and seek qualified advice."),("Take a smaller amount.",-10,"A smaller dose does not make an unknown product safe.")]),
+("The Prescription","Your doctor prescribes a medicine that may contain a prohibited substance.","What should you do?",[("Stop the medicine immediately.",-10,"Never stop prescribed treatment without medical advice."),("Discuss it with your doctor and ask about TUE procedures.",20,"Health comes first; TUE procedures may apply."),("Hide the medicine.",-20,"Concealing medication prevents proper guidance.")]),
+("Doping Control","A doping control officer notifies you for testing after a competition.","How do you respond?",[("Ignore the officer.",-20,"Failure to comply can itself be a rule violation."),("Follow the process and understand your rights.",20,"Correct: cooperate and use the rights available under the rules."),("Ask a friend to provide the sample.",-20,"The notified athlete must provide the sample.")]),
+("The Result","You receive an adverse analytical finding and suspect a supplement was contaminated.","What is responsible?",[("Delete purchase records.",-20,"Preserve relevant evidence and records."),("Seek qualified advice and preserve records.",20,"Responsible: understand the process and keep documentation."),("Make accusations online immediately.",-10,"Get reliable advice before making public claims.")]),
+("The Final","A rival hints that a banned method could give you an advantage.","What defines your legacy?",[("Win at any cost.",-20,"A medal is not worth risking health and integrity."),("Compete clean and encourage teammates.",20,"Champion mindset: protect the integrity of sport."),("Let others decide.",-5,"Seek trusted guidance and stand for clean sport.")])
 ]
 
-# Certification Exam Questions (professional exam)
-CERT_EXAM = [
- {"q":"Which article of WADA Code covers refusal to submit to sample collection?","options":["Article 2.3","Article 2.1","Article 2.5","Article 3.1"],"answer":0},
- {"q":"What is the standard sanction for an intentional Anti-Doping Rule Violation?","options":["2 years","4 years","1 year","6 months"],"answer":1},
- {"q":"What does 'Strict Liability' mean in anti-doping?","options":["Athlete is responsible for whatever is in their body","Only coaches are responsible","Doctors are responsible","No one is responsible"],"answer":0},
- {"q":"How long must a Registered Testing Pool athlete provide whereabouts information?","options":["1 hour daily","24 hours daily","Only on competition days","Once per month"],"answer":0},
- {"q":"Which substance class includes EPO and hGH?","options":["S1","S2","S5","S8"],"answer":1},
- {"q":"Can an athlete request B-sample analysis if A-sample is adverse?","options":["Yes","No","Only for blood samples","Only with coach permission"],"answer":0},
- {"q":"What is the maximum ban for a second intentional ADRV?","options":["4 years","8 years","Lifetime","10 years"],"answer":2},
- {"q":"Which of these is NOT a Prohibited Method?","options":["Blood doping","Gene doping","Tampering","Caffeine use"],"answer":3},
- {"q":"TUE applications must be submitted to whom?","options":["NADA or International Federation","WADA directly","Local gym","Friends"],"answer":0},
- {"q":"Which class includes Beta-blockers banned in precision sports?","options":["S6","P1","M1","S9"],"answer":1},
-]
-
-# ---------------- ROUTES ----------------
 @app.route("/")
-def home(): return render_template("index.html")
+def home():
+    return render_template("index.html", modules=MODULES)
 
 @app.route("/learn")
-def learn(): return render_template("learn.html")
-
-@app.route("/quiz")
-def quiz(): return render_template("quiz.html")
-
-@app.route("/dope-nope")
-def dope_nope(): return render_template("dope_nope.html")
-
-@app.route("/memory")
-def memory(): return render_template("memory.html")
-
-@app.route("/story")
-def story(): return render_template("story.html")
-
-@app.route("/checker")
-def checker(): return render_template("checker.html")
-
-@app.route("/scanner")
-def scanner(): return render_template("scanner.html")
-
-@app.route("/badges")
-def badges(): return render_template("badges.html")
-
-@app.route("/dashboard")
-def dashboard(): return render_template("dashboard.html", leaders=top_players())
-
-@app.route("/athlete-profile")
-def athlete_profile():
-    name = request.args.get("name", session.get("athlete_name", "Guest"))
-    session["athlete_name"] = name
-    # Get user stats
-    try:
-        con = sqlite3.connect(DB)
-        cur = con.cursor()
-        cur.execute("SELECT COUNT(*), SUM(xp), MAX(created) FROM scores WHERE player=?", (name,))
-        row = cur.fetchone()
-        total_games = row[0] or 0
-        total_xp = row[1] or 0
-        last_played = row[2] or "Never"
-        cur.execute("SELECT game, SUM(xp) FROM scores WHERE player=? GROUP BY game ORDER BY SUM(xp) DESC LIMIT 5", (name,))
-        game_stats = [{"game": r[0], "xp": r[1]} for r in cur.fetchall()]
-        con.close()
-    except Exception:
-        total_games, total_xp, last_played = 0, 0, "Never"
-        game_stats = []
-    return render_template("athlete_profile.html", name=name, total_games=total_games, total_xp=total_xp, last_played=last_played, game_stats=game_stats)
+def learn():
+    return render_template("learn.html",modules=MODULES)
 
 @app.route("/certificate")
-def certificate(): return render_template("certificate.html")
+def certificate():
+    return render_template("certificate.html",date=datetime.now().strftime("%d %B %Y"))
 
-@app.route("/certification-exam")
-def certification_exam(): return render_template("certification_exam.html")
+@app.route("/api/quiz")
+def api_quiz():
+    q=QUIZ[:]; random.shuffle(q)
+    return jsonify([{"q":x[0],"o":x[1],"a":x[2],"e":x[3]} for x in q])
 
-@app.route("/live")
-def live(): return render_template("live.html")
-
-@app.route("/champion")
-def champion(): return render_template("champion.html")
-
-# ---- NEW PROFESSIONAL FEATURES ----
-
-@app.route("/chatbot")
-def chatbot(): return render_template("chatbot.html")
-
-@app.route("/report-doping")
-def report_doping(): return render_template("report_doping.html")
-
-@app.route("/tue-application")
-def tue_application(): return render_template("tue_application.html")
-
-@app.route("/whereabouts")
-def whereabouts(): return render_template("whereabouts.html")
-
-# ---- API ENDPOINTS ----
-@app.route("/api/live-news")
-def api_live():
-    items, is_live, updated = get_live_news()
-    return jsonify({"items":items, "live":is_live, "updated":updated})
-
-@app.route("/api/list-status")
-def api_list(): return jsonify(LIST_STATUS)
-
-@app.route("/api/questions")
-def api_q(): return jsonify(QUIZ)
-
-@app.route("/api/dope-nope")
-def api_dn(): return jsonify(DOPE_NOPE)
-
-@app.route("/api/story")
-def api_story(): return jsonify(STORY)
-
-@app.route("/api/cert-exam")
-def api_cert_exam(): return jsonify(CERT_EXAM)
-
-@app.route("/api/substances")
-def api_sub():
-    q = request.args.get("q","").lower()
-    if not q: return jsonify(SUBSTANCES)
-    return jsonify([s for s in SUBSTANCES if q in s["name"].lower() or q in s["cat"].lower()])
-
-@app.route("/api/score", methods=["POST"])
-def api_score():
-    d = request.json or {}
-    player = (d.get("player") or "Guest").strip()[:30] or "Guest"
-    game = d.get("game","quiz")[:30]
-    xp = int(d.get("xp",0))
-    if xp < -100 or xp > 500: return jsonify({"ok":False}), 400
-    add_score(player, game, xp)
-    return jsonify({"ok":True, "total": sum(r["xp"] for r in top_players() if r["player"]==player)})
-
-@app.route("/api/leaderboard")
-def api_lb(): return jsonify(top_players())
-
-# ---- BADGES & STREAK ----
-BADGES = [
- {"id":"first","xp":20,"t":"🎯 First Steps","d":"Earn your first 20 XP"},
- {"id":"half","xp":120,"t":"⚡ Challenger","d":"Reach 120 XP — challenger status"},
- {"id":"pro","xp":250,"t":"🔥 Pro Athlete","d":"250 XP — you're going pro"},
- {"id":"legend","xp":400,"t":"🏆 Clean Legend","d":"400 XP — ultimate clean athlete"},
- {"id":"streak3","xp":0,"t":"🔥 3-Day Streak","d":"Played 3 days in a row"},
- {"id":"streak7","xp":0,"t":"⚡ 7-Day Streak","d":"Week-long dedication"},
- {"id":"quiz100","xp":0,"t":"🎯 Quiz Master","d":"Scored 100+ XP in Quiz Quest"},
- {"id":"certified","xp":0,"t":"📜 Certified","d":"Passed Anti-Doping Certification Exam"},
- {"id":"reporter","xp":0,"t":"🚨 Whistleblower","d":"Submitted a doping report"},
- {"id":"tue","xp":0,"t":"💊 TUE Aware","d":"Completed TUE application simulation"},
-]
-
-@app.route("/api/badges")
-def api_badges(): return jsonify(BADGES)
-
-@app.route("/api/streak", methods=["POST"])
-def api_streak():
-    d = request.json or {}
-    streak = int(d.get("streak", 0))
-    return jsonify({"ok": True, "streak": streak, "bonus": min(streak * 5, 50)})
-
-# ---- SUPPLEMENT SCANNER ----
-@app.route("/api/scan-simulate", methods=["POST"])
-def api_scan_simulate():
-    import random, time
-    sub = random.choice(SUBSTANCES)
-    return jsonify({
-        "substance": sub,
-        "scan_time": time.strftime("%H:%M:%S"),
-        "note": "Camera capture simulated analysis. Verify with Global DRO for real products."
-    })
-
-# ---- CHATBOT ----
-CHAT_RESPONSES = {
- "wada": "WADA (World Anti-Doping Agency) is the international body that creates the World Anti-Doping Code and Prohibited List.",
- "tue": "TUE = Therapeutic Use Exemption. It allows athletes to use a banned medicine for genuine medical reasons with NADA/WADA approval.",
- "test": "During doping control, you must show ID, give sample under observation, and can request B-sample analysis. Never refuse.",
- "supplement": "Strict liability applies — you are responsible for everything in your body. Only use batch-tested (Informed-Sport) supplements.",
- "ban": "First intentional ADRV = up to 4 years ban. Second offence can be lifetime ban.",
- "whereabouts": "RTP athletes must provide 1-hour daily testing slot. Missing 3 tests = violation.",
- "hello": "Hello! I'm DopeGuard, your anti-doping coach. Ask me about WADA rules, TUE, testing, supplements, or bans.",
- "hi": "Hello! I'm DopeGuard, your anti-doping coach. Ask me about WADA rules, TUE, testing, supplements, or bans.",
- "help": "I can help with: WADA rules, TUE applications, doping control process, supplement safety, ban durations, whereabouts rules.",
-}
-
-@app.route("/api/chat", methods=["POST"])
-def api_chat():
-    d = request.json or {}
-    msg = (d.get("message") or "").lower().strip()
-    reply = "I'm not sure about that. Try asking about WADA, TUE, testing, supplements, bans, or whereabouts."
-    for key, val in CHAT_RESPONSES.items():
-        if key in msg:
-            reply = val
-            break
-    return jsonify({"reply": reply, "timestamp": time.strftime("%H:%M")})
-
-# ---- REPORT DOPING ----
-@app.route("/api/report", methods=["POST"])
-def api_report():
-    d = request.json or {}
-    report_id = "FP-" + str(uuid.uuid4())[:8].upper()
-    report = {
-        "report_id": report_id,
-        "sport": d.get("sport",""),
-        "level": d.get("level",""),
-        "description": d.get("description",""),
-        "evidence": d.get("evidence",""),
-        "anonymous": int(d.get("anonymous",1)),
-        "status": "submitted"
+@app.route("/api/check",methods=["POST"])
+def api_check():
+    data=request.get_json(silent=True) or {}
+    term=str(data.get("substance","")).strip()
+    examples={
+      "testosterone":("Prohibited","S1 · Anabolic agents","Prohibited at all times in the WADA framework."),
+      "epo":("Prohibited","S2 · Peptide hormones","Prohibited at all times. Educational example."),
+      "caffeine":("Generally permitted","Monitoring Program","Monitored, not prohibited in the current framework; verify current rules."),
+      "creatine":("Not listed as prohibited","Supplement risk","Creatine itself is not listed as prohibited, but supplement contamination remains possible."),
+      "salbutamol":("Conditional rules apply","S3 · Beta-2 agonists","Some inhaled use may be permitted within specified limits; other use may require a TUE."),
+      "morphine":("Prohibited in-competition","S7 · Narcotics","Prohibited in-competition; medical and TUE rules may be relevant."),
+      "glucocorticoid":("Route and timing dependent","S9 · Glucocorticoids","Certain routes are prohibited in-competition. Verify the current List.")
     }
-    try:
-        con = sqlite3.connect(DB)
-        cur = con.cursor()
-        cur.execute("INSERT INTO reports(report_id,sport,level,description,evidence,anonymous,status) VALUES(?,?,?,?,?,?,?)",
-            (report["report_id"], report["sport"], report["level"], report["description"], report["evidence"], report["anonymous"], report["status"]))
-        con.commit(); con.close()
-    except Exception:
-        _MEM_REPORTS.append(report)
-    return jsonify({"ok": True, "report_id": report_id, "message": "Report submitted anonymously. NADA will review it."})
+    for k,v in examples.items():
+        if k in term.lower():
+            return jsonify({"name":term,"status":v[0],"category":v[1],"detail":v[2],"found":True})
+    return jsonify({"name":term,"status":"Not verified","category":"Check official sources","detail":"This demo has no live medicine database. Check the current WADA Prohibited List and ask your anti-doping organization and healthcare professional.","found":False})
 
-# ---- TUE APPLICATION ----
-@app.route("/api/tue-apply", methods=["POST"])
-def api_tue_apply():
-    d = request.json or {}
-    app_id = "TUE-" + str(uuid.uuid4())[:8].upper()
-    app_data = {
-        "app_id": app_id,
-        "athlete_name": d.get("athlete_name",""),
-        "sport": d.get("sport",""),
-        "medicine": d.get("medicine",""),
-        "condition": d.get("condition",""),
-        "doctor": d.get("doctor",""),
-        "status": "pending"
-    }
-    try:
-        con = sqlite3.connect(DB)
-        cur = con.cursor()
-        cur.execute("INSERT INTO tue_apps(app_id,athlete_name,sport,medicine,condition,doctor,status) VALUES(?,?,?,?,?,?,?)",
-            (app_data["app_id"], app_data["athlete_name"], app_data["sport"], app_data["medicine"], app_data["condition"], app_data["doctor"], app_data["status"]))
-        con.commit(); con.close()
-    except Exception:
-        _MEM_TUE.append(app_data)
-    return jsonify({"ok": True, "app_id": app_id, "message": "TUE application submitted. NADA will review within 21 days."})
+@app.route("/api/story",methods=["GET"])
+def api_story():
+    return jsonify([{"title":x[0],"scene":x[1],"question":x[2],"choices":[{"label":c[0],"score":c[1],"feedback":c[2]} for c in x[3]]} for x in STORY])
 
-# ---- WHEREABOUTS ----
-@app.route("/api/whereabouts", methods=["POST"])
-def api_whereabouts():
-    d = request.json or {}
-    today = datetime.date.today().isoformat()
-    wh = {
-        "athlete_name": d.get("athlete_name",""),
-        "date": d.get("date", today),
-        "slot": d.get("slot",""),
-        "location": d.get("location",""),
-        "sport": d.get("sport","")
-    }
-    try:
-        con = sqlite3.connect(DB)
-        cur = con.cursor()
-        cur.execute("INSERT INTO whereabouts(athlete_name,date,slot,location,sport) VALUES(?,?,?,?,?)",
-            (wh["athlete_name"], wh["date"], wh["slot"], wh["location"], wh["sport"]))
-        con.commit(); con.close()
-    except Exception:
-        _MEM_WHEREABOUTS.append(wh)
-    return jsonify({"ok": True, "message": "Whereabouts submitted for " + wh["date"] + " — " + wh["slot"]})
+@app.route("/manifest.json")
+def manifest(): return app.send_static_file("manifest.json")
 
-# ---- CERTIFICATION ----
-@app.route("/api/certify", methods=["POST"])
-def api_certify():
-    d = request.json or {}
-    name = d.get("athlete_name","Guest")
-    score = int(d.get("score",0))
-    passed = 1 if score >= 70 else 0
-    cert_id = "FP-CERT-" + str(uuid.uuid4())[:8].upper()
-    try:
-        con = sqlite3.connect(DB)
-        cur = con.cursor()
-        cur.execute("INSERT INTO certifications(athlete_name,score,passed,cert_id) VALUES(?,?,?,?)",
-            (name, score, passed, cert_id))
-        con.commit(); con.close()
-    except Exception:
-        pass
-    add_score(name, "certification", 100 if passed else 0)
-    return jsonify({"ok": True, "passed": passed, "cert_id": cert_id, "score": score})
-
-if __name__ == "__main__":
-    print(" * FairPlay Arena running on http://127.0.0.1:5000")
-    app.run(host="0.0.0.0", port=5000, debug=not ON_VERCEL)
+if __name__=="__main__":
+    app.run(host="0.0.0.0",port=int(os.environ.get("PORT",5000)),debug=True)
