@@ -1,6 +1,7 @@
 /* ============================================================
-   FairPlay Arena — MODERN ATTRACTIVE DESIGN
+   FairPlay Arena — MODERN ATTRACTIVE DESIGN v2.1
    Optimized for mobile + laptops, high contrast, smooth animations
+   Last deployed: ` + new Date().toLocaleDateString() + `
    ============================================================ */
 
 :root {
