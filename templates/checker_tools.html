@@ -1,0 +1,36 @@
+<section class="section wrap" id="athlete-tools">
+  <div class="heading">
+    <div><label>PRIVATE ATHLETE TOOLS</label><h2>Scan & review <em>on this device.</em></h2></div>
+    <small>No camera frames or report files are uploaded.</small>
+  </div>
+  <div class="tool-grid">
+    <article class="tool-card">
+      <label>CAMERA SUBSTANCE SCANNER</label>
+      <h3>Scan a product label</h3>
+      <p>Use your camera to read label text or scan a barcode. Review the result, then choose whether to check it.</p>
+      <div class="tool-actions">
+        <button class="btn primary" id="startCamera" type="button">Start camera</button>
+        <button class="btn ghost" id="stopCamera" type="button" disabled>Stop camera</button>
+      </div>
+      <video id="scannerVideo" class="scanner-video hidden" autoplay muted playsinline aria-label="Camera preview"></video>
+      <canvas id="scannerCanvas" class="hidden"></canvas>
+      <div class="tool-actions">
+        <button class="btn ghost" id="readLabel" type="button" disabled>Read label text</button>
+        <button class="btn ghost" id="scanBarcode" type="button" disabled>Scan barcode</button>
+      </div>
+      <p id="scannerStatus" class="tool-status" role="status" aria-live="polite">Camera access starts only when you tap Start camera.</p>
+      <small class="disclaimer">Barcode scanning reads the code only; this demo has no product database. A code is not a safety check.</small>
+    </article>
+    <article class="tool-card">
+      <label>MEDICAL REPORT READER</label>
+      <h3>Review printed lab ranges</h3>
+      <p>Select a PDF or image report. It is read in your browser and is not saved or sent to the substance checker.</p>
+      <label class="file-label" for="reportFile">Choose a PDF or image (up to 10 MB)</label>
+      <input id="reportFile" class="file-input" type="file" accept="application/pdf,image/png,image/jpeg,image/webp">
+      <p id="reportStatus" class="tool-status" role="status" aria-live="polite">Your file is processed in this tab, never uploaded or stored.</p>
+      <div id="reportResults" class="report-results hidden" aria-live="polite"></div>
+      <button id="clearReport" class="btn ghost hidden" type="button">Clear report</button>
+      <small class="disclaimer">Informational only, not a diagnosis or treatment advice. This does not determine fitness to compete. OCR may miss or misread values; confirm with your clinician or lab.</small>
+    </article>
+  </div>
+</section>

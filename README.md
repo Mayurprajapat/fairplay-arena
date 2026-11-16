@@ -10,6 +10,8 @@ A responsive, mobile-friendly learning website that teaches clean-sport and anti
 - Memory Match: pair terminology with meanings
 - Road to Gold: five-chapter clean-sport decision story
 - Substance Checker: limited educational sample lookup (not a live drug database)
+- Camera label OCR and barcode capture on supported HTTPS browsers
+- Private medical-report reader for PDFs and images; compares clearly read values only with ranges printed on the report
 - Learn Lab: six learning modules
 - XP, levels, badges and a per-browser leaderboard (saved in browser storage)
 - Printable Fair Play certificate after 100 XP
@@ -35,6 +37,13 @@ python app.py
 4. Open **http://127.0.0.1:5000**.
 
 Progress is saved in this browser's local storage. It is not shared across browsers or devices and does not require a database.
+
+## Camera and report privacy
+Camera access begins only after the visitor taps **Start camera** and stops when they stop it or leave the page. Label OCR, barcode reading, PDF text extraction and report OCR run in the browser. Report files and extracted report text are not uploaded, sent to `/api/check`, or stored. The OCR/PDF libraries and English OCR language data are loaded from public CDNs when first needed, but the report itself stays in the browser.
+
+The report reader only compares clearly extracted numeric values against a reference range printed alongside them. It is informational, not a diagnosis, treatment recommendation, or decision about sport eligibility. OCR can be wrong or incomplete; an unreadable report must not be treated as normal. Confirm results with a qualified healthcare professional. Files are limited to 10 MB and PDFs to the first three pages.
+
+Barcode scanning uses the browser's `BarcodeDetector` when available. Browser support varies; label OCR and manual entry remain available as alternatives. Camera access generally requires HTTPS or localhost.
 
 ## Project structure
 ```text
